@@ -411,7 +411,7 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
 		uint32_t sop; // 0b00011111 get the second operand
 		uint32_t localflag = (id - VM_LOAD) & 1; // odd is local
-		uint32_t datasize = rep << (2 - ((id - VM_LOAD) >> 1) & 3); // rep * 4/2/1
+		uint32_t datasize = (rep + 1) << (2 - ((id - VM_LOAD) >> 1) & 3); // (rep + 1) * 4/2/1
 		uint8_t* pData;
 
 		// repeat check

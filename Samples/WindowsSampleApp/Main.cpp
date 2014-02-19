@@ -84,6 +84,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	uint32_t file_size = 0;
 	struct VirtualMachine VM;
 	uint8_t* pCode = 0;
+	uint32_t SC = 0;
 
 	fp = fopen("test.bin", "rb");
 	if(fp == 0){
@@ -105,15 +106,19 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	LARGE_INTEGER start, end, freq;
 
 	QueryPerformanceCounter(&start);
-	RunVM(&VM, 500);
+	SC = RunVM(&VM, 500000);
 
 	QueryPerformanceCounter(&end);
 	QueryPerformanceFrequency(&freq);
 
 	char temp[32] = "";
-
-	sprintf(temp, "Time of running: %.2f ms\n", 1000.0f * (float)(end.QuadPart - start.QuadPart) / (float)freq.QuadPart);
-	MessageBox(0, temp, "Info", MB_OK);
+	if(SC != VM_COMPLETE){
+		sprintf(temp, "Error code: %d", SC);
+		MessageBox(0, temp, "Error", MB_OK);
+	}else{
+		sprintf(temp, "Time of running: %.2f ms", 1000.0f * (float)(end.QuadPart - start.QuadPart) / (float)freq.QuadPart);
+		MessageBox(0, temp, "Info", MB_OK);
+	}
 
 	DestroyVM(&VM);
 

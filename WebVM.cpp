@@ -47,7 +47,8 @@ uint32_t RunVM(struct VirtualMachine* pVM, uint32_t RunCount)
 				// Error here
 				return -1;
 			}
-			if(RC = Execute32Bit(pVM, *(uint32_t*)&(pVM->pCode[PC])) != VM_OK){
+			RC = Execute32Bit(pVM, *(uint32_t*)&(pVM->pCode[PC]));
+			if(RC != VM_OK){
 				return RC;
 			}
 			pVM->Registers.PC = pVM->Registers.PC + 4;
