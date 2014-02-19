@@ -38,3 +38,42 @@ uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
 
 	return VM_OK;
 }
+
+uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
+{
+	uint32_t mem_size = pVM->Registers.r[0];
+
+	if(mem_size == 0){
+		// return current size
+		pVM->Registers.r[0] = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
+		return VM_OK;
+	}
+	if(mem_size <= MAX_ALLOWED_LOCAL_MEMORY){
+		pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)realloc(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory, mem_size);
+		pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = mem_size;
+	}
+	pVM->Registers.r[0] = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
+
+	return VM_OK;
+}
+
+uint32_t SysRegisterCallback(struct VirtualMachine* pVM)
+{
+
+
+	return VM_OK;
+}
+
+uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM)
+{
+
+
+	return VM_OK;
+}
+
+uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM)
+{
+	pVM->DispatchFlag = true;
+
+	return VM_DISPATCH;
+}

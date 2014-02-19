@@ -152,6 +152,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ExternalCallbacks.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SysCall.cpp"
 				>
 			</File>
@@ -175,10 +179,6 @@
 			</File>
 			<File
 				RelativePath=".\SysCall.h"
-				>
-			</File>
-			<File
-				RelativePath=".\VMAsm\SysCalls.h"
 				>
 			</File>
 			<File

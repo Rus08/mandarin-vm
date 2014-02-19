@@ -26,6 +26,7 @@ uint32_t CreateVM(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	memset(pVM->Registers.r, 0, sizeof(pVM->Registers.r));
 	pVM->Registers.PC = 0;
 	pVM->Registers.FLAGS = 0;
+	pVM->DispatchFlag = false;
 
 	return 0;
 }
