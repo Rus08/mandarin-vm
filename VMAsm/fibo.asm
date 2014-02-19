@@ -1,5 +1,5 @@
 start:
-	ldi	r1, 16384
+	ldi	r1, 8192
 	add	r0, r1, 0
 	syscall	SetGlobalMemory
 	cmp	r0, r1

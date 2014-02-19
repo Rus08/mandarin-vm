@@ -6,7 +6,7 @@
 HINSTANCE hInstance;
 HWND hwndText;
 HFONT hNewf1;
-
+struct VirtualMachine VM;
 
 LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -21,6 +21,7 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
 		case WM_KEYDOWN:
 		{
+			VMOnKeyDown(&VM, wParam);
 			switch(wParam)
 			{
 			case VK_ESCAPE:
@@ -33,6 +34,11 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 			}
 		}
+		case WM_KEYUP:
+		{
+			VMOnKeyUp(&VM, wParam);
+		}
+		break;
         case WM_PAINT:
         {
            
@@ -82,9 +88,9 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	FILE* fp = 0;
 	uint32_t file_size = 0;
-	struct VirtualMachine VM;
 	uint8_t* pCode = 0;
 	uint32_t SC = 0;
+	LARGE_INTEGER RunTime = { 0 }, start, end, freq;
 
 	fp = fopen("test.bin", "rb");
 	if(fp == 0){
@@ -103,28 +109,18 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CreateVM(&VM, pCode, file_size, NULL, 0, NULL, 0, NULL, 0);
 
-	LARGE_INTEGER start, end, freq;
-
-	QueryPerformanceCounter(&start);
-	SC = RunVM(&VM, 500000);
-
-	QueryPerformanceCounter(&end);
-	QueryPerformanceFrequency(&freq);
-
-	char temp[32] = "";
-	if(SC != VM_COMPLETE){
-		sprintf(temp, "Error code: %d", SC);
-		MessageBox(0, temp, "Error", MB_OK);
-	}else{
-		sprintf(temp, "Time of running: %.2f ms", 1000.0f * (float)(end.QuadPart - start.QuadPart) / (float)freq.QuadPart);
-		MessageBox(0, temp, "Info", MB_OK);
-	}
-
-	DestroyVM(&VM);
-
 	MSG msg = { 0 };
     while(msg.message!=WM_QUIT)
 	{
+		QueryPerformanceCounter(&start);
+		SC = RunVM(&VM, 50000);
+
+		QueryPerformanceCounter(&end);
+		RunTime.QuadPart = RunTime.QuadPart + (end.QuadPart - start.QuadPart);
+		if(SC != VM_DISPATCH && SC != VM_OK){
+			// error or vm complete
+			break;
+		}
 		if(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
 			if(GetMessage(&msg, NULL, 0, 0))
@@ -136,6 +132,18 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			// do something here
 		}
 	}
+	QueryPerformanceFrequency(&freq);
+
+	char temp[32] = "";
+	if(SC != VM_COMPLETE){
+		sprintf(temp, "Error code: %d", SC);
+		MessageBox(0, temp, "Error", MB_OK);
+	}else{
+		sprintf(temp, "Time of running: %.2f ms", 1000.0f * (float)RunTime.QuadPart / (float)freq.QuadPart);
+		MessageBox(0, temp, "Info", MB_OK);
+	}
+
+	DestroyVM(&VM);
 
     return 0;
 }
