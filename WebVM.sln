@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebVM", "WebVM.vcproj", "{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VMAsm", "VMAsm\VMAsm.vcproj", "{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleApp", "Samples\WindowsSampleApp\SampleApp.vcproj", "{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}.Debug|Win32.Build.0 = Debug|Win32
+		{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}.Release|Win32.ActiveCfg = Release|Win32
+		{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}.Release|Win32.Build.0 = Release|Win32
+		{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}.Debug|Win32.Build.0 = Debug|Win32
+		{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}.Release|Win32.ActiveCfg = Release|Win32
+		{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}.Release|Win32.Build.0 = Release|Win32
+		{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}.Debug|Win32.Build.0 = Debug|Win32
+		{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}.Release|Win32.ActiveCfg = Release|Win32
+		{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
