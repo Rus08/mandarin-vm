@@ -28,13 +28,15 @@ enum VM_CALLBACKS{
 	VM_ONKEYUP,
 };
 
+struct _LocalMemory{
+	uint8_t* pMemory;
+	uint32_t MemorySize;
+};
+
 struct Call{
 	uint32_t regPC; // Program Counter
 	uint32_t regFLAGS;
-	struct LocalMemory{
-		uint8_t* pMemory;
-		uint32_t MemorySize;
-	}LocalMemory;
+	struct _LocalMemory LocalMemory;
 };
 
 enum FLAGS{
@@ -73,3 +75,4 @@ uint32_t VMDestroy(struct VirtualMachine* pVM);
 
 uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key);
 uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key);
+

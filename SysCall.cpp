@@ -103,14 +103,15 @@ uint32_t SysDebugOutput(struct VirtualMachine* pVM)
 	if((uint64_t)(addr + size) > pVM->GlobalMemorySize){
 		return VM_DATA_ACCESS_VIOLATION;
 	}
-	pTemp = (uint8_t*)malloc(size + 1);
+	pTemp = (uint8_t*)malloc(size + 2);
 	if(pTemp == NULL){
 		return VM_NOT_ENOUGH_MEMORY;
 	}
 	strncpy((char*)pTemp, (char*)(pVM->pGlobalMemory + addr), size);
-	pTemp[size] = 0;
+	pTemp[size] = '\n';
+	pTemp[size + 1] = 0;
 #ifdef _WINDOWS
-	OutputDebugString(pTemp);
+	OutputDebugStringA((char*)pTemp);
 #endif
 
 	return VM_OK;

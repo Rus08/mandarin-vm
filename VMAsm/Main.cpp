@@ -126,7 +126,7 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 	if(IsNumber(Op) == true){
 		// operand is number
 		op = atoi(Op);
-		/*if(*pLastopintflag != -1){
+		/*if(*pLastopintflag != 0){
 			printf("Error.Invalid operand at line %d!\n", StringNum);
 			return -1;
 		}*/
@@ -137,8 +137,14 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 		}
 	}else{
 		if(Op[0] != 'r'){
-			// operand is address label
-			if(SysCall == false){
+			// operand is address label or char
+			if(Op[0] == '\''){
+				// operand is a char
+				if(strlen(Op) != 3 || Op[2] != '\''){
+					return -1;
+				}
+				op = (int)Op[1];
+			}else if(SysCall == false){
 				op = GetLabelAddr(Op);
 				if(op == -1){
 					printf("Error. Label %s at line %d not found!\n", Op, StringNum);
@@ -151,7 +157,7 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 					return -1;
 				}
 			}
-			if(*pLastopintflag != -1){
+			if(*pLastopintflag != 0){
 				printf("Error.Invalid operand at line %d!\n", StringNum);
 				return -1;
 			}
@@ -169,7 +175,6 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 				printf("Error. Register number is too high at line %d!\n", StringNum);
 				return -1;
 			}
-			*pLastopintflag = 0;
 		}
 	}
 
@@ -181,7 +186,7 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Label* pLabel
 {
 	struct String* pString = &pStrings[StringNum];
 	unsigned int instr = 0;
-	int lastopintflag = -1;
+	int lastopintflag = 0;
 	bool syscallflag = false;
 	int op[3];
 

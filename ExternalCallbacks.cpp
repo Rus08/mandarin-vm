@@ -39,7 +39,7 @@ uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key)
 		return VM_NOTINTIME_CALLBACK_CALL;
 	}
 
-	if(pVM->Callbacks[VM_ONKEYDOWN] == 0){
+	if(pVM->Callbacks[VM_ONKEYUP] == 0){
 		return VM_CALLBACK_NOT_REGISTERED;
 	}
 	if(pVM->CurrentStackTop == MAX_ALLOWED_STACK_SIZE){
@@ -58,7 +58,7 @@ uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key)
 	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = LOCALMEMORY_START_SIZE;
 
 	*(uint32_t*)&pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory[0] = Key;
-	pVM->Registers.PC = pVM->Callbacks[VM_ONKEYDOWN];
+	pVM->Registers.PC = pVM->Callbacks[VM_ONKEYUP];
 
 	return VM_OK;
 }

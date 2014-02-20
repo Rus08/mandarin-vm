@@ -10,4 +10,5 @@ struct SysCall SysCalls[] = {
 	"RegisterCallback",
 	"UnRegisterCallback",
 	"DispatchCallbacks",
+	"DebugOutput",
 };

@@ -8,6 +8,30 @@ HWND hwndText;
 HFONT hNewf1;
 struct VirtualMachine VM;
 
+#ifdef _DEBUG
+char* ErrorResolveTable[] = {
+	"VM_OK",
+	"VM_COMPLETE",
+	"VM_DISPATCH",
+	"VM_INVALID_REPEAT_MODIFIER",
+	"VM_INVALID_OPCODE",
+	"VM_CODE_ACCESS_VIOLATION",
+	"VM_DATA_ACCESS_VIOLATION",
+	"VM_DIVIDE_BY_ZERO",
+	"VM_INVALID_SYSCALL",
+	"VM_CALLBACK_NOT_REGISTERED",
+	"VM_INVALID_CALLBACK",
+	"VM_NOTINTIME_CALLBACK_CALL",
+	"VM_STACK_IS_TOO_BIG",
+	"VM_NOT_ENOUGH_MEMORY",
+};
+
+char* GetErrorText(uint32_t id){
+	return ErrorResolveTable[id];
+}
+
+#endif
+
 LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -136,7 +160,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	char temp[32] = "";
 	if(SC != VM_COMPLETE){
-		sprintf(temp, "Error code: %d", SC);
+		sprintf(temp, "Error code: %s", GetErrorText(SC));
 		MessageBox(0, temp, "Error", MB_OK);
 	}else{
 		sprintf(temp, "Time of running: %.2f ms", 1000.0f * (float)RunTime.QuadPart / (float)freq.QuadPart);
