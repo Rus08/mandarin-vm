@@ -319,13 +319,16 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		switch(id){
 			case VM_CALL:
 			{
+				if(pVM->CurrentStackTop == MAX_ALLOWED_STACK_SIZE){
+					return VM_STACK_IS_TOO_BIG;
+				}
 				if(pVM->CurrentStackTop == pVM->CallStackSize){
 					pVM->pCallStack = (Call*)realloc(pVM->pCallStack, pVM->CallStackSize + 32);
 					pVM->CallStackSize = pVM->CallStackSize + 32;
 				}
 
 				pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
-				pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC;
+				pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4; // next instruction after call
 				pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;
 				pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
 				pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = LOCALMEMORY_START_SIZE;

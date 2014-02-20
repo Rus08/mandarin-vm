@@ -59,14 +59,23 @@ uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
 
 uint32_t SysRegisterCallback(struct VirtualMachine* pVM)
 {
-
+	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
+		return VM_INVALID_CALLBACK;
+	}
+	if((pVM->Registers.r[1] + 4) > pVM->CodeSize){
+		return VM_CODE_ACCESS_VIOLATION;
+	}
+	pVM->Callbacks[pVM->Registers.r[0]] = pVM->Registers.r[1];
 
 	return VM_OK;
 }
 
 uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM)
 {
-
+	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
+		return VM_INVALID_CALLBACK;
+	}
+	pVM->Callbacks[pVM->Registers.r[0]] = 0;
 
 	return VM_OK;
 }

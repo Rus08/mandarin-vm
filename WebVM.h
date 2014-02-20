@@ -4,6 +4,7 @@
 #define LOCALMEMORY_START_SIZE 128
 #define MAX_ALLOWED_GLOBAL_MEMORY 65536
 #define MAX_ALLOWED_LOCAL_MEMORY 4096
+#define MAX_ALLOWED_STACK_SIZE 128
 
 enum VM_STATUS_CODE{
 	VM_OK,
@@ -14,7 +15,15 @@ enum VM_STATUS_CODE{
 	VM_CODE_ACCESS_VIOLATION,
 	VM_DATA_ACCESS_VIOLATION,
 	VM_INVALID_SYSCALL,
+	VM_CALLBACK_NOT_REGISTERED,
+	VM_INVALID_CALLBACK,
 	VM_NOTINTIME_CALLBACK_CALL,
+	VM_STACK_IS_TOO_BIG,
+};
+
+enum VM_CALLBACKS{
+	VM_ONKEYDOWN,
+	VM_ONKEYUP,
 };
 
 struct Call{
@@ -52,6 +61,7 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
+	uint32_t Callbacks[2];
 };
 
 uint32_t CreateVM(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
