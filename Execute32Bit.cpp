@@ -104,9 +104,15 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				// third operand is register
 					top = top & 31;
 					for(uint32_t i = 0; i <= rep; i++){
+						if(pVM->Registers.r[top + i] == 0){
+							return VM_DIVIDE_BY_ZERO;
+						}
 						pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] % pVM->Registers.r[top + i];
 					}
 				}else{
+					if(top == 0){
+						return VM_DIVIDE_BY_ZERO;
+					}
 					for(uint32_t i = 0; i <= rep; i++){
 						pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] % top;
 					}
@@ -434,7 +440,7 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			sop = (Instruction >> 18) & 16383;
 		}
 		if(localflag == 0){
-			if((sop + datasize) > pVM->GlobalMemorySize){
+			if((uint64_t)(sop + datasize) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			pData = pVM->pGlobalMemory + sop;

@@ -25,8 +25,9 @@ uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
 
 	if(mem_size == 0){
 		// free
-		if(pVM->pGlobalMemory != NULL){
+		if(pVM->GlobalMemorySize > 0){
 			free(pVM->pGlobalMemory);
+			pVM->pGlobalMemory = 0;
 			pVM->GlobalMemorySize = 0;
 		}
 		pVM->Registers.r[0] = 0;
@@ -36,6 +37,8 @@ uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
 		pVM->pGlobalMemory = (uint8_t*)realloc(pVM->pGlobalMemory, mem_size);
 		if(pVM->pGlobalMemory != NULL){
 			pVM->GlobalMemorySize = mem_size;
+		}else{
+			return VM_NOT_ENOUGH_MEMORY;
 		}
 	}
 	pVM->Registers.r[0] = pVM->GlobalMemorySize;
