@@ -14,11 +14,13 @@ enum VM_STATUS_CODE{
 	VM_INVALID_OPCODE,
 	VM_CODE_ACCESS_VIOLATION,
 	VM_DATA_ACCESS_VIOLATION,
+	VM_DIVIDE_BY_ZERO,
 	VM_INVALID_SYSCALL,
 	VM_CALLBACK_NOT_REGISTERED,
 	VM_INVALID_CALLBACK,
 	VM_NOTINTIME_CALLBACK_CALL,
 	VM_STACK_IS_TOO_BIG,
+	VM_NOT_ENOUGH_MEMORY,
 };
 
 enum VM_CALLBACKS{
@@ -64,10 +66,10 @@ struct VirtualMachine{
 	uint32_t Callbacks[2];
 };
 
-uint32_t CreateVM(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
+uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize);
-uint32_t RunVM(struct VirtualMachine* pVM, uint32_t RunCount);
-uint32_t DestroyVM(struct VirtualMachine* pVM);
+uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount);
+uint32_t VMDestroy(struct VirtualMachine* pVM);
 
 uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key);
 uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key);

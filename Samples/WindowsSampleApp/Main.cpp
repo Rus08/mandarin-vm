@@ -107,13 +107,13 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	fread(pCode, 1, file_size, fp);
 	fclose(fp);
 
-	CreateVM(&VM, pCode, file_size, NULL, 0, NULL, 0, NULL, 0);
+	VMCreate(&VM, pCode, file_size, NULL, 0, NULL, 0, NULL, 0);
 
 	MSG msg = { 0 };
     while(msg.message!=WM_QUIT)
 	{
 		QueryPerformanceCounter(&start);
-		SC = RunVM(&VM, 50000);
+		SC = VMRun(&VM, 50000);
 
 		QueryPerformanceCounter(&end);
 		RunTime.QuadPart = RunTime.QuadPart + (end.QuadPart - start.QuadPart);
@@ -143,7 +143,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		MessageBox(0, temp, "Info", MB_OK);
 	}
 
-	DestroyVM(&VM);
+	VMDestroy(&VM);
 
     return 0;
 }

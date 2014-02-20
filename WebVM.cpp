@@ -8,7 +8,7 @@
 #define STACK_START_SIZE 16
 
 
-uint32_t CreateVM(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
+uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize)
 {
 	pVM->pCode = pCode;
@@ -32,7 +32,7 @@ uint32_t CreateVM(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	return 0;
 }
 
-uint32_t RunVM(struct VirtualMachine* pVM, uint32_t RunCount)
+uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 {
 	uint32_t RC; // Result Code
 
@@ -65,7 +65,7 @@ uint32_t RunVM(struct VirtualMachine* pVM, uint32_t RunCount)
 	return VM_OK;
 }
 
-uint32_t DestroyVM(struct VirtualMachine* pVM)
+uint32_t VMDestroy(struct VirtualMachine* pVM)
 {
 	// Clear code segment
 	//free(pVM->pCode);

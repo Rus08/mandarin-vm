@@ -7,3 +7,4 @@ uint32_t SysSetLocalMemory(struct VirtualMachine* pVM);
 uint32_t SysRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM);
+uint32_t SysDebugOutput(struct VirtualMachine* pVM);

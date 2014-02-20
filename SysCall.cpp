@@ -1,7 +1,11 @@
 #include <stdlib.h>
+#include <string.h>
 #include "WebVM.h"
 #include "SysCall.h"
 #include "SysCallTable.h"
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
 
 
 
@@ -85,4 +89,26 @@ uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM)
 	pVM->DispatchFlag = true;
 
 	return VM_DISPATCH;
+}
+
+uint32_t SysDebugOutput(struct VirtualMachine* pVM)
+{
+	uint32_t addr = pVM->Registers.r[0];
+	uint32_t size = pVM->Registers.r[1];
+	uint8_t* pTemp;
+
+	if((uint64_t)(addr + size) > pVM->GlobalMemorySize){
+		return VM_DATA_ACCESS_VIOLATION;
+	}
+	pTemp = (uint8_t*)malloc(size + 1);
+	if(pTemp == NULL){
+		return VM_NOT_ENOUGH_MEMORY;
+	}
+	strncpy((char*)pTemp, (char*)(pVM->pGlobalMemory + addr), size);
+	pTemp[size] = 0;
+#ifdef _WINDOWS
+	OutputDebugString(pTemp);
+#endif
+
+	return VM_OK;
 }
