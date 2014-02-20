@@ -277,8 +277,14 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		switch(id){
 			case VM_CMP:
 			{
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] < pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				if(last_int_flag == 0){
+					sop = sop & 31;
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] == pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] < pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}else{
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] < sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}
 			}
 			break;
 			case VM_NEG:
@@ -293,8 +299,14 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			break;
 			case VM_FCMP:
 			{
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] == *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] < *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				if(last_int_flag == 0){
+					sop = sop & 31;
+					pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] == *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] < *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}else{
+					pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] == (float)sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] < (float)sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}
 			}
 			break;
 			case VM_NOT:
@@ -412,6 +424,8 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 					return VM_COMPLETE;
 				}
 				free(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory);
+				pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = NULL; // unnecessary
+				pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = 0; // unnecessary
 				pVM->Registers.PC = pVM->pCallStack[pVM->CurrentStackTop].regPC - 4; // compensate address increment
 				pVM->Registers.FLAGS = pVM->pCallStack[pVM->CurrentStackTop].regFLAGS;
 				pVM->CurrentStackTop = pVM->CurrentStackTop - 1;

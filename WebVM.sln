@@ -6,6 +6,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VMAsm", "VMAsm\VMAsm.vcproj", "{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleApp", "Samples\WindowsSampleApp\SampleApp.vcproj", "{7FDA3AA9-9FFF-4A0B-8205-FF622421877E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3} = {2BD4E76B-D1D0-4D8F-AA85-821C8D2E20C3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

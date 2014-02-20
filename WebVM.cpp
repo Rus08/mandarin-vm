@@ -78,7 +78,7 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 		pVM->GlobalMemorySize = 0;
 	}
 	// Clear call stack and all call's local memory
-	for(uint32_t i = 0; i < pVM->CallStackSize; i++){
+	for(uint32_t i = 0; i < pVM->CurrentStackTop; i++){
 		if(pVM->pCallStack[i].LocalMemory.pMemory != NULL){
 			free(pVM->pCallStack[i].LocalMemory.pMemory);
 		}
