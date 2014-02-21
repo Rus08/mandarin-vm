@@ -119,67 +119,7 @@ int CalcSizeAndOffset(struct String* pStrings)
 	return 0;
 }
 
-int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, int StringNum)
-{
-	int op = 0;
 
-	if(IsNumber(Op) == true){
-		// operand is number
-		op = atoi(Op);
-		/*if(*pLastopintflag != 0){
-			printf("Error.Invalid operand at line %d!\n", StringNum);
-			return -1;
-		}*/
-		*pLastopintflag = 1;
-		if(op > IntMaxSize){
-			printf("Error. Operand at line %d is too big!\n", StringNum);
-			return -1;
-		}
-	}else{
-		if(Op[0] != 'r'){
-			// operand is address label or char
-			if(Op[0] == '\''){
-				// operand is a char
-				if(strlen(Op) != 3 || Op[2] != '\''){
-					return -1;
-				}
-				op = (int)Op[1];
-			}else if(SysCall == false){
-				op = GetLabelAddr(Op);
-				if(op == -1){
-					printf("Error. Label %s at line %d not found!\n", Op, StringNum);
-					return -1;
-				}
-			}else{
-				op = GetSysCallAddr(Op);
-				if(op == -1){
-					printf("Error. API function %s at line %d not found!\n", Op, StringNum);
-					return -1;
-				}
-			}
-			if(*pLastopintflag != 0){
-				printf("Error.Invalid operand at line %d!\n", StringNum);
-				return -1;
-			}
-			*pLastopintflag = 1;
-		}else{
-			// operand is register
-			if(IsNumber(Op + 1) != true){
-				// register number isn't number
-				printf("Error. Invalid operand at line %d!\n", StringNum);
-				return -1;
-			}
-			op = atoi(Op + 1);
-			if(op > 31){
-				// register number is too high
-				printf("Error. Register number is too high at line %d!\n", StringNum);
-				return -1;
-			}
-		}
-	}
-
-	return op;
-}
 
 
 int CodeInstruction(struct String* pStrings, int StringNum, struct Label* pLabels, char* pOutBuf)
@@ -204,6 +144,9 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Label* pLabel
 			return -1;
 		}
 		op[i] = DecodeOperand(pString->op[i], GetIntMaxSize(pString->id), &lastopintflag, syscallflag, StringNum);
+		if(op[i] == -1){
+			return -1;
+		}
 		
 		if(i < (GetOperandCount(pString->id) - 1) && lastopintflag == 1){
 			// not last operand isn't register
@@ -299,7 +242,9 @@ int main(int argc, char* argv[])
 	pCode = (char*)malloc(pStrings[StringsNum - 1].offset + pStrings[StringsNum - 1].instruction_size);
 
 	for(int i = 0; i < StringsNum; i++){
-		CodeInstruction(pStrings, i, pLabels, pCode + pStrings[i].offset);
+		if(CodeInstruction(pStrings, i, pLabels, pCode + pStrings[i].offset) != 0){
+			return 0;
+		}
 	}
 
 	free(pAsm);

@@ -24,3 +24,4 @@ int CalcSizeAndOffset(struct String* pString);
 int CodeInstruction(struct String* pString, struct Label* pLabels, char* pOutBuf);
 
 int ParseString(struct String* pString);
+int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, int StringNum);
