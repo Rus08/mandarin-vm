@@ -8,20 +8,42 @@ struct String{
 	char* pBegin;
 	char* pEnd;
 	char* instr_name;
-	//int instr_namesize;
-	char* op[3];
+	char** op;
+	int opnum;
 	//int	opsize[3];
 	int id;
-	int	instruction_size;
+	int	binary_size;
 	int repeat;
 	int offset;
 };
 
-int ClearComments(char* pAsm, int file_size);
-int MakeStringsMap(char* pAsm, int file_size);
-int MakeLabelsMap(char* pAsm, int file_size);
-int CalcSizeAndOffset(struct String* pString);
-int CodeInstruction(struct String* pString, struct Label* pLabels, char* pOutBuf);
+enum SegmentType{
+	SEG_CODE,
+	SEG_DATA,
+};
 
+enum DataInstructionsId{
+	VM_DWORD,
+	VM_WORD,
+	VM_BYTE,
+	VM_INCLUDE,
+};
+
+struct Segment{
+	int type;
+	struct String* pStrings;
+	int	StringsNum;
+	struct Label* pLabels;
+	int LabelsNum;
+	char* pBinary;
+};
+
+int ClearComments(char* pAsm, int file_size);
+int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg);
+int MakeLabelsMap(struct Segment* pSeg);
+int MakeDataLabelsMap(struct Segment* pSeg);
 int ParseString(struct String* pString);
-int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, int StringNum);
+int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pSeg, unsigned int* pOut);
+
+int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg);
+int ProcessData(char* pSource, int code_size, struct Segment* pSeg);

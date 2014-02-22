@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 //#include <stdbool.h>
 #include "VMAsm.h"
@@ -6,11 +7,6 @@
 #include "Instructions.h"
 #include "SysCalls.h"
 
-extern struct String* pStrings;
-extern struct Label* pLabels;
-
-extern int StringsNum;
-extern int LabelsNum;
 
 char* hilotable[8] = {	"hi32", "hi24", "hi16", "hi8", "lo32", "lo24", "lo16", "lo8"};
 unsigned int masktable[8] = { 0xffffffff, 0xffffff00, 0xffff0000, 0x0000ff00, 0xffffffff, 0x00ffffff, 0x0000ffff, 0x000000ff };
@@ -29,9 +25,46 @@ int GetId(char* name)
 	return id;
 }
 
+int GetDataId(char* name)
+{
+	int id = -1;
+
+	for(int b = 0; b < sizeof(DataInstructions) / sizeof(struct Instruction); b++){
+		if(strncmp(name, DataInstructions[b].name, strlen(name)/*strlen(Instructions[b].name)*/) == 0){
+			id = b;
+			break;
+		}
+	}
+	return id;
+}
+
+
 int GetSize(int id)
 {
 	return Instructions[id].size;
+}
+
+int GetDataSize(int id)
+{
+	return DataInstructions[id].size;
+}
+
+int GetFileSize(char* path)
+{
+	FILE* fp = 0;
+	int size = 0;
+	
+	fp = fopen(path, "rb");
+	if(fp == 0){
+		return -1;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	fclose(fp);
+	return size;
 }
 
 int GetOperandCount(int id)
@@ -44,13 +77,16 @@ int GetIntMaxSize(int id)
 	return Instructions[id].intmaxsize;
 }
 
-unsigned int GetLabelAddr(char* name)
+unsigned int GetLabelAddr(char* name, struct Segment* pSeg)
 {
 	unsigned int addr = -1;
 
-	for(int i = 0; i < LabelsNum; i++){
-		if(strncmp(pLabels[i].name, name, strlen(pLabels[i].name)) == 0){
-			return pStrings[pLabels[i].string_num].offset;
+	if(pSeg == NULL){
+		return addr;
+	}
+	for(int i = 0; i < pSeg->LabelsNum; i++){
+		if(strcmp(pSeg->pLabels[i].name, name) == 0){
+			return pSeg->pStrings[pSeg->pLabels[i].string_num].offset;
 		}
 	}
 
@@ -68,6 +104,16 @@ unsigned int GetSysCallAddr(char* name)
 	}
 
 	return addr;
+}
+
+bool IsDataInstr(char* string)
+{
+	for(int i = 0; i < sizeof(DataInstructions) / sizeof(struct Instruction); i++){
+		if(strncmp(string, DataInstructions[i].name, strlen(DataInstructions[i].name)) == 0){
+			return true;
+		}
+	}
+	return false;
 }
 
 bool IsNumber(char* op)
@@ -147,4 +193,36 @@ int DecodeHiLo(char* op, unsigned int* pMask, int* pShift)
 	*pShift = shifttable[id];
 
 	return pCurr - op;
+}
+
+int DecodeHex(char* Op)
+{
+	int op = 0;
+	while(*Op != 0){
+		if('0' <= Op[0] && Op[0] <= '9'){
+			op = (op << 4) + (Op[0] - '0');
+		}else if('a' <= Op[0] && Op[0] <= 'f'){
+			op = (op << 4) + (Op[0] - 'a' + 10);
+		}else if('A' <= Op[0] && Op[0] <= 'F'){
+			op = (op << 4) + (Op[0] - 'A' + 10);
+		}else{
+			break;
+		}
+		Op = Op + 1;
+	}
+	return op;
+}
+
+int DecodeBit(char* Op)
+{
+	int op = 0;
+	while(*Op != 0){
+		if('0' <= Op[0] && Op[0] <= '1'){
+			op = (op << 1) + (Op[0] - '0');
+		}else{
+			break;
+		}
+		Op = Op + 1;
+	}
+	return op;
 }

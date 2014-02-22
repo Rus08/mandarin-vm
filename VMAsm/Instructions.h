@@ -104,3 +104,10 @@ struct Instruction Instructions[] = {
 ///////////////////
 	
 };
+
+struct Instruction DataInstructions[] = {
+	"dword", 4, 0, 0xffffffff,
+	"word", 2, 0, 0xffff,
+	"byte", 1, 0, 0xff,
+	"include", 0, 0, 0,
+};

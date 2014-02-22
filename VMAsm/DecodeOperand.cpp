@@ -5,16 +5,10 @@
 #include "VMAsm.h"
 #include "Util.h"
 
-extern struct String* pStrings;
-extern struct Label* pLabels;
 
-extern int StringsNum;
-extern int LabelsNum;
-
-
-int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, int StringNum)
+int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pSeg, unsigned int* pOut)
 {
-	int op = 0;
+	unsigned int op = 0;
 	int r = CheckForHiLo(Op);
 	unsigned int mask = 0xffffffff;
 	int shift = 0;
@@ -33,29 +27,11 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 		if(strlen(Op) >= 3 && Op[0] == '0' && Op[1] == 'x'){
 			// hex
 			Op = Op + 2;
-			while(*Op != 0){
-				if('0' <= Op[0] && Op[0] <= '9'){
-					op = (op << 4) + (Op[0] - '0');
-				}else if('a' <= Op[0] && Op[0] <= 'f'){
-					op = (op << 4) + (Op[0] - 'a' + 10);
-				}else if('A' <= Op[0] && Op[0] <= 'F'){
-					op = (op << 4) + (Op[0] - 'A' + 10);
-				}else{
-					break;
-				}
-				Op = Op + 1;
-			}
+			op = DecodeHex(Op);
 		}else if(strlen(Op) >= 3 && Op[0] == '0' && Op[1] == 'b'){
 			// bit
 			Op = Op + 2;
-			while(*Op != 0){
-				if('0' <= Op[0] && Op[0] <= '1'){
-					op = (op << 1) + (Op[0] - '0');
-				}else{
-					break;
-				}
-				Op = Op + 1;
-			}
+			op = DecodeBit(Op);
 		}else{
 			op = atoi(Op);
 		}
@@ -78,23 +54,17 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 					return -1;
 				}
 				op = (int)Op[1];
-			}else if(SysCall == false){
-				op = GetLabelAddr(Op);
+			}else{
+				op = GetLabelAddr(Op, pSeg);
 				if(op == -1){
 					printf("Error. Label %s at line %d not found!\n", Op, StringNum);
 					return -1;
 				}
-			}else{
-				op = GetSysCallAddr(Op);
-				if(op == -1){
-					printf("Error. API function %s at line %d not found!\n", Op, StringNum);
-					return -1;
-				}
 			}
-			if(*pLastopintflag != 0){
+			/*if(*pLastopintflag != 0){
 				printf("Error. Invalid operand at line %d!\n", StringNum);
 				return -1;
-			}
+			}*/
 			*pLastopintflag = 1;
 		}else{
 			// operand is register
@@ -111,6 +81,6 @@ int DecodeOperand(char* Op, int IntMaxSize, int* pLastopintflag, bool SysCall, i
 			}
 		}
 	}
-
-	return op;
+	*pOut = op;
+	return 0;
 }

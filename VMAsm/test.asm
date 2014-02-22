@@ -29,6 +29,13 @@ OnKeyDown:
 	syscall	DebugOutput
 	ret
 	
+.DATA
+	last_key	dword 0xabcdef12
+	test_label
+	string_size dword 0
+	//string		byte[128] 0
+	//test_str	byte "Hello world!", 0
+
 	
 	
 	

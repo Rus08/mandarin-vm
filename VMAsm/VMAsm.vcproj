@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcessCode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcessData.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Util.cpp"
 				>
 			</File>

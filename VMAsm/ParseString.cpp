@@ -7,6 +7,7 @@ int ParseString(struct String* pString)
 	char* pBegin = pString->pBegin;
 	char* pCurr = pString->pBegin;
 	char* pEnd = pString->pEnd;
+	int opnum = 0;
 
 	// skip spacings
 	while(*pCurr == ' ' || *pCurr == '\t'){
@@ -58,27 +59,42 @@ int ParseString(struct String* pString)
 	// no operand instruction
 		return 0;
 	}
-	
+	// count operand number
+	pBegin = pCurr;
+	opnum = opnum + 1;
+	while(pCurr < pEnd){
+		if(*pCurr == ','){
+			opnum = opnum + 1;
+		}
+		pCurr = pCurr + 1;
+	}
+	pString->op = (char**)malloc(opnum * sizeof(char*));
+	pString->opnum = opnum;
+
+	pCurr = pBegin;
 	// parse operands by order
-	for(int i = 0; i < 3; i++){
+	for(int i = 0; i < opnum; i++){
 		pBegin = pCurr;
-		while(*pCurr != ' ' && *pCurr != '\t' && *pCurr != ',' && pCurr != pEnd){
+		while(*pCurr != ',' && pCurr != pEnd){
 			pCurr = pCurr + 1;
 		}
 		pString->op[i] = pBegin;
-		//pString->opsize[i] = pCurr - pBegin;
-
-		// make operand 0 ended string
-		*pCurr = 0;
+		// skip spacing in reverse order
+		char* pTemp = pCurr - 1;
+		while(*pTemp == ' ' || *pTemp == '\t'){
+			pTemp = pTemp - 1;
+		}
+		// make operand ended string
+		*(pTemp + 1) = 0;
 		pCurr = pCurr + 1;
 		
 		// skip spacings
-		while(*pCurr == ' ' || *pCurr == '\t' || *pCurr == ','){
+		while(*pCurr == ' ' || *pCurr == '\t'){
 			pCurr = pCurr + 1;
 		}
-		if(pCurr == pEnd){
+		if(pCurr == pEnd && i < (opnum - 1)){
 			// end of string
-			break;
+			return -1;
 		}
 	}
 	return 0;

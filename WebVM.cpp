@@ -5,9 +5,6 @@
 #include "Execute16Bit.h"
 
 
-#define STACK_START_SIZE 16
-
-
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize)
 {
