@@ -25,6 +25,8 @@ enum InstructionsId{
 	VM_NEG,
 	VM_LDI,
 	VM_FCMP,
+	VM_FTOI,
+	VM_ITOF,
 	VM_NOT,
 ///////////////////
 	VM_CALL,
@@ -52,6 +54,7 @@ enum InstructionsId{
 	VM_STOREB,
 	VM_STORELB,
 ////////////////////
+	VM_MEMCPY,
 	
 };
 
@@ -75,6 +78,8 @@ struct Instruction Instructions[] = {
 	"neg",  4, 2, 16383,
 	"ldi",  4, 2, 16383,
 	"fcmp", 4, 2, 16383,
+	"ftoi", 4, 2, 16383,
+	"itof", 4, 2, 16383,
 	"not",  4, 2, 16383,
 /////////////////
 	"call", 4, 1, 16777215,
@@ -102,6 +107,7 @@ struct Instruction Instructions[] = {
 	"storeb", 4, 2, 16383,
 	"storelb", 4, 2, 16383,
 ///////////////////
+	"memcpy", 4, 3, 511,
 	
 };
 

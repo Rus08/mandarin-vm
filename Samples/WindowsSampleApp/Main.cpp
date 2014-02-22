@@ -111,8 +111,8 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	SendMessage(hwndText, WM_SETFONT, (WPARAM)hNewf1, NULL);
 
 	FILE* fp = 0;
-	uint32_t file_size = 0;
-	uint8_t* pCode = 0;
+	uint32_t file_size = 0, data_size = 0;
+	uint8_t* pCode = 0, *pData = 0;
 	uint32_t SC = 0;
 	LARGE_INTEGER RunTime = { 0 }, start, end, freq;
 
@@ -131,7 +131,19 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	fread(pCode, 1, file_size, fp);
 	fclose(fp);
 
-	VMCreate(&VM, pCode, file_size, NULL, 0, NULL, 0, NULL, 0);
+	fp = fopen("data.bin", "rb");
+	if(fp != 0){
+		fseek(fp, 0, SEEK_END);
+		data_size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+
+		pData = (uint8_t*)malloc(data_size);
+
+		fread(pData, 1, data_size, fp);
+		fclose(fp);
+	}
+
+	VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0);
 
 	MSG msg = { 0 };
     while(msg.message!=WM_QUIT)

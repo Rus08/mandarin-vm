@@ -81,14 +81,22 @@ int CalcDataSizeAndOffset(struct Segment* pSeg)
 		}
 		pSeg->pStrings[i].id = GetDataId(pSeg->pStrings[i].instr_name);
 		if(pSeg->pStrings[i].id == -1){
-			printf("Invalid instruction at: %d line.\n", i);
+			printf("Error. Invalid instruction at: %d line.\n", i);
 			return -1;
 		}
 		if(pSeg->pStrings[i].id < GetDataId("include")){
-			pSeg->pStrings[i].binary_size = GetDataSize(pSeg->pStrings[i].id) * pSeg->pStrings[i].opnum;
+			if(pSeg->pStrings[i].repeat != 0){
+				if(pSeg->pStrings[i].opnum > 1){
+					printf("Error. Invalid operand count at line %d!\n", i);
+					return -1;
+				}
+				pSeg->pStrings[i].binary_size = GetDataSize(pSeg->pStrings[i].id) * pSeg->pStrings[i].repeat;
+			}else{
+				pSeg->pStrings[i].binary_size = GetDataSize(pSeg->pStrings[i].id) * pSeg->pStrings[i].opnum;
+			}
 		}else{
 			if(pSeg->pStrings[i].opnum != 1){
-				printf("Invalid operand count at %d line.\n", i);
+				printf("Error. Invalid operand count at %d line.\n", i);
 				return -1;
 			}
 			pSeg->pStrings[i].binary_size = GetFileSize(pSeg->pStrings[i].op[0]);
@@ -116,31 +124,58 @@ int CodeDataInstruction(struct String* pStrings, int StringNum, struct Segment* 
 	switch(pString->id){
 		case VM_DWORD:
 		{
-			for(int i = 0; i < pString->opnum; i++){
-				if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, StringNum, pSeg, &op) != 0){
-					return -1;
+			if(pString->repeat == 0){
+				for(int i = 0; i < pString->opnum; i++){
+					if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned int*)pOutBuf)[i] = op;
 				}
-				((unsigned int*)pOutBuf)[i] = op;
+			}else{
+				for(int i = 0; i < pString->repeat; i++){
+					if(DecodeOperand(pString->op[0], 0xffffffff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned int*)pOutBuf)[i] = op;
+				}
 			}
 		}
 		break;
 		case VM_WORD:
 		{
-			for(int i = 0; i < pString->opnum; i++){
-				if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, StringNum, pSeg, &op) != 0){
-					return -1;
+			if(pString->repeat == 0){
+				for(int i = 0; i < pString->opnum; i++){
+					if(DecodeOperand(pString->op[i], 0xffff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned short*)pOutBuf)[i] = op;
 				}
-				((unsigned short*)pOutBuf)[i] = op;
+			}else{
+				for(int i = 0; i < pString->repeat; i++){
+					if(DecodeOperand(pString->op[0], 0xffff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned short*)pOutBuf)[i] = op;
+				}
 			}
 		}
 		break;
 		case VM_BYTE:
 		{
-			for(int i = 0; i < pString->opnum; i++){
-				if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, StringNum, pSeg, &op) != 0){
-					return -1;
+			if(pString->repeat == 0){
+				for(int i = 0; i < pString->opnum; i++){
+					if(DecodeOperand(pString->op[i], 0xff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned char*)pOutBuf)[i] = op;
 				}
-				((unsigned char*)pOutBuf)[i] = op;
+			}else{
+				for(int i = 0; i < pString->repeat; i++){
+					if(DecodeOperand(pString->op[0], 0xff, &lastopintflag, StringNum, pSeg, &op) != 0){
+						return -1;
+					}
+					((unsigned char*)pOutBuf)[i] = op;
+				}
 			}
 		}
 		break;

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "VMAsm.h"
 
@@ -40,6 +41,10 @@ int ParseString(struct String* pString)
 		}
 		strncpy(temp, pBegin, pCurr - pBegin);
 		pString->repeat = atoi(temp);
+		if(pString->repeat <= 0){
+			printf("Error. Invalid repeat modifier!\n");
+			return -1;
+		}
 
 		if(pCurr == pEnd){
 			// some error

@@ -115,6 +115,7 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 	int lastopintflag = 0;
 	bool syscallflag = false;
 	unsigned int op[3];
+	int lflag[2];
 
 	if(pString->instr_name == NULL){
 		return 0;
@@ -130,6 +131,23 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 			return -1;
 		}
 	}else{
+		if(pString->id == GetId("memcpy")){
+			for(int b = 0; b < 2; b++){
+				if(pString->op[b][0] == 'l'){
+					// local memory
+					lflag[b] = 1;
+					pString->op[b] = pString->op[b] + 2;
+				}else if(pString->op[b][0] == 'g'){
+					// global memory
+					lflag[b] = 0;
+					pString->op[b] = pString->op[b] + 2;
+				}else{
+					// no modifier - global memory
+					lflag[b] = 0;
+				}
+			}
+		}
+
 		for(int i = 0; i < GetOperandCount(pString->id); i++){
 			/*if(pString->op[i] == NULL){
 				// where is operand?
@@ -151,6 +169,9 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 		printf("Error. Instruction '%s' at line %d can't have operands!\n", pString->instr_name, StringNum);
 		return -1;
 	}*/
+	if(pString->repeat != 0){
+		pString->repeat = pString->repeat - 1;
+	}
 
 	if(pString->id <= GetId("xor")){
 		// 3 operand instructions
@@ -181,6 +202,15 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 		instr = (instr | lastopintflag) << 5;
 		instr = (instr | op[0]) << 5;
 		instr = (instr | pString->repeat) << 6;
+	}
+	if(GetId("storelb") < pString->id && pString->id <= GetId("memcpy")){
+		// 3 operand memory instructions
+		instr = op[2] << 5;
+		instr = (instr | op[1]) << 1;
+		instr = (instr | lastopintflag) << 5;
+		instr = (instr | op[0]) << 5;
+		int flags = (lflag[1] << 1) | lflag[0];
+		instr = (instr | flags) << 6;
 	}
 	instr = (instr | pString->id) << 1;
 	instr = (instr | 1); // 32 bit flag

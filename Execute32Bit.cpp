@@ -309,6 +309,38 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				}
 			}
 			break;
+			case VM_FTOI:
+			{
+				if(last_int_flag == 0){
+				// second operand is register
+					sop = sop & 31;
+					for(uint32_t i = 0; i <= rep; i++){
+						pVM->Registers.r[fop + i] = (uint32_t)(int32_t)*(float*)&pVM->Registers.r[sop + i];
+					}
+				}else{
+					for(uint32_t i = 0; i <= rep; i++){
+						pVM->Registers.r[fop + i] = (uint32_t)(int32_t)*(float*)&sop;
+					}
+				}
+			}
+			break;
+			case VM_ITOF:
+			{
+				if(last_int_flag == 0){
+				// second operand is register
+					sop = sop & 31;
+					for(uint32_t i = 0; i <= rep; i++){
+						float b = (float)pVM->Registers.r[sop + i];
+						pVM->Registers.r[fop + i] = *(uint32_t*)&b;
+					}
+				}else{
+					for(uint32_t i = 0; i <= rep; i++){
+						float b = (float)sop;
+						pVM->Registers.r[fop + i] = *(uint32_t*)&b;
+					}
+				}
+			}
+			break;
 			case VM_NOT:
 			{
 				if(last_int_flag == 0){
@@ -522,13 +554,58 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			};
 		}
 		
-	}/*else if(id <= VM_SYSCALL){
+	}else if(id <= VM_MEMCPY){
 		// heavy instructions
 		switch(id){
-			
+			case VM_MEMCPY:
+			{
+				// 3 operand instructions
+				uint32_t flags = (Instruction >> 7) & 31; // 0b00011111 get the flags
+				uint32_t fop = (Instruction >> 12) & 31; // 0b00011111 get the first operand
+				uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
+				uint32_t sop = (Instruction >> 18) & 31; // 0b00011111 get the second operand
+				uint32_t top = (Instruction >> 23) & 511; // get the third operand
+				uint8_t* pDst = 0;
+				uint8_t* pSrc = 0;
+
+				fop = pVM->Registers.r[fop];
+				sop = pVM->Registers.r[sop];
+				if(last_int_flag == 0){
+					top = top & 31;
+					top = pVM->Registers.r[top];
+				}
+
+				if((flags & 0x1) == true){
+					if((uint64_t)(fop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+						return VM_DATA_ACCESS_VIOLATION;
+					}else{
+						pDst = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + fop;
+					}
+				}else{
+					if((uint64_t)(fop + top) >= pVM->GlobalMemorySize){
+						return VM_DATA_ACCESS_VIOLATION;
+					}else{
+						pDst = pVM->pGlobalMemory + fop;
+					}
+				}
+				if((flags & 0x2) == true){
+					if((uint64_t)(sop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+						return VM_DATA_ACCESS_VIOLATION;
+					}else{
+						pSrc = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop;
+					}
+				}else{
+					if((uint64_t)(sop + top) >= pVM->GlobalMemorySize){
+						return VM_DATA_ACCESS_VIOLATION;
+					}else{
+						pSrc = pVM->pGlobalMemory + sop;
+					}
+				}
+				memcpy(pDst, pSrc, top);
+			}			
 			break;
 		};
-	}*/else{
+	}else{
 		return VM_INVALID_OPCODE;
 	}
 
