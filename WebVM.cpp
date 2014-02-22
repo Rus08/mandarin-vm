@@ -65,9 +65,11 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 uint32_t VMDestroy(struct VirtualMachine* pVM)
 {
 	// Clear code segment
-	//free(pVM->pCode);
-	pVM->pCode = NULL;
-	pVM->CodeSize = 0;
+	if(pVM->pCode != NULL){
+		free(pVM->pCode);
+		pVM->pCode = NULL;
+		pVM->CodeSize = 0;
+	}
 	// Clear data segment
 	if(pVM->pGlobalMemory != NULL){
 		free(pVM->pGlobalMemory);

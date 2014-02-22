@@ -170,7 +170,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 	QueryPerformanceFrequency(&freq);
 
-	char temp[32] = "";
+	char temp[64] = "";
 	if(SC != VM_COMPLETE){
 		sprintf(temp, "Error code: %s", GetErrorText(SC));
 		MessageBox(0, temp, "Error", MB_OK);
