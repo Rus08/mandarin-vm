@@ -287,9 +287,26 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				}
 			}
 			break;
+			case VM_SCMP:
+			{
+				if(last_int_flag == 0){
+					sop = sop & 31;
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] == pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}else{
+					pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+					pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				}
+			}
+			break;
 			case VM_NEG:
 			{
-
+				if(last_int_flag == 0){
+					sop = sop & 31;
+					pVM->Registers.r[fop] = -*(int32_t*)&pVM->Registers.r[sop];
+				}else{
+					pVM->Registers.r[fop] = -*(int32_t*)&sop;
+				}
 			}
 			break;
 			case VM_LDI:

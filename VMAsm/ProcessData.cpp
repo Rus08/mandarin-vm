@@ -18,10 +18,11 @@ int ProcessData(char* pSource, int code_size, struct Segment* pDataSeg)
 
 	CalcDataSizeAndOffset(pDataSeg);
 
-	pDataSeg->pBinary = (char*)malloc(pDataSeg->pStrings[pDataSeg->StringsNum - 1].offset + pDataSeg->pStrings[pDataSeg->StringsNum - 1].binary_size);
-
-	for(int i = 0; i < pDataSeg->StringsNum; i++){
-		CodeDataInstruction(pDataSeg->pStrings, i, pDataSeg, pDataSeg->pBinary + pDataSeg->pStrings[i].offset);
+	if(pDataSeg->StringsNum > 0){
+		pDataSeg->pBinary = (char*)malloc(pDataSeg->pStrings[pDataSeg->StringsNum - 1].offset + pDataSeg->pStrings[pDataSeg->StringsNum - 1].binary_size);
+		for(int i = 0; i < pDataSeg->StringsNum; i++){
+			CodeDataInstruction(pDataSeg->pStrings, i, pDataSeg, pDataSeg->pBinary + pDataSeg->pStrings[i].offset);
+		}
 	}
 
 	return 0;

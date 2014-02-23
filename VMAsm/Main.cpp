@@ -94,7 +94,7 @@ int MakeLabelsMap(struct Segment* pSeg)
 				continue;
 			}
 		}
-		strncpy(pSeg->pLabels[curr_label].name, pBegin, pCurr - pBegin);
+		strncpy(pSeg->pLabels[curr_label].name, pBegin, pCurr - pBegin - (pSeg->type == SEG_CODE ? 1 : 0));
 		pSeg->pLabels[curr_label].string_num = i;
 		memset(pBegin, ' ', pCurr - pBegin);
 		curr_label = curr_label + 1;

@@ -22,6 +22,7 @@ enum InstructionsId{
 	VM_XOR,
 ///////////////////
 	VM_CMP,
+	VM_SCMP,
 	VM_NEG,
 	VM_LDI,
 	VM_FCMP,
@@ -75,6 +76,7 @@ struct Instruction Instructions[] = {
 	"xor",  4, 3, 511,
 /////////////////
 	"cmp",  4, 2, 16383,
+	"scmp", 4, 2, 8191,
 	"neg",  4, 2, 16383,
 	"ldi",  4, 2, 16383,
 	"fcmp", 4, 2, 16383,

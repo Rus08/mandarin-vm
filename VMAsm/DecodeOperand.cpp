@@ -33,6 +33,10 @@ int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int St
 			Op = Op + 2;
 			op = DecodeBit(Op);
 		}else{
+			if(atoi(Op) < 0 && (unsigned int)(-atoi(Op) - 1) > IntMaxSize){
+				printf("Error. Operand at line %d is too big!\n", StringNum);
+				return -1;
+			}
 			op = atoi(Op);
 		}
 		/*if(*pLastopintflag != 0){
