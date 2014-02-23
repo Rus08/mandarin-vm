@@ -25,6 +25,19 @@ int GetId(char* name)
 	return id;
 }
 
+int Get16BitId(char* name)
+{
+	int id = -1;
+
+	for(int b = 0; b < sizeof(Instructions16Bit) / sizeof(struct Instruction); b++){
+		if(strncmp(name, Instructions16Bit[b].name, strlen(Instructions16Bit[b].name)) == 0){
+			id = b;
+			break;
+		}
+	}
+	return id;
+}
+
 int GetDataId(char* name)
 {
 	int id = -1;

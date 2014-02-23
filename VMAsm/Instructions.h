@@ -59,6 +59,17 @@ struct Instruction Instructions[] = {
 	
 };
 
+struct Instruction Instructions16Bit[] = {
+	"hadd", 2, 3, 0,
+	"hsub", 2, 3, 0,
+	"hand", 2, 3, 0,
+	"hor", 2, 3, 0,
+	"hfadd", 2, 3, 0,
+	"hfsub", 2, 3, 0,
+	"hfmul", 2, 3, 0,
+	"hnop", 2, 0, 0,
+};
+
 struct Instruction DataInstructions[] = {
 	"dword", 4, 0, 0xffffffff,
 	"word", 2, 0, 0xffff,
