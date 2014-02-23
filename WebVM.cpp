@@ -63,7 +63,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 		}else{
 			// 16 bit
 			//pVM->Registers.FLAGS = (pVM->Registers.FLAGS & ~Int16BitFlag) | (~pVM->Registers.FLAGS & Int16BitFlag); // Not 16BitFlag
-			Execute16Bit(pVM, *(uint16_t*)(pVM->pCode[PC]));
+			Execute16Bit(pVM, *(uint16_t*)&(pVM->pCode[PC]));
 			pVM->Registers.PC = pVM->Registers.PC + 2;
 			if((uint64_t)(PC + 2) > pVM->CodeSize){
 				return VM_CODE_ACCESS_VIOLATION;
