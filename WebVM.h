@@ -41,7 +41,7 @@ struct Call{
 };
 
 enum FLAGS{
-	Int16BitFlag = 1,
+//	Int16BitFlag = 1,
 	ZeroFlag = 2,
 	SignFlag = 4,
 };
