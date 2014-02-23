@@ -40,47 +40,6 @@ int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct S
 	return 0;
 }
 
-int MakeLabelsMap(struct Segment* pSeg)
-{
-	int labels_num = 0;
-	int curr_label = 0;
-
-	for(int i = 0; i < pSeg->StringsNum; i++){
-		for(int b = 0; b < (pSeg->pStrings[i].pEnd - pSeg->pStrings[i].pBegin); b++){
-			if(pSeg->pStrings[i].pBegin[b] == ':'){
-				labels_num = labels_num + 1;
-			}
-		}
-	}
-
-	pSeg->pLabels = (struct Label*)malloc(sizeof(struct Label) * labels_num);
-	memset(pSeg->pLabels, 0, sizeof(struct Label) * labels_num);
-
-	for(int i = 0; i < pSeg->StringsNum; i++){
-		char* pCurr = pSeg->pStrings[i].pBegin;
-		for(int b = 0; b < pSeg->pStrings[i].pEnd - pSeg->pStrings[i].pBegin; b++){
-			if(*pCurr == ':'){
-				char* pBegin = pSeg->pStrings[i].pBegin;
-				pSeg->pLabels[curr_label].string_num = i;
-				// skip any spacings
-				while(*pBegin == ' ' || *pBegin == '\t'){
-					pBegin = pBegin + 1;
-				}
-				if(pCurr - pBegin <= 1){
-					return -1; // error
-				}
-				strncpy(pSeg->pLabels[curr_label].name, pBegin, pCurr - pBegin);
-				memset(pBegin, ' ', pCurr - pBegin + 1);
-				curr_label = curr_label + 1;
-				break;
-			}
-			pCurr = pCurr + 1;
-		}
-	}
-
-	return curr_label;
-}
-
 int CalcSizeAndOffset(struct Segment* pSeg)
 {
 	// calc size of instructions and offset

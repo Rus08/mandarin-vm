@@ -54,12 +54,56 @@ int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg)
 	return strings_num;
 }
 
+int MakeLabelsMap(struct Segment* pSeg)
+{
+	int curr_label = 0;
+	char* pBegin = 0;
+	char* pCurr = 0;
+	char temp[64] = "";
 
+	pSeg->pLabels = (struct Label*)malloc(sizeof(struct Label) * pSeg->StringsNum);
+	memset(pSeg->pLabels, 0, sizeof(struct Label) * pSeg->StringsNum);
 
+	for(int i = 0; i < pSeg->StringsNum; i++){
+		pBegin = pSeg->pStrings[i].pBegin;
+		// skip spacings
+		while(*pBegin == ' ' || *pBegin == '\t'){
+			pBegin = pBegin + 1;
+		}
+		if(pBegin == pSeg->pStrings[i].pEnd){
+			continue;
+		}
+		pCurr = pBegin;
+		// find next space
+		while(*pCurr != ' ' && *pCurr != '\t' && pCurr != pSeg->pStrings[i].pEnd){
+			pCurr = pCurr + 1;
+		}
+		if(pSeg->type == SEG_CODE){
+			if(*(pCurr - 1) == ':'){
+				if((pCurr - pBegin) < 2){
+					return -1;
+				}
+			}else{
+				continue;
+			}
+		}else{
+			memset(temp, 0, sizeof(temp));
+			strncpy(temp, pBegin, pCurr - pBegin);
+			if(IsDataInstr(temp) == true){
+				// no label
+				continue;
+			}
+		}
+		strncpy(pSeg->pLabels[curr_label].name, pBegin, pCurr - pBegin);
+		pSeg->pLabels[curr_label].string_num = i;
+		memset(pBegin, ' ', pCurr - pBegin);
+		curr_label = curr_label + 1;
+	}
+	pSeg->pLabels = (struct Label*)realloc(pSeg->pLabels, sizeof(struct Label) * curr_label);
+	pSeg->LabelsNum = curr_label;
 
-
-
-
+	return curr_label;
+}
 
 
 int main(int argc, char* argv[])
@@ -117,7 +161,7 @@ int main(int argc, char* argv[])
 	if(pDataSource != NULL){
 		memset(pDataSource, ' ', strlen(".DATA"));
 		DataSeg.StringsNum = MakeStringsMap(pDataSource, file_size - code_size, &DataSeg);
-		DataSeg.LabelsNum = MakeDataLabelsMap(&DataSeg);
+		DataSeg.LabelsNum = MakeLabelsMap(&DataSeg);
 	}
 	if(ProcessCode(pSource, code_size, &CodeSeg, &DataSeg) != 0){
 		return -1;

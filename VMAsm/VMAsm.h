@@ -41,7 +41,6 @@ struct Segment{
 int ClearComments(char* pAsm, int file_size);
 int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg);
 int MakeLabelsMap(struct Segment* pSeg);
-int MakeDataLabelsMap(struct Segment* pSeg);
 int ParseString(struct String* pString);
 int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pSeg, unsigned int* pOut);
 

@@ -27,47 +27,6 @@ int ProcessData(char* pSource, int code_size, struct Segment* pDataSeg)
 	return 0;
 }
 
-int MakeDataLabelsMap(struct Segment* pSeg)
-{
-	int curr_label = 0;
-	char* pBegin = 0;
-	char* pCurr = 0;
-	char temp[64] = "";
-
-	pSeg->pLabels = (struct Label*)malloc(sizeof(struct Label) * pSeg->StringsNum);
-	memset(pSeg->pLabels, 0, sizeof(struct Label) * pSeg->StringsNum);
-
-	for(int i = 0; i < pSeg->StringsNum; i++){
-		pBegin = pSeg->pStrings[i].pBegin;
-		// skip spacings
-		while(*pBegin == ' ' || *pBegin == '\t'){
-			pBegin = pBegin + 1;
-		}
-		if(pBegin == pSeg->pStrings[i].pEnd){
-			continue;
-		}
-		pCurr = pBegin;
-		// find next space
-		while(*pCurr != ' ' && *pCurr != '\t' && pCurr != pSeg->pStrings[i].pEnd){
-			pCurr = pCurr + 1;
-		}
-		memset(temp, 0, sizeof(temp));
-		strncpy(temp, pBegin, pCurr - pBegin);
-		if(IsDataInstr(temp) == true){
-			// no label
-			continue;
-		}
-		strncpy(pSeg->pLabels[curr_label].name, pBegin, pCurr - pBegin);
-		pSeg->pLabels[curr_label].string_num = i;
-		memset(pBegin, ' ', pCurr - pBegin);
-		curr_label = curr_label + 1;
-	}
-	pSeg->LabelsNum = curr_label;
-
-	return curr_label;
-}
-
-
 int CalcDataSizeAndOffset(struct Segment* pSeg)
 {
 	// calc size of instructions and offset
