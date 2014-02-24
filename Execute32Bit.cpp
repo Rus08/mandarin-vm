@@ -16,19 +16,6 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
 		uint32_t sop = (Instruction >> 18) & 31; // 0b00011111 get the second operand
 		uint32_t top = (Instruction >> 23) & 511; // get the third operand
-		//uint32_t result;
-
-		// repeat check
-		if(fop + rep >= REGISTER_MAX || sop + rep >= REGISTER_MAX){
-			// error
-			return VM_INVALID_REPEAT_MODIFIER;
-		}
-		if(last_int_flag == 0){
-			if(top + rep >= REGISTER_MAX){
-				// error
-				return VM_INVALID_REPEAT_MODIFIER;
-			}
-		}
 
 		switch(id){
 			case VM_ADD:
@@ -262,17 +249,6 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
 		uint32_t sop = (Instruction >> 18) & 16383; // 0b00011111 get the second operand
 
-		// repeat check
-		if(fop + rep >= REGISTER_MAX){
-			// error
-			return VM_INVALID_REPEAT_MODIFIER;
-		}
-		if(last_int_flag == 0){
-			if(sop + rep >= REGISTER_MAX){
-				// error
-				return VM_INVALID_REPEAT_MODIFIER;
-			}
-		}
 		switch(id){
 			case VM_CMP:
 			{
@@ -381,12 +357,14 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 
 		if(last_int_flag == 0){
 			fop = pVM->Registers.r[(Instruction >> 8) & 31];
+			// check for access violation
+			if(id != VM_SYSCALL && ((uint64_t)fop + 4) > pVM->CodeSize){
+				return VM_CODE_ACCESS_VIOLATION;
+			}
 		}else{
 			fop = (Instruction >> 8) & 16777215;
+			// this av check in start check pass
 		}
-		/*if(fop > pVM->CodeSize){
-			return VM_CODE_ACCESS_VIOLATION;
-		}*/
 		
 		switch(id){
 			case VM_CALL:
@@ -491,11 +469,7 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		uint32_t datasize = (rep + 1) << (2 - ((id - VM_LOAD) >> 1) % 3); // (rep + 1) * 4/2/1
 		uint8_t* pData;
 
-		// repeat check
-		if(fop + rep >= REGISTER_MAX){
-			// error
-			return VM_INVALID_REPEAT_MODIFIER;
-		}
+		
 		if(last_int_flag == 0){
 			sop = pVM->Registers.r[(Instruction >> 18) & 31];
 		}else{

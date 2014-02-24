@@ -8,13 +8,16 @@ HWND hwndText;
 HFONT hNewf1;
 struct VirtualMachine VM;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 char* ErrorResolveTable[] = {
 	"VM_OK",
 	"VM_COMPLETE",
 	"VM_DISPATCH",
 	"VM_INVALID_REPEAT_MODIFIER",
 	"VM_INVALID_OPCODE",
+	"VM_INVALID_INSTRUCTION_ALIGN",
+	"VM_INVALID_ADDRESS_ALIGN",
+	"VM_INVALID_LAST_INSTRUCTION",
 	"VM_CODE_ACCESS_VIOLATION",
 	"VM_DATA_ACCESS_VIOLATION",
 	"VM_DIVIDE_BY_ZERO",
@@ -30,7 +33,7 @@ char* GetErrorText(uint32_t id){
 	return ErrorResolveTable[id];
 }
 
-#endif
+//#endif
 
 LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -143,7 +146,15 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		fclose(fp);
 	}
 
-	VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0);
+	// Create virtual machine
+	SC = VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0);
+	
+	if(SC != VM_OK){
+		char temp[64] = "";
+		sprintf(temp, "Error code: %s", GetErrorText(SC));
+		MessageBox(0, temp, "Error", MB_OK);
+		return 0;
+	}
 
 	MSG msg = { 0 };
     while(msg.message!=WM_QUIT)
@@ -178,7 +189,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		sprintf(temp, "Time of running: %.2f ms", 1000.0f * (float)RunTime.QuadPart / (float)freq.QuadPart);
 		MessageBox(0, temp, "Info", MB_OK);
 	}
-
+	VMPrintInfo(&VM, "info.txt");
 	VMDestroy(&VM);
 
     return 0;

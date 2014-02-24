@@ -33,8 +33,107 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->Count = 0;
 	memset(pVM->ExecTable, 0, sizeof(pVM->ExecTable));
 #endif
+	// start check pass
+	uint32_t pc = 0;
+	while(pc < (CodeSize - 4)){
+		if((*(pCode + pc) & 0x01) == 1){
+			// 32 bit
+			uint32_t Instruction = *(uint32_t*)(pCode + pc);
+			uint32_t id = (Instruction >> 1) & 63;
 
-	return 0;
+			if((pc % 4) != 0){
+				VMDestroy(pVM);
+				return VM_INVALID_INSTRUCTION_ALIGN;
+			}
+
+			if(id <= VM_XOR){
+				// 3 operand instructions
+				uint32_t rep = (Instruction >> 7) & 31; // 0b00011111 get the repeat modifier
+				uint32_t fop = (Instruction >> 12) & 31; // 0b00011111 get the first operand
+				uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
+				uint32_t sop = (Instruction >> 18) & 31; // 0b00011111 get the second operand
+				uint32_t top = (Instruction >> 23) & 511; // get the third operand
+
+				// repeat check
+				if(fop + rep >= REGISTER_MAX || sop + rep >= REGISTER_MAX){
+					// error
+					VMDestroy(pVM);
+					return VM_INVALID_REPEAT_MODIFIER;
+				}
+				if(last_int_flag == 0){
+					if(top + rep >= REGISTER_MAX){
+						// error
+						VMDestroy(pVM);
+						return VM_INVALID_REPEAT_MODIFIER;
+					}
+				}
+			}else if(id <= VM_NOT){
+				// 2 operand instructions
+				uint32_t rep = (Instruction >> 7) & 31; // 0b00011111 get the repeat modifier
+				uint32_t fop = (Instruction >> 12) & 31; // 0b00011111 get the first operand
+				uint32_t last_int_flag = (Instruction >> 17) & 1; // 0b00000001 get last integer flag
+				uint32_t sop = (Instruction >> 18) & 16383; // 0b00011111 get the second operand
+
+				// repeat check
+				if(fop + rep >= REGISTER_MAX){
+					// error
+					VMDestroy(pVM);
+					return VM_INVALID_REPEAT_MODIFIER;
+				}
+				if(last_int_flag == 0){
+					if(sop + rep >= REGISTER_MAX){
+						// error
+						VMDestroy(pVM);
+						return VM_INVALID_REPEAT_MODIFIER;
+					}
+				}
+			}else if(id <= VM_JMP){
+				// 1 operand instructions
+				uint32_t last_int_flag = (Instruction >> 7) & 1; // 0b00000001 get last integer flag
+				uint32_t fop; // 0b00011111 get the first operand
+
+				if(last_int_flag == 1){
+					fop = (Instruction >> 8) & 16777215;
+					if(((uint64_t)fop + 4) > pVM->CodeSize){
+						VMDestroy(pVM);
+						return VM_CODE_ACCESS_VIOLATION;
+					}
+					if((fop % 4) != 0){
+						VMDestroy(pVM);
+						return VM_INVALID_ADDRESS_ALIGN;
+					}
+				}
+			}else if(id <= VM_RET){
+
+			}else if(id <= VM_STORELB){
+				// 2 operand memory instructions
+				uint32_t rep = (Instruction >> 7) & 31; // 0b00011111 get the repeat modifier
+				uint32_t fop = (Instruction >> 12) & 31; // 0b00011111 get the first operand
+				// repeat check
+				if(fop + rep >= REGISTER_MAX){
+					// error
+					VMDestroy(pVM);
+					return VM_INVALID_REPEAT_MODIFIER;
+				}
+			}
+			pc = pc + 4;
+		}else{
+			// 16 bit
+			pc = pc + 2;
+		}
+	}
+	if(pc % 4 != 0){
+		VMDestroy(pVM);
+		return VM_INVALID_INSTRUCTION_ALIGN;
+	}
+	uint32_t id = (*(uint32_t*)(pCode + pc) >> 1) & 63;
+
+	if((*(pCode + pc) & 0x01) != 0x01 || (id != VM_JMP && id != VM_RET)){
+		VMDestroy(pVM);
+		return VM_INVALID_LAST_INSTRUCTION;
+	}
+
+	return VM_OK;
 }
 
 uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
@@ -64,10 +163,6 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				return RC;
 			}
 			pVM->Registers.PC = pVM->Registers.PC + 4;
-			// check for access violation
-			if((uint64_t)(PC + 4) > pVM->CodeSize){
-				return VM_CODE_ACCESS_VIOLATION;
-			}
 #ifdef _DEBUG
 			pVM->Count = pVM->Count + 1;
 			uint32_t id = *(uint32_t*)&(pVM->pCode[PC]);
@@ -79,9 +174,6 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			//pVM->Registers.FLAGS = (pVM->Registers.FLAGS & ~Int16BitFlag) | (~pVM->Registers.FLAGS & Int16BitFlag); // Not 16BitFlag
 			Execute16Bit(pVM, *(uint16_t*)&(pVM->pCode[PC]));
 			pVM->Registers.PC = pVM->Registers.PC + 2;
-			if((uint64_t)(PC + 2) > pVM->CodeSize){
-				return VM_CODE_ACCESS_VIOLATION;
-			}
 #ifdef _DEBUG
 			pVM->Count = pVM->Count + 1;
 #endif
@@ -115,7 +207,7 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 	pVM->pCallStack = NULL;
 	pVM->CallStackSize = 0;
 
-	return 0;
+	return VM_OK;
 }
 
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name)

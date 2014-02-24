@@ -102,10 +102,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_WINDOWS"
 				RuntimeLibrary="2"
+				StructMemberAlignment="0"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
