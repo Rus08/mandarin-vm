@@ -278,15 +278,21 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			{
 				if(last_int_flag == 0){
 					sop = sop & 31;
-					pVM->Registers.r[fop] = -*(int32_t*)&pVM->Registers.r[sop];
+					for(uint32_t i = 0; i <= rep; i++){
+						pVM->Registers.r[fop + i] = -*(int32_t*)&pVM->Registers.r[sop + i];
+					}
 				}else{
-					pVM->Registers.r[fop] = -*(int32_t*)&sop;
+					for(uint32_t i = 0; i <= rep; i++){
+						pVM->Registers.r[fop + i] = -*(int32_t*)&sop;
+					}
 				}
 			}
 			break;
 			case VM_LDI:
 			{
-				pVM->Registers.r[fop] = sop;
+				for(uint32_t i = 0; i <= rep; i++){
+					pVM->Registers.r[fop + i] = sop;
+				}
 			}
 			break;
 			case VM_FCMP:
