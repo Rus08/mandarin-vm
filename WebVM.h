@@ -67,12 +67,17 @@ struct VirtualMachine{
 	struct _Registers Registers;
 	bool DispatchFlag;
 	uint32_t Callbacks[2];
+#ifdef _DEBUG
+	uint64_t Count;
+	uint64_t ExecTable[64];
+#endif
 };
 
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize);
 uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount);
 uint32_t VMDestroy(struct VirtualMachine* pVM);
+uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name);
 
 uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key);
 uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key);
