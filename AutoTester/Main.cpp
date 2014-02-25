@@ -8,7 +8,7 @@ struct String{
 	char* pEnd;
 };
 
-struct String* pStrings;
+struct String* pStrings = 0;
 int StringsNum = 0;
 
 struct VirtualMachine VM;
@@ -184,7 +184,8 @@ int main(int argc, char* argv[])
 
 			SC = PerformTest(pFileName, pResult, pSC);
 			if(SC != 0){
-				return 0;
+				free(pStrings);
+				return 1;
 			}
 		}
 	}else if(argc == 4){
@@ -192,6 +193,8 @@ int main(int argc, char* argv[])
 	}else{
 		printf("Use AutoTester filename result sc\n");
 	}
-
+	if(pStrings != NULL){
+		free(pStrings);
+	}
 	return 0;
 }
