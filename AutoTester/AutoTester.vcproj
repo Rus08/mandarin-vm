@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="VMAsm"
-	ProjectGUID="{C2E304F0-3A44-4CA9-9256-29C4F82AFF44}"
-	RootNamespace="VMAsm"
+	Name="AutoTester"
+	ProjectGUID="{71725A46-A947-4F08-824C-C56CE41BFA14}"
+	RootNamespace="AutoTester"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -18,10 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -60,6 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="../Debug/WebVM.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -85,16 +86,14 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y ..\Debug\VMAsm.exe ..\AutoTester\VMAsm.exe"
-				ExcludedFromBuild="false"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -116,7 +115,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -173,27 +172,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\DecodeOperand.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Main.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ParseString.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ProcessCode.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ProcessData.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Util.cpp"
 				>
 			</File>
 		</Filter>
@@ -202,22 +181,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\Instructions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SysCalls.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Util.h"
-				>
-			</File>
-			<File
-				RelativePath=".\VMAsm.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

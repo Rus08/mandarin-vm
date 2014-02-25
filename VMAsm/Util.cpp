@@ -208,9 +208,9 @@ int DecodeHiLo(char* op, unsigned int* pMask, int* pShift)
 	return pCurr - op;
 }
 
-int DecodeHex(char* Op)
+unsigned int DecodeHex(char* Op)
 {
-	int op = 0;
+	unsigned int op = 0;
 	while(*Op != 0){
 		if('0' <= Op[0] && Op[0] <= '9'){
 			op = (op << 4) + (Op[0] - '0');

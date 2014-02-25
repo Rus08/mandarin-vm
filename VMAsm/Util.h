@@ -14,5 +14,5 @@ bool IsDataInstr(char* string);
 bool IsNumber(char* op);
 int CheckForHiLo(char* op);
 int DecodeHiLo(char* op, unsigned int* pMask, int* pShift);
-int DecodeHex(char* Op);
+unsigned int DecodeHex(char* Op);
 int DecodeBit(char* Op);

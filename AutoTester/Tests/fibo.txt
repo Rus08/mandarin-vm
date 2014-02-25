@@ -1,0 +1,21 @@
+int a = 1, b = 1, c = 2, d = 0;
+
+int sum = 2;
+
+while(d < 4000000)
+
+{
+
+    if(c & 1)
+
+        sum += c;
+
+    a = b;
+
+    b = c;
+
+    c = a + b;
+    d = d + 1;
+}
+
+return sum;

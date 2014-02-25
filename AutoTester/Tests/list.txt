@@ -1,0 +1,2 @@
+Tests\fibo.asm, 0x00002000, 0x01
+Tests\fibo.txt, 0x423154e6, 0x01
