@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "SysCall.h"
@@ -519,13 +520,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		case VM_LOAD:
 		{
 			I2OperandsMem_Base();
-			
 
-			if((uint64_t)(sop + 4 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i);
 			}
 		}
@@ -534,12 +533,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 4 * i);
 			}
 		}
@@ -548,12 +545,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 2 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i);
 			}
 		}
@@ -562,12 +557,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 2 * i);
 			}
 		}
@@ -576,12 +569,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 1 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pGlobalMemory + sop + i);
 			}
 
@@ -591,12 +582,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + i);
 			}
 		}
@@ -606,12 +595,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			// store
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 4 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
 		}
@@ -620,12 +607,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
 		}
@@ -634,12 +619,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 2 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
 		}
@@ -648,12 +631,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
 		}
@@ -662,12 +643,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 1 * rep) > pVM->GlobalMemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pGlobalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
 		}
@@ -676,12 +655,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-
-			if((uint64_t)(sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
-			for(uint32_t i = 0; i <= rep; i++){
+			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
 		}
@@ -705,26 +682,26 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			}
 
 			if((flags & 0x1) == 0x1){
-				if((uint64_t)(fop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+				if(((uint64_t)fop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pDst = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + fop;
 				}
 			}else{
-				if((uint64_t)(fop + top) >= pVM->GlobalMemorySize){
+				if(((uint64_t)fop + top) >= pVM->GlobalMemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pDst = pVM->pGlobalMemory + fop;
 				}
 			}
 			if((flags & 0x2) == 0x1){
-				if((uint64_t)(sop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+				if(((uint64_t)sop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pSrc = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop;
 				}
 			}else{
-				if((uint64_t)(sop + top) >= pVM->GlobalMemorySize){
+				if(((uint64_t)sop + top) >= pVM->GlobalMemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pSrc = pVM->pGlobalMemory + sop;

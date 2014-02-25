@@ -106,7 +106,7 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction);
 // 0b00000001 get last integer flag
 // 0b00011111 get the second operand
 #define I2OperandsMem_Base()\
-	uint32_t rep = (Instruction >> 7) & 31;\
+	uint32_t rep = ((Instruction >> 7) & 31) + 1;\
 	uint32_t fop = (Instruction >> 12) & 31;\
 	uint32_t last_int_flag = (Instruction >> 17) & 1;\
 	uint32_t sop;\
