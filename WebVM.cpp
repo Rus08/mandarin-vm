@@ -4,13 +4,14 @@
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "Execute16Bit.h"
+
 #ifdef _DEBUG
 #include "VMAsm/Instructions.h"
 #endif
 
 
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
-				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize)
+				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, HDC hDC)
 {
 	pVM->pCode = pCode;
 	pVM->CodeSize = CodeSize;
@@ -28,7 +29,17 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->Registers.PC = 0;
 	pVM->Registers.FLAGS = 0;
 	pVM->DispatchFlag = false;
+	if(hDC != NULL){
+		pVM->pDefaultRender = (struct DefaultRender*)malloc(sizeof(DefaultRender));
+		memset(pVM->pDefaultRender, 0, sizeof(struct DefaultRender));
+		pVM->pDefaultRender->hDC = hDC;
+	}
+	pVM->RenderDefault = false;
+	pVM->RenderES20 = false;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
+#ifdef WIN32
+	QueryPerformanceCounter(&pVM->Timer);
+#endif
 #ifdef _DEBUG
 	pVM->Count = 0;
 	memset(pVM->ExecTable, 0, sizeof(pVM->ExecTable));
@@ -148,6 +159,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			return VM_CODE_ACCESS_VIOLATION;
 		}
 	}
+	pVM->DispatchFlag = false;
 
 	for(uint32_t i = 0; i < RunCount; i++){
 		uint32_t PC = pVM->Registers.PC;

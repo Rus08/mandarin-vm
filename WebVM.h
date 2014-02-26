@@ -1,4 +1,7 @@
 #include <stdint.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 #define REGISTER_MAX 32
 #define STACK_START_SIZE 16
@@ -29,6 +32,8 @@ enum VM_STATUS_CODE{
 	VM_NOTINTIME_CALLBACK_CALL,
 	VM_STACK_IS_TOO_BIG,
 	VM_NOT_ENOUGH_MEMORY,
+// render related
+	VM_RENDER_INIT_FAILED,
 };
 
 enum VM_CALLBACKS{
@@ -53,6 +58,13 @@ enum FLAGS{
 	SignFlag = 4,
 };
 
+struct DefaultRender{
+#ifdef WIN32
+	HDC hDC;
+	HGLRC hRC;
+#endif
+};
+
 struct _Registers{
 	uint32_t r[32];
 	uint32_t PC; // Program Counter
@@ -73,7 +85,15 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
+	struct DefaultRender* pDefaultRender;
+	bool RenderDefault;
+	bool RenderES20;
 	uint32_t Callbacks[2];
+#ifdef WIN32
+	LARGE_INTEGER Timer;
+#else
+	uint64_t Timer;
+#endif
 #ifdef _DEBUG
 	uint64_t Count;
 	uint64_t ExecTable[64];
@@ -81,7 +101,7 @@ struct VirtualMachine{
 };
 
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
-				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize);
+				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, HDC hDC);
 uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount);
 uint32_t VMDestroy(struct VirtualMachine* pVM);
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name);

@@ -22,7 +22,7 @@ uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key)
 	}
 
 	pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
-	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4;
+	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC;
 	pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;
 	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
 	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = LOCALMEMORY_START_SIZE;
@@ -52,7 +52,7 @@ uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key)
 	}
 
 	pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
-	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4;
+	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC;
 	pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;
 	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
 	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = LOCALMEMORY_START_SIZE;

@@ -7,6 +7,7 @@ HINSTANCE hInstance;
 HWND hwndText;
 HFONT hNewf1;
 struct VirtualMachine VM;
+HDC hDC;
 
 //#ifdef _DEBUG
 char* ErrorResolveTable[] = {
@@ -104,14 +105,14 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     ShowWindow (hwnd, SW_SHOWNORMAL);
 
-	hwndText = CreateWindow("static", "ST_U", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 0, 780, 300,
-                              hwnd, (HMENU)(501), (HINSTANCE) GetWindowLong (hwnd, GWL_HINSTANCE), NULL);
+	//hwndText = CreateWindow("static", "ST_U", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 0, 780, 300,
+    //                          hwnd, (HMENU)(501), (HINSTANCE) GetWindowLong (hwnd, GWL_HINSTANCE), NULL);
 
 	// Create font for text windows
-	hNewf1 = CreateFont(18,0,0,0,FW_NORMAL,0,0,0,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
-		DEFAULT_PITCH|FF_DONTCARE,"Times New Roman Cyr");
+	//hNewf1 = CreateFont(18,0,0,0,FW_NORMAL,0,0,0,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
+	//	DEFAULT_PITCH|FF_DONTCARE,"Times New Roman Cyr");
 
-	SendMessage(hwndText, WM_SETFONT, (WPARAM)hNewf1, NULL);
+	//SendMessage(hwndText, WM_SETFONT, (WPARAM)hNewf1, NULL);
 
 	FILE* fp = 0;
 	uint32_t file_size = 0, data_size = 0;
@@ -147,7 +148,8 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	// Create virtual machine
-	SC = VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0);
+	hDC = GetDC(hwnd);
+	SC = VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0, hDC);
 	
 	if(SC != VM_OK){
 		char temp[64] = "";
@@ -191,6 +193,8 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 	VMPrintInfo(&VM, "info.txt");
 	VMDestroy(&VM);
+	ReleaseDC(hwnd, hDC);
+
 
     return 0;
 }

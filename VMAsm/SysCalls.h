@@ -11,4 +11,10 @@ struct SysCall SysCalls[] = {
 	"UnRegisterCallback",
 	"DispatchCallbacks",
 	"DebugOutput",
+	"GetTimer",
+	"UInt64Operations",
+	"DoubleOperations",
+	"SetRender",
+	"RenderClear",
+	"RenderSwapBuffers",
 };

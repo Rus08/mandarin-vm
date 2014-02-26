@@ -9,4 +9,10 @@ struct SysCall SysCallTable[] = {
 	SysUnRegisterCallback,
 	SysDispatchCallbacks,
 	SysDebugOutput,
+	SysGetTimer,
+	SysUInt64Operations,
+	SysDoubleOperations,
+	SysSetRender,
+	SysRenderClear,
+	SysRenderSwapBuffers,
 };

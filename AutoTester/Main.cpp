@@ -113,7 +113,7 @@ int PerformTest(char* pFileName, char* pResult, char* pSC)
 		fclose(fp);
 	}
 
-	SC = VMCreate(&VM, (uint8_t*)pCode, code_size, (uint8_t*)pData, data_size, NULL, 0, NULL, 0);
+	SC = VMCreate(&VM, (uint8_t*)pCode, code_size, (uint8_t*)pData, data_size, NULL, 0, NULL, 0, NULL);
 	if(SC != VM_OK){
 		if(SC != DecodeHex(pSC)){
 			printf("Error, SC is: %d instead of %d\n", SC, DecodeHex(pSC));
