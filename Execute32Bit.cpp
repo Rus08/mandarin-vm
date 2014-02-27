@@ -375,12 +375,12 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			// second operand is register
 				sop = sop & 31;
 				for(uint32_t i = 0; i <= rep; i++){
-					float b = (float)pVM->Registers.r[sop + i];
+					float b = (float)*(int32_t*)&pVM->Registers.r[sop + i];
 					pVM->Registers.r[fop + i] = *(uint32_t*)&b;
 				}
 			}else{
 				for(uint32_t i = 0; i <= rep; i++){
-					float b = (float)sop;
+					float b = (float)*(int32_t*)&sop;
 					pVM->Registers.r[fop + i] = *(uint32_t*)&b;
 				}
 			}

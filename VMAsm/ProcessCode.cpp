@@ -91,6 +91,7 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 	if(pString->instr_name == NULL){
 		return 0;
 	}
+	StringNum = StringNum + 1;
 	if(pString->opnum != GetOperandCount(pString->id)){
 		printf("Error. Instruction '%s' at line %d can't have %d operands!\n", pString->instr_name, StringNum, pString->opnum);
 		return -1;
