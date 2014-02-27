@@ -28,3 +28,4 @@ uint32_t SysDoubleOperations(struct VirtualMachine* pVM);
 uint32_t SysSetRender(struct VirtualMachine* pVM);
 uint32_t SysRenderClear(struct VirtualMachine* pVM);
 uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM);
+uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM);

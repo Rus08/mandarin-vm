@@ -15,4 +15,5 @@ struct SysCall SysCallTable[] = {
 	SysSetRender,
 	SysRenderClear,
 	SysRenderSwapBuffers,
+	SysRenderDrawQuad,
 };

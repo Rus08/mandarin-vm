@@ -17,4 +17,5 @@ struct SysCall SysCalls[] = {
 	"SetRender",
 	"RenderClear",
 	"RenderSwapBuffers",
+	"RenderDrawQuad",
 };

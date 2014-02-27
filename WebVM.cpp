@@ -30,17 +30,15 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->Registers.FLAGS = 0;
 	pVM->DispatchFlag = false;
 	if(hDC != NULL){
-		pVM->pDefaultRender = (struct DefaultRender*)malloc(sizeof(DefaultRender));
-		memset(pVM->pDefaultRender, 0, sizeof(struct DefaultRender));
-		pVM->pDefaultRender->hDC = hDC;
+		pVM->pRender = (struct Render*)malloc(sizeof(struct Render));
+		memset(pVM->pRender, 0, sizeof(struct Render));
+		pVM->pRender->hDC = hDC;
 	}
-	pVM->RenderDefault = false;
-	pVM->RenderES20 = false;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
 #ifdef WIN32
 	QueryPerformanceCounter(&pVM->Timer);
 #endif
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 	pVM->Count = 0;
 	memset(pVM->ExecTable, 0, sizeof(pVM->ExecTable));
 #endif
@@ -175,7 +173,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				return RC;
 			}
 			pVM->Registers.PC = pVM->Registers.PC + 4;
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 			pVM->Count = pVM->Count + 1;
 			uint32_t id = *(uint32_t*)&(pVM->pCode[PC]);
 			id = (id >> 1) & 63;
@@ -186,7 +184,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			//pVM->Registers.FLAGS = (pVM->Registers.FLAGS & ~Int16BitFlag) | (~pVM->Registers.FLAGS & Int16BitFlag); // Not 16BitFlag
 			Execute16Bit(pVM, *(uint16_t*)&(pVM->pCode[PC]));
 			pVM->Registers.PC = pVM->Registers.PC + 2;
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 			pVM->Count = pVM->Count + 1;
 #endif
 		}
@@ -197,6 +195,13 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 
 uint32_t VMDestroy(struct VirtualMachine* pVM)
 {
+	// Clear render
+	if(pVM->pRender != NULL){
+		if(pVM->pRender->hRC != NULL){
+			RenderDeInit(pVM->pRender);
+		}
+		free(pVM->pRender);
+	}
 	// Clear code segment
 	if(pVM->pCode != NULL){
 		free(pVM->pCode);
@@ -224,7 +229,7 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name)
 {
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 	FILE* fp = 0;
 	uint32_t id = 0;
 	uint64_t max = 0;

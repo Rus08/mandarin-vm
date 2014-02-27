@@ -3,6 +3,10 @@
 #include <windows.h>
 #endif
 
+#ifndef RENDER_ES20
+#include "Render/RenderDefault.h"
+#endif
+
 #define REGISTER_MAX 32
 #define STACK_START_SIZE 16
 #define LOCALMEMORY_START_SIZE 128
@@ -10,7 +14,7 @@
 #define MAX_ALLOWED_LOCAL_MEMORY 4096
 #define MAX_ALLOWED_STACK_SIZE 128
 
-//#define _DEBUG
+#define STAT_COUNTERS
 
 enum VM_STATUS_CODE{
 	VM_OK,
@@ -33,7 +37,7 @@ enum VM_STATUS_CODE{
 	VM_STACK_IS_TOO_BIG,
 	VM_NOT_ENOUGH_MEMORY,
 // render related
-	VM_RENDER_INIT_FAILED,
+
 };
 
 enum VM_CALLBACKS{
@@ -58,13 +62,6 @@ enum FLAGS{
 	SignFlag = 4,
 };
 
-struct DefaultRender{
-#ifdef WIN32
-	HDC hDC;
-	HGLRC hRC;
-#endif
-};
-
 struct _Registers{
 	uint32_t r[32];
 	uint32_t PC; // Program Counter
@@ -85,16 +82,15 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
-	struct DefaultRender* pDefaultRender;
-	bool RenderDefault;
-	bool RenderES20;
+	struct Render* pRender;
+	
 	uint32_t Callbacks[2];
 #ifdef WIN32
 	LARGE_INTEGER Timer;
 #else
 	uint64_t Timer;
 #endif
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 	uint64_t Count;
 	uint64_t ExecTable[64];
 #endif
