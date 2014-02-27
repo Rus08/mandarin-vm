@@ -681,7 +681,8 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				top = pVM->Registers.r[top];
 			}
 
-			if((flags & 0x1) == 0x1){
+			if((flags & 0x1) != 0){ 
+				// local memory
 				if(((uint64_t)fop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
@@ -694,7 +695,8 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 					pDst = pVM->pGlobalMemory + fop;
 				}
 			}
-			if((flags & 0x2) == 0x1){
+			if((flags & 0x2) != 0){
+				// local memory
 				if(((uint64_t)sop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
