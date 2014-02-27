@@ -29,11 +29,7 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->Registers.PC = 0;
 	pVM->Registers.FLAGS = 0;
 	pVM->DispatchFlag = false;
-	if(hDC != NULL){
-		pVM->pRender = (struct Render*)malloc(sizeof(struct Render));
-		memset(pVM->pRender, 0, sizeof(struct Render));
-		pVM->pRender->hDC = hDC;
-	}
+	pVM->hDC = hDC;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
 #ifdef WIN32
 	QueryPerformanceCounter(&pVM->Timer);
@@ -198,7 +194,7 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 	// Clear render
 	if(pVM->pRender != NULL){
 		if(pVM->pRender->hRC != NULL){
-			RenderDeInit(pVM->pRender);
+			RenderDeInit(pVM->pRender, pVM->hDC);
 		}
 		free(pVM->pRender);
 	}

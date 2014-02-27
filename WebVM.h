@@ -82,10 +82,10 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
-	struct Render* pRender;
-	
 	uint32_t Callbacks[2];
+	struct Render* pRender;
 #ifdef WIN32
+	HDC hDC;
 	LARGE_INTEGER Timer;
 #else
 	uint64_t Timer;

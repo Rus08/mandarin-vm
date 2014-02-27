@@ -230,7 +230,8 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 	if(id > 1 || enable > 1){
 		return VM_INVALID_SYSCALL;
 	}
-	if(pVM->pRender == NULL){
+	if(pVM->hDC == NULL){
+		// no-render configuration
 		pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
 		return VM_OK;
 	}
@@ -245,14 +246,19 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 //	}
 #endif
 	if(enable == 1){
-		if(pVM->pRender->hRC != NULL)
+		if(pVM->pRender != NULL)
 		{
 			// caller trying to enable render that is already running or while another running
 			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
 			return VM_OK;
 		}else{
 			// probe to enable default render
-			if(RenderInit(pVM->pRender) != VM_OK){
+			pVM->pRender = (struct Render*)malloc(sizeof(struct Render));
+			memset(pVM->pRender, 0, sizeof(struct Render));
+			
+			if(RenderInit(pVM->pRender, pVM->hDC) != VM_OK){
+				free(pVM->pRender);
+				pVM->pRender = NULL;
 				pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
 			}else{
 				pVM->Registers.r[0] = VM_RENDER_OK;
@@ -260,14 +266,16 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 			return VM_OK;
 		}
 	}else{
-		if(pVM->pRender->hRC == NULL)
+		if(pVM->pRender == NULL)
 		{
 			// caller trying to disable render that is not running or while another running
 			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
 			return VM_OK;
 		}else{
 			// probe to disable default render
-			RenderDeInit(pVM->pRender);
+			RenderDeInit(pVM->pRender, pVM->hDC);
+			free(pVM->pRender);
+			pVM->pRender = NULL;
 			pVM->Registers.r[0] = VM_RENDER_OK;
 			return VM_OK;
 		}
@@ -296,7 +304,7 @@ uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM)
 		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
 		return VM_OK;
 	}
-	RenderSwapBuffers(pVM->pRender);
+	RenderSwapBuffers(pVM->pRender, pVM->hDC);
 
 	return VM_OK;
 }

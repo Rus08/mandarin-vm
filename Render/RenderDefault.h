@@ -8,7 +8,6 @@ enum VM_RENDER_STATUS_CODE{
 
 struct Render{
 #ifdef WIN32
-	HDC hDC;
 	HGLRC hRC;
 #endif
 	uint16_t ScreenWidth;
@@ -24,10 +23,10 @@ struct Quad{
 
 
 uint32_t RenderProbe(struct Render* pRender);
-uint32_t RenderInit(struct Render* pRender);
+uint32_t RenderInit(struct Render* pRender, HDC hDC);
 uint32_t RenderClear(struct Render* pRender, uint8_t Red, uint8_t Green, uint8_t Blue, uint8_t Alpha);
 
 uint32_t RenderDrawQuad(struct Render* pRender, struct Quad* pQuad);
 
-uint32_t RenderSwapBuffers(struct Render* pRender);
-uint32_t RenderDeInit(struct Render* pRender);
+uint32_t RenderSwapBuffers(struct Render* pRender, HDC hDC);
+uint32_t RenderDeInit(struct Render* pRender, HDC hDC);

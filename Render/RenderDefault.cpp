@@ -14,7 +14,7 @@ uint32_t RenderProbe(struct Render* pRender)
 	return VM_RENDER_OK;
 }
 
-uint32_t RenderInit(struct Render* pRender)
+uint32_t RenderInit(struct Render* pRender, HDC hDC)
 {
 	PIXELFORMATDESCRIPTOR pfd = { 0 };
 	int pixelformat = 0;
@@ -26,18 +26,18 @@ uint32_t RenderInit(struct Render* pRender)
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 32;
 
-	pixelformat = ChoosePixelFormat(pRender->hDC, &pfd);
+	pixelformat = ChoosePixelFormat(hDC, &pfd);
 	if(pixelformat == 0){
 		return VM_RENDER_INIT_FAILED;
 	}
-	if(SetPixelFormat(pRender->hDC, pixelformat, &pfd) != TRUE){
+	if(SetPixelFormat(hDC, pixelformat, &pfd) != TRUE){
 		return VM_RENDER_INIT_FAILED;
 	}
-	pRender->hRC = wglCreateContext(pRender->hDC);
+	pRender->hRC = wglCreateContext(hDC);
 	if(pRender->hRC == NULL){
 		return VM_RENDER_INIT_FAILED;
 	}
-	if(wglMakeCurrent(pRender->hDC, pRender->hRC) != TRUE){
+	if(wglMakeCurrent(hDC, pRender->hRC) != TRUE){
 		wglDeleteContext(pRender->hRC);
 		return VM_RENDER_INIT_FAILED;
 	}
@@ -74,16 +74,16 @@ uint32_t RenderDrawQuad(struct Render* pRender, struct Quad* pQuad)
 	return VM_RENDER_OK;
 }
 
-uint32_t RenderSwapBuffers(struct Render* pRender)
+uint32_t RenderSwapBuffers(struct Render* pRender, HDC hDC)
 {
-	SwapBuffers(pRender->hDC);
+	SwapBuffers(hDC);
 	
 	return VM_RENDER_OK;
 }
 
-uint32_t RenderDeInit(struct Render* pRender)
+uint32_t RenderDeInit(struct Render* pRender, HDC hDC)
 {
-	wglMakeCurrent(pRender->hDC, NULL);
+	wglMakeCurrent(hDC, NULL);
 	wglDeleteContext(pRender->hRC);
 	pRender->hRC = NULL;
 
