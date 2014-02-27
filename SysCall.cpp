@@ -227,11 +227,12 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 	uint32_t id = pVM->Registers.r[0];
 	uint32_t enable = pVM->Registers.r[1];
 
-	if(id > 1){
+	if(id > 1 || enable > 1){
 		return VM_INVALID_SYSCALL;
 	}
-	if(enable > 1){
-		return VM_INVALID_SYSCALL;
+	if(pVM->pRender == NULL){
+		pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
+		return VM_OK;
 	}
 #ifndef RENDER_ES20
 	if(id == 1){
@@ -244,7 +245,7 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 //	}
 #endif
 	if(enable == 1){
-		if(pVM->pRender != NULL)
+		if(pVM->pRender->hRC != NULL)
 		{
 			// caller trying to enable render that is already running or while another running
 			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
@@ -259,7 +260,7 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 			return VM_OK;
 		}
 	}else{
-		if(pVM->pRender == NULL)
+		if(pVM->pRender->hRC == NULL)
 		{
 			// caller trying to disable render that is not running or while another running
 			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
