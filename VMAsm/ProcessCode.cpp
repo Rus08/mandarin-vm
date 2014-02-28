@@ -6,8 +6,8 @@
 
 
 int CalcSizeAndOffset(struct Segment* pSeg);
-int CodeInstruction(struct String* pString, int StringNum, struct Segment* pSeg, char* pOutBuf);
-int Code16BitInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg, char* pOutBuf);
+int CodeInstruction(struct String* pString, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, char* pOutBuf);
+int Code16BitInstruction(struct String* pStrings, int StringNum, char* pOutBuf);
 
 
 
@@ -28,15 +28,18 @@ int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct S
 		}
 
 		if(Get16BitId(pCodeSeg->pStrings[i].instr_name) == -1){
-			if(pCodeSeg->pStrings[i].id < GetId("load")){
+			if(pCodeSeg->pStrings[i].id < GetId("call")){
+				// labels in both segments
+				rc = CodeInstruction(pCodeSeg->pStrings, i, pCodeSeg, pDataSeg, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
+			}else if(pCodeSeg->pStrings[i].id < GetId("load")){
 				// labels at code segment
-				rc = CodeInstruction(pCodeSeg->pStrings, i, pCodeSeg, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
+				rc = CodeInstruction(pCodeSeg->pStrings, i, pCodeSeg, NULL, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
 			}else{
 				// labels at data segment
-				rc = CodeInstruction(pCodeSeg->pStrings, i, pDataSeg, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
+				rc = CodeInstruction(pCodeSeg->pStrings, i, pDataSeg, NULL, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
 			}
 		}else{
-			rc = Code16BitInstruction(pCodeSeg->pStrings, i, pDataSeg, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
+			rc = Code16BitInstruction(pCodeSeg->pStrings, i, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
 		}
 		if(rc != 0){
 			return -1;
@@ -79,7 +82,7 @@ int CalcSizeAndOffset(struct Segment* pSeg)
 	return 0;
 }
 
-int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg, char* pOutBuf)
+int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, char* pOutBuf)
 {
 	struct String* pString = &pStrings[StringNum];
 	unsigned int instr = 0;
@@ -127,7 +130,7 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 				printf("Error. Instruction '%s' at line %d can't have %d operands!\n", pString->instr_name, StringNum, i);
 				return -1;
 			}*/
-			if(DecodeOperand(pString->op[i], GetIntMaxSize(pString->id), &lastopintflag, StringNum, pSeg, &op[i]) != 0){
+			if(DecodeOperand(pString->op[i], GetIntMaxSize(pString->id), &lastopintflag, StringNum, pCodeSeg, pDataSeg, &op[i]) != 0){
 				return -1;
 			}
 			if(i < (GetOperandCount(pString->id) - 1) && lastopintflag == 1){
@@ -193,7 +196,7 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg
 }
 
 
-int Code16BitInstruction(struct String* pStrings, int StringNum, struct Segment* pSeg, char* pOutBuf)
+int Code16BitInstruction(struct String* pStrings, int StringNum, char* pOutBuf)
 {
 	struct String* pString = &pStrings[StringNum];
 	unsigned short instr = 0;
@@ -209,7 +212,7 @@ int Code16BitInstruction(struct String* pStrings, int StringNum, struct Segment*
 	}
 
 	for(int i = 0; i < GetOperandCount(pString->id); i++){
-		if(DecodeOperand(pString->op[i], GetIntMaxSize(pString->id), &lastopintflag, StringNum, pSeg, &op[i]) != 0){
+		if(DecodeOperand(pString->op[i], GetIntMaxSize(pString->id), &lastopintflag, StringNum, NULL, NULL, &op[i]) != 0){
 			return -1;
 		}
 		if(lastopintflag == 1){

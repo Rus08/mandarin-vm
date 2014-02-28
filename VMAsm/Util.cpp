@@ -131,7 +131,9 @@ bool IsDataInstr(char* string)
 
 bool IsNumber(char* op)
 {
-	if(strlen(op) >= 3 && op[0] == '0' && op[1] == 'x'){
+	if(strlen(op) == 3 && op[0] == '\'' && op[2] == '\''){
+		// is char
+	}else if(strlen(op) >= 3 && op[0] == '0' && op[1] == 'x'){
 		// check for hex
 		for(unsigned int i = 2; i < strlen(op); i++){
 			if(!('0' <= op[i] && op[i] <= '9') && !('a' <= op[i] && op[i] <= 'f') && !('A' <= op[i] && op[i] <= 'F')){

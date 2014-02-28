@@ -42,7 +42,7 @@ int ClearComments(char* pAsm, int file_size);
 int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg);
 int MakeLabelsMap(struct Segment* pSeg);
 int ParseString(struct String* pString);
-int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pSeg, unsigned int* pOut);
+int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut);
 
 int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg);
-int ProcessData(char* pSource, int code_size, struct Segment* pSeg);
+int ProcessData(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg, int StringOffset);

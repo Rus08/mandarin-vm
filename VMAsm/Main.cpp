@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 	if(ProcessCode(pSource, code_size, &CodeSeg, &DataSeg) != 0){
 		return -1;
 	}
-	if(ProcessData(pDataSource, file_size - code_size, &DataSeg) != 0){
+	if(ProcessData(pDataSource, file_size - code_size, &CodeSeg, &DataSeg, CodeSeg.StringsNum) != 0){
 		return -1;
 	}
 	
