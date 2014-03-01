@@ -3,6 +3,8 @@
 #include <string.h>
 #include "../WebVM.h"
 
+#include <time.h>
+
 struct String{
 	char* pBegin;
 	char* pEnd;
@@ -72,7 +74,7 @@ int PerformTest(char* pFileName, char* pResult, char* pSC)
 
 	system("del test.bin 2> nul");
 	system("del data.bin 2> nul");
-	printf("Performing %s .....", pFileName);
+	printf("Performing %s: ", pFileName);
 	if(strncmp(pFileName + strlen(pFileName) - 3, "asm", 3) != 0){
 		// nullc
 		char temp[256] = "";
@@ -121,10 +123,16 @@ int PerformTest(char* pFileName, char* pResult, char* pSC)
 		}
 	}
 
+	clock_t start = clock();
+
 	SC = VMRun(&VM, 1000000);
 	while(SC == VM_OK){
 		SC = VMRun(&VM, 1000000);
 	}
+
+	clock_t range = clock() - start;
+	printf("%dms ", range);
+
 	if(SC != DecodeHex(pSC)){
 		printf("Error, SC is: %d instead of %d\n", SC, DecodeHex(pSC));
 		return 1;
@@ -144,10 +152,17 @@ int main(int argc, char* argv[])
 	int file_size = 0;
 	char* pText = 0;
 
-	if(argc == 1){
-		fp = fopen("Tests\\list.txt", "r");
+	if(argc == 1 || argc == 2){
+		if(argc == 2)
+			fp = fopen(argv[1], "r");
+		else
+			fp = fopen("Tests\\list.txt", "r");
+
 		if(fp == 0){
-			printf("list.txt not found!\n");
+			if(argc == 2)
+				printf("%s not found!\n", argv[1]);
+			else
+				printf("Tests\\list.txt not found!\n");
 			return 0;
 		}
 
