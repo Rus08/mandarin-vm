@@ -108,7 +108,7 @@ uint32_t SysDebugOutput(struct VirtualMachine* pVM)
 	strncpy((char*)pTemp, (char*)(pVM->pGlobalMemory + addr), size);
 	pTemp[size] = '\n';
 	pTemp[size + 1] = 0;
-#ifdef WIN32
+#ifdef _WIN32
 	OutputDebugStringA((char*)pTemp);
 #endif
 	free(pTemp);
@@ -119,7 +119,7 @@ uint32_t SysDebugOutput(struct VirtualMachine* pVM)
 uint32_t SysGetTimer(struct VirtualMachine* pVM)
 {
 	uint64_t Timer;
-#ifdef WIN32
+#ifdef _WIN32
 	LARGE_INTEGER current, freq;
 	QueryPerformanceCounter(&current);
 	QueryPerformanceFrequency(&freq);
@@ -133,42 +133,78 @@ uint32_t SysGetTimer(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysUInt64Operations(struct VirtualMachine* pVM)
+uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
-	uint64_t op1 = *(uint64_t*)&pVM->Registers.r[1]; // r1-r2, need check for Big Endian
-	uint64_t op2 = *(uint64_t*)&pVM->Registers.r[3]; // r3-r4
+	uint32_t *op1 = &pVM->Registers.r[1]; // r1-r2, need check for Big Endian
+	uint32_t *op2 = &pVM->Registers.r[3]; // r3-r4
 
 	switch(id){
-		case VM_UINT64_ADD:
+		case VM_INT64_ADD:
 		{
-			*(uint64_t*)&pVM->Registers.r[0] = op1 + op2;
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 + *(int64_t*)op2;
 		}
 		break;
-		case VM_UINT64_SUB:
+		case VM_INT64_SUB:
 		{
-			*(uint64_t*)&pVM->Registers.r[0] = op1 - op2;
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 - *(int64_t*)op2;
 		}
 		break;
-		case VM_UINT64_MUL:
+		case VM_INT64_MUL:
 		{
-			*(uint64_t*)&pVM->Registers.r[0] = op1 * op2;
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 * *(int64_t*)op2;
+		}
+		break;
+		case VM_SINT64_DIV:
+		{
+			if(*(int64_t*)op2 == 0){
+				return VM_DIVIDE_BY_ZERO;
+			}
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 / *(int64_t*)op2;
 		}
 		break;
 		case VM_UINT64_DIV:
 		{
-			if(op2 == 0){
+			if(*(uint64_t*)op2 == 0){
 				return VM_DIVIDE_BY_ZERO;
 			}
-			*(uint64_t*)&pVM->Registers.r[0] = op1 / op2;
+			*(uint64_t*)&pVM->Registers.r[0] = *(uint64_t*)op1 / *(uint64_t*)op2;
+		}
+		break;
+		case VM_SINT64_MOD:
+		{
+			if(*(int64_t*)op2 == 0){
+				return VM_DIVIDE_BY_ZERO;
+			}
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 % *(int64_t*)op2;
 		}
 		break;
 		case VM_UINT64_MOD:
 		{
-			if(op2 == 0){
+			if(*(uint64_t*)op2 == 0){
 				return VM_DIVIDE_BY_ZERO;
 			}
-			*(uint64_t*)&pVM->Registers.r[0] = op1 % op2;
+			*(uint64_t*)&pVM->Registers.r[0] = *(uint64_t*)op1 % *(uint64_t*)op2;
+		}
+		break;
+		case VM_INT64_SHL:
+		{
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 << *(int64_t*)op2;
+		}
+		break;
+		case VM_SINT64_SHR:
+		{
+			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 >> *(int64_t*)op2;
+		}
+		break;
+		case VM_UINT64_SHR:
+		{
+			*(uint64_t*)&pVM->Registers.r[0] = *(uint64_t*)op1 >> *(uint64_t*)op2;
+		}
+		break;
+		case VM_INT64_NEG:
+		{
+			*(int64_t*)&pVM->Registers.r[0] = -*(int64_t*)op1;
 		}
 		break;
 		default:

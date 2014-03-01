@@ -1,10 +1,16 @@
 
-enum UInt64Ops{
-	VM_UINT64_ADD,
-	VM_UINT64_SUB,
-	VM_UINT64_MUL,
+enum Integer64Ops{
+	VM_INT64_ADD,
+	VM_INT64_SUB,
+	VM_INT64_MUL,
+	VM_SINT64_DIV,
 	VM_UINT64_DIV,
+	VM_SINT64_MOD,
 	VM_UINT64_MOD,
+	VM_INT64_SHL,
+	VM_SINT64_SHR,
+	VM_UINT64_SHR,
+	VM_INT64_NEG,
 };
 
 enum DoubleOps{
@@ -23,7 +29,7 @@ uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM);
 uint32_t SysDebugOutput(struct VirtualMachine* pVM);
 uint32_t SysGetTimer(struct VirtualMachine* pVM);
-uint32_t SysUInt64Operations(struct VirtualMachine* pVM);
+uint32_t SysInteger64Operations(struct VirtualMachine* pVM);
 uint32_t SysDoubleOperations(struct VirtualMachine* pVM);
 uint32_t SysSetRender(struct VirtualMachine* pVM);
 uint32_t SysRenderClear(struct VirtualMachine* pVM);

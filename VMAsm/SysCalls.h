@@ -12,7 +12,7 @@ struct SysCall SysCalls[] = {
 	"DispatchCallbacks",
 	"DebugOutput",
 	"GetTimer",
-	"UInt64Operations",
+	"Integer64Operations",
 	"DoubleOperations",
 	"SetRender",
 	"RenderClear",
