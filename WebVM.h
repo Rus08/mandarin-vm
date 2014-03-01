@@ -4,6 +4,7 @@
 #endif
 
 #ifndef RENDER_ES20
+#include <GL/gl.h>
 #include "Render/RenderDefault.h"
 #endif
 
@@ -35,6 +36,7 @@ enum VM_STATUS_CODE{
 	VM_INVALID_CALLBACK,
 	VM_NOTINTIME_CALLBACK_CALL,
 	VM_STACK_IS_TOO_BIG,
+	VM_DATA_SECTOR_IS_TOO_BIG;
 	VM_NOT_ENOUGH_MEMORY,
 // render related
 

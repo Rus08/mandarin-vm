@@ -5,7 +5,6 @@
 #include "Util.h"
 
 
-int CalcSizeAndOffset(struct Segment* pSeg);
 int CodeInstruction(struct String* pString, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, char* pOutBuf);
 int Code16BitInstruction(struct String* pStrings, int StringNum, char* pOutBuf);
 
@@ -13,12 +12,6 @@ int Code16BitInstruction(struct String* pStrings, int StringNum, char* pOutBuf);
 
 int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg)
 {
-	for(int i = 0; i < pCodeSeg->StringsNum; i++){
-		ParseString(&pCodeSeg->pStrings[i]);
-	}
-
-	CalcSizeAndOffset(pCodeSeg);
-
 	pCodeSeg->pBinary = (char*)malloc(pCodeSeg->pStrings[pCodeSeg->StringsNum - 1].offset + pCodeSeg->pStrings[pCodeSeg->StringsNum - 1].binary_size);
 
 	for(int i = 0; i < pCodeSeg->StringsNum; i++){

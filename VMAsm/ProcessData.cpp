@@ -5,18 +5,11 @@
 #include "Util.h"
 
 
-int CalcDataSizeAndOffset(struct Segment* pSeg, int StringOffset);
 int CodeDataInstruction(struct String* pString, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, char* pOutBuf, int StringOffset);
 
 
 int ProcessData(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg, int StringOffset)
 {
-
-	for(int i = 0; i < pDataSeg->StringsNum; i++){
-		ParseString(&pDataSeg->pStrings[i]);
-	}
-
-	CalcDataSizeAndOffset(pDataSeg, StringOffset);
 
 	if(pDataSeg->StringsNum > 0){
 		pDataSeg->pBinary = (char*)malloc(pDataSeg->pStrings[pDataSeg->StringsNum - 1].offset + pDataSeg->pStrings[pDataSeg->StringsNum - 1].binary_size);

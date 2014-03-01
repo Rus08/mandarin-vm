@@ -156,12 +156,19 @@ int main(int argc, char* argv[])
 	// parse code
 	CodeSeg.StringsNum = MakeStringsMap(pSource, code_size, &CodeSeg);
 	CodeSeg.LabelsNum = MakeLabelsMap(&CodeSeg);
-	
+	for(int i = 0; i < CodeSeg.StringsNum; i++){
+		ParseString(&CodeSeg.pStrings[i]);
+	}
+	CalcSizeAndOffset(&CodeSeg);
 	// parse data
 	if(pDataSource != NULL){
 		memset(pDataSource, ' ', strlen(".DATA"));
 		DataSeg.StringsNum = MakeStringsMap(pDataSource, file_size - code_size, &DataSeg);
 		DataSeg.LabelsNum = MakeLabelsMap(&DataSeg);
+		for(int i = 0; i < DataSeg.StringsNum; i++){
+			ParseString(&DataSeg.pStrings[i]);
+		}
+		CalcDataSizeAndOffset(&DataSeg, CodeSeg.StringsNum);
 	}
 	if(ProcessCode(pSource, code_size, &CodeSeg, &DataSeg) != 0){
 		return -1;

@@ -31,7 +31,7 @@ int ParseString(struct String* pString)
 
 	// check for repeat modifier
 	if(*pCurr == '['){
-		char temp[3] = { 0 };
+		char temp[16] = { 0 };
 		*pCurr = 0; // make name 0 ended string
 		pBegin = pCurr + 1;
 

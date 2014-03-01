@@ -44,5 +44,7 @@ int MakeLabelsMap(struct Segment* pSeg);
 int ParseString(struct String* pString);
 int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut);
 
+int CalcSizeAndOffset(struct Segment* pSeg);
+int CalcDataSizeAndOffset(struct Segment* pSeg, int StringOffset);
 int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg);
 int ProcessData(char* pSource, int code_size, struct Segment* pCodeSeg, struct Segment* pDataSeg, int StringOffset);

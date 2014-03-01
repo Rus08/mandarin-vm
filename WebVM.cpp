@@ -17,6 +17,9 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->CodeSize = CodeSize;
 	pVM->pGlobalMemory = pData;
 	pVM->GlobalMemorySize = DataSize;
+	if(pVM->GlobalMemorySize > MAX_ALLOWED_GLOBAL_MEMORY){
+		return VM_DATA_SECTOR_IS_TOO_BIG;
+	}
 	pVM->pCallStack = (struct Call*)malloc(sizeof(Call) * STACK_START_SIZE);
 	memset(pVM->pCallStack, 0, sizeof(Call) * STACK_START_SIZE);
 	pVM->CallStackSize = STACK_START_SIZE;
