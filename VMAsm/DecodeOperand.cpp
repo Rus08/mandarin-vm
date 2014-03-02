@@ -37,11 +37,11 @@ int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int St
 			op = DecodeBit(Op);
 		}else{
 			//operand is an decimal
-			if(atoi(Op) < 0 && (unsigned int)(-atoi(Op) - 1) > IntMaxSize){
+			if(atoi(Op) < 0 && (unsigned int)(-atoi(Op) - 1) > (IntMaxSize / 2)){
 				printf("Error. Operand at line %d is too big!\n", StringNum);
 				return -1;
 			}
-			op = atoi(Op);
+			op = atoi(Op) & IntMaxSize;
 		}
 		*pLastopintflag = 1;
 		op = (op & mask) >> shift;

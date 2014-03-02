@@ -148,6 +148,9 @@ bool IsNumber(char* op)
 			}
 		}
 	}else{
+		if(op[0] == '-'){
+			op = op + 1;
+		}
 		for(unsigned int i = 0; i < strlen(op); i++){
 			if(op[i] < '0' || op[i] > '9'){
 				return false;

@@ -78,14 +78,17 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 					if(pVM->Registers.r[top + i] == 0){
 						return VM_DIVIDE_BY_ZERO;
 					}
-					pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] / pVM->Registers.r[top + i];
+					*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] / *(int32_t*)&pVM->Registers.r[top + i];
 				}
 			}else{
 				if(top == 0){
 					return VM_DIVIDE_BY_ZERO;
 				}
+				// sign extending
+				struct { signed int op:9; } s;
+				*(int32_t*)&top = s.op = top;
 				for(uint32_t i = 0; i <= rep; i++){
-					pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] / top;
+					*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] / *(int32_t*)&top;
 				}
 			}
 			break;
@@ -102,14 +105,17 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 					if(pVM->Registers.r[top + i] == 0){
 						return VM_DIVIDE_BY_ZERO;
 					}
-					pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] % pVM->Registers.r[top + i];
+					*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] % *(int32_t*)&pVM->Registers.r[top + i];
 				}
 			}else{
 				if(top == 0){
 					return VM_DIVIDE_BY_ZERO;
 				}
+				// sign extending
+				struct { signed int op:9; } s;
+				*(int32_t*)&top = s.op = top;
 				for(uint32_t i = 0; i <= rep; i++){
-					pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] % top;
+					*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] % *(int32_t*)&top;
 				}
 			}
 			break;
@@ -284,12 +290,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 
 			if(last_int_flag == 0){
 				sop = sop & 31;
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] < pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
-			}else{
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] < sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				sop = pVM->Registers.r[sop];
 			}
+			pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+			pVM->Registers.FLAGS = pVM->Registers.r[fop] < sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
 		}
 		break;
 		case VM_SCMP:
@@ -299,12 +303,14 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 
 			if(last_int_flag == 0){
 				sop = sop & 31;
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				sop = pVM->Registers.r[sop];
 			}else{
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				// sign extending
+				struct { signed int op:14; } s;
+				*(int32_t*)&sop = s.op = sop;
 			}
+			pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
+			pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
 		}
 		break;
 		case VM_NEG:
@@ -380,7 +386,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				}
 			}else{
 				for(uint32_t i = 0; i <= rep; i++){
-					float b = (float)*(int32_t*)&sop;
+					// sign extending
+					struct { signed int op:14; } s;
+					int32_t iop = s.op = sop;
+					float b = (float)iop;
 					pVM->Registers.r[fop + i] = *(uint32_t*)&b;
 				}
 			}
