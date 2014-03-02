@@ -86,6 +86,7 @@ struct VirtualMachine{
 	uint32_t LocalMemorySize;
 	uint8_t* pCurrentLocalMemory;
 	uint32_t CurrentLocalMemorySize;
+	int32_t MaxNegativeOffset;
 //  call stack
 	struct Call* pCallStack;
 	uint32_t CallStackSize;

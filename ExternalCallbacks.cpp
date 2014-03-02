@@ -1,34 +1,17 @@
 #include <stdlib.h>
 #include "WebVM.h"
+#include "Execute32Bit.h"
 
 
 uint32_t PerformCall(struct VirtualMachine* pVM)
 {
 	pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
+	CheckStackSize();
 
-	if(pVM->CurrentStackTop == pVM->CallStackSize){
-		pVM->CallStackSize = pVM->CallStackSize + 32;
-		if(pVM->CallStackSize >= MAX_ALLOWED_STACK_SIZE){
-			return VM_STACK_IS_TOO_BIG;
-		}
-		pVM->pCallStack = (Call*)realloc(pVM->pCallStack, sizeof(Call) * pVM->CallStackSize);
+	if(IfAvailableLocalMemory(pVM, LOCAL_MEMORY_FRAME_START_SIZE) != VM_OK){
+		return VM_NOT_ENOUGH_MEMORY;
 	}
-	uint32_t LocalUsed = pVM->pCurrentLocalMemory - pVM->pLocalMemory + pVM->CurrentLocalMemorySize;
-	if((LocalUsed + LOCAL_MEMORY_FRAME_START_SIZE) > pVM->LocalMemorySize){
-		// need allocate more memory
-		uint32_t new_size = pVM->LocalMemorySize + 64 * LOCAL_MEMORY_FRAME_START_SIZE;
-		if(new_size > MAX_ALLOWED_LOCAL_MEMORY){
-			return VM_NOT_ENOUGH_MEMORY;
-		}
-		pVM->pLocalMemory = (uint8_t*)realloc(pVM->pLocalMemory, new_size);
-		pVM->LocalMemorySize = new_size;
-	}
-
-	pVM->pCurrentLocalMemory = pVM->pCurrentLocalMemory + pVM->CurrentLocalMemorySize;
-	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = pVM->CurrentLocalMemorySize;
-	pVM->CurrentLocalMemorySize = LOCAL_MEMORY_FRAME_START_SIZE;
-	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4; // next instruction after call
-	pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;
+	MakeCall();
 	//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
 	return VM_OK;
 }

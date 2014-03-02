@@ -228,6 +228,6 @@ int main(int argc, char* argv[])
 		free(pStrings);
 	}
 	clock_t end = clock();
-	printf("Total errors found: %d Total execute time: %d\n", error_count, end - start);
+	printf("Total errors found: %d Total execute time: %dms\n", error_count, end - start);
 	return 0;
 }

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "WebVM.h"
+#include "Execute32Bit.h"
 #include "SysCall.h"
 #include "Media\SysCallMedia.h"
 #include "SysCallTable.h"
@@ -54,18 +55,10 @@ uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if(mem_size <= MAX_ALLOWED_FRAME_LOCAL_MEMORY){
-		uint32_t LocalUsed = pVM->pCurrentLocalMemory - pVM->pLocalMemory + pVM->CurrentLocalMemorySize;
-		if((LocalUsed + mem_size) > pVM->LocalMemorySize){
-			// need to allocate more memory
-			uint32_t new_size = pVM->LocalMemorySize + mem_size;
-			if(new_size > MAX_ALLOWED_LOCAL_MEMORY){
-				return VM_NOT_ENOUGH_MEMORY;
-			}
-			pVM->pLocalMemory = (uint8_t*)realloc(pVM->pLocalMemory, new_size);
-			pVM->LocalMemorySize = new_size;
+		if(IfAvailableLocalMemory(pVM, mem_size) == VM_OK){
+			pVM->CurrentLocalMemorySize = mem_size;
 		}
 	}
-	pVM->CurrentLocalMemorySize = mem_size;
 	pVM->Registers.r[0] = pVM->CurrentLocalMemorySize;
 
 	return VM_OK;

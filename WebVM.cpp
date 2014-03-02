@@ -26,6 +26,7 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->pCurrentLocalMemory = pVM->pLocalMemory;
 	pVM->LocalMemorySize = LOCAL_MEMORY_START_SIZE;
 	pVM->CurrentLocalMemorySize = LOCAL_MEMORY_FRAME_START_SIZE;
+	pVM->MaxNegativeOffset = 0;
 	// call stack
 	pVM->pCallStack = (struct Call*)malloc(sizeof(Call) * STACK_START_SIZE);
 	memset(pVM->pCallStack, 0, sizeof(Call) * STACK_START_SIZE);
