@@ -416,7 +416,6 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		case VM_CALL:
 		{
 			I1Operand_Base();
-			I1Operand_Checks();
 
 			pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
 
@@ -439,60 +438,48 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		}
 		case VM_JEQ:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & ZeroFlag) != 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
 		}
 		case VM_JNE:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & ZeroFlag) == 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
 		}
 		case VM_JGR:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & SignFlag) == 0 && (pVM->Registers.FLAGS & ZeroFlag) == 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
 		}
 		case VM_JLS:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & SignFlag) != 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
 		}
 		case VM_JGE:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & SignFlag) == 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
 		}
 		case VM_JLE:
 		{
-			I1Operand_Base();
-
 			if((pVM->Registers.FLAGS & SignFlag) != 0 || (pVM->Registers.FLAGS & ZeroFlag) != 0){
-				I1Operand_Checks();
+				I1Operand_Base();
 				pVM->Registers.PC = fop - 4; // compensate address increment
 			}
 			break;
@@ -500,7 +487,6 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		case VM_JMP:
 		{
 			I1Operand_Base();
-			I1Operand_Checks();
 
 			pVM->Registers.PC = fop - 4; // compensate address increment
 			break;

@@ -254,6 +254,10 @@ uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name)
 		pVM->ExecTable[id] = 0;
 		max = 0;
 	}
+	fprintf(fp, "\r\nRegisters hit: \r\n");
+	for(uint32_t i = 0; i < 32; i++){
+		fprintf(fp, "r%.2d: %llu\r\n", i, pVM->RegistersHit[i]);
+	}
 	fclose(fp);
 #endif
 	

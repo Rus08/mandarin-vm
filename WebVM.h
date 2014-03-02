@@ -97,6 +97,7 @@ struct VirtualMachine{
 #ifdef STAT_COUNTERS
 	uint64_t Count;
 	uint64_t ExecTable[64];
+	uint64_t RegistersHit[32];
 #endif
 };
 
