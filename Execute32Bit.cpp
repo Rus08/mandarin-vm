@@ -415,6 +415,7 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		break;
 		case VM_CALL:
 		{
+			//	Save context and allocate local memory for new context
 			I1Operand_Base();
 
 			pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
@@ -424,14 +425,25 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				if(pVM->CallStackSize >= MAX_ALLOWED_STACK_SIZE){
 					return VM_STACK_IS_TOO_BIG;
 				}
-
 				pVM->pCallStack = (Call*)realloc(pVM->pCallStack, sizeof(Call) * pVM->CallStackSize);
 			}
+			uint32_t LocalUsed = pVM->pCurrentLocalMemory - pVM->pLocalMemory + pVM->CurrentLocalMemorySize;
+			if((LocalUsed + LOCAL_MEMORY_FRAME_START_SIZE) > pVM->LocalMemorySize){
+				// need to allocate more memory
+				uint32_t new_size = pVM->LocalMemorySize + 64 * LOCAL_MEMORY_FRAME_START_SIZE;
+				if(new_size > MAX_ALLOWED_LOCAL_MEMORY){
+					return VM_NOT_ENOUGH_MEMORY;
+				}
+				pVM->pLocalMemory = (uint8_t*)realloc(pVM->pLocalMemory, new_size);
+				pVM->LocalMemorySize = new_size;
+			}
 
+			pVM->pCurrentLocalMemory = pVM->pCurrentLocalMemory + pVM->CurrentLocalMemorySize;
+			pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = pVM->CurrentLocalMemorySize;
+			pVM->CurrentLocalMemorySize = LOCAL_MEMORY_FRAME_START_SIZE;
 			pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4; // next instruction after call
 			pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;
-			pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
-			pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = LOCALMEMORY_START_SIZE;
+			//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
 
 			pVM->Registers.PC = fop - 4; // compensate address increment
 			break;
@@ -505,8 +517,9 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 				// program exit
 				return VM_COMPLETE;
 			}
-			free(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory);
-			pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = NULL; // unnecessary
+			pVM->pCurrentLocalMemory = pVM->pCurrentLocalMemory - pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
+			pVM->CurrentLocalMemorySize = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
+			//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = NULL; // unnecessary
 			pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = 0; // unnecessary
 			pVM->Registers.PC = pVM->pCallStack[pVM->CurrentStackTop].regPC - 4; // compensate address increment
 			pVM->Registers.FLAGS = pVM->pCallStack[pVM->CurrentStackTop].regFLAGS;
@@ -530,11 +543,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 4 * i);
+				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i);
 			}
 		}
 		break;
@@ -554,11 +567,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 2 * i);
+				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i);
 			}
 		}
 		break;
@@ -579,11 +592,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + i);
+				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCurrentLocalMemory + sop + i);
 			}
 		}
 		break;
@@ -604,11 +617,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 4 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 4 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				*(uint32_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
+				*(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
 		}
 		break;
@@ -628,11 +641,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 2 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 2 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				*(uint16_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
+				*(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
 		}
 		break;
@@ -652,11 +665,11 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 		{
 			I2OperandsMem_Base();
 			
-			if(((uint64_t)sop + 1 * rep) > pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+			if(((uint64_t)sop + 1 * rep) > pVM->CurrentLocalMemorySize){
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			for(uint32_t i = 0; i < rep; i++){
-				*(uint8_t*)(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
+				*(uint8_t*)(pVM->pCurrentLocalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
 		}
 		break;
@@ -680,10 +693,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 
 			if((flags & 0x1) != 0){ 
 				// local memory
-				if(((uint64_t)fop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+				if(((uint64_t)fop + top) >= pVM->CurrentLocalMemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					pDst = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + fop;
+					pDst = pVM->pCurrentLocalMemory + fop;
 				}
 			}else{
 				if(((uint64_t)fop + top) >= pVM->GlobalMemorySize){
@@ -694,10 +707,10 @@ uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 			}
 			if((flags & 0x2) != 0){
 				// local memory
-				if(((uint64_t)sop + top) >= pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize){
+				if(((uint64_t)sop + top) >= pVM->CurrentLocalMemorySize){
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					pSrc = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory + sop;
+					pSrc = pVM->pCurrentLocalMemory + sop;
 				}
 			}else{
 				if(((uint64_t)sop + top) >= pVM->GlobalMemorySize){

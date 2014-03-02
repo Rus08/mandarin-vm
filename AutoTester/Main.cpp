@@ -151,18 +151,30 @@ int main(int argc, char* argv[])
 	FILE* fp = 0;
 	int file_size = 0;
 	char* pText = 0;
+	bool not_break = false;
+	int	 error_count = 0;
+	clock_t start;
 
-	if(argc == 1 || argc == 2){
-		if(argc == 2)
-			fp = fopen(argv[1], "r");
-		else
+	if(argc <= 3){
+		if(argc <= 2){
+			if(argc == 2 && strcmp(argv[1], "-notbreak") == 0){
+				not_break = true;
+			}
 			fp = fopen("Tests\\list.txt", "r");
+		}else{
+			if(strcmp(argv[2], "-notbreak") == 0){
+				not_break = true;
+			}
+			fp = fopen(argv[1], "r");
+		}
+			
 
 		if(fp == 0){
-			if(argc == 2)
-				printf("%s not found!\n", argv[1]);
-			else
+			if(argc <= 2){
 				printf("Tests\\list.txt not found!\n");
+			}else{
+				printf("%s not found!\n", argv[1]);
+			}
 			return 0;
 		}
 
@@ -176,6 +188,7 @@ int main(int argc, char* argv[])
 		fclose(fp);
 
 		MakeStringsMap(pText, file_size);
+		start = clock();
 
 		for(int i = 0; i < StringsNum; i++){
 			char* pFileName = pStrings[i].pBegin;
@@ -199,8 +212,11 @@ int main(int argc, char* argv[])
 
 			SC = PerformTest(pFileName, pResult, pSC);
 			if(SC != 0){
-				free(pStrings);
-				return 1;
+				if(not_break == false){
+					free(pStrings);
+					return 1;
+				}
+				error_count = error_count + 1;
 			}
 		}
 	}else if(argc == 4){
@@ -211,5 +227,7 @@ int main(int argc, char* argv[])
 	if(pStrings != NULL){
 		free(pStrings);
 	}
+	clock_t end = clock();
+	printf("Total errors found: %d Total execute time: %d\n", error_count, end - start);
 	return 0;
 }

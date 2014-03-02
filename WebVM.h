@@ -10,14 +10,16 @@
 
 #define REGISTER_MAX 32
 #define STACK_START_SIZE 16
-#define LOCALMEMORY_START_SIZE 128
+#define LOCAL_MEMORY_START_SIZE 128 * 1024
+#define LOCAL_MEMORY_FRAME_START_SIZE 128
 #define MAX_ALLOWED_GLOBAL_MEMORY 8 * 1048576
-#define MAX_ALLOWED_LOCAL_MEMORY 4096
+#define MAX_ALLOWED_FRAME_LOCAL_MEMORY 1024
+#define MAX_ALLOWED_LOCAL_MEMORY 128 * 1024
 #define MAX_ALLOWED_STACK_SIZE 128
 #define SLEEP_DURATION 20
 #define MAX_SLEEP_DURATION 5000
 
-#define STAT_COUNTERS
+//#define STAT_COUNTERS
 
 enum VM_STATUS_CODE{
 	VM_OK,
@@ -50,7 +52,7 @@ enum VM_CALLBACKS{
 };
 
 struct _LocalMemory{
-	uint8_t* pMemory;
+//	uint8_t* pMemory;
 	uint32_t MemorySize;
 };
 
@@ -73,13 +75,22 @@ struct _Registers{
 };
 
 struct VirtualMachine{
+//		code
 	uint8_t* pCode;
 	uint32_t CodeSize;
+//	global memory
 	uint8_t* pGlobalMemory;
 	uint32_t GlobalMemorySize;
+//  local memory
+	uint8_t* pLocalMemory;
+	uint32_t LocalMemorySize;
+	uint8_t* pCurrentLocalMemory;
+	uint32_t CurrentLocalMemorySize;
+//  call stack
 	struct Call* pCallStack;
 	uint32_t CallStackSize;
 	uint32_t CurrentStackTop;
+// 
 	uint32_t* pImport;
 	uint32_t ImportSize;
 	uint32_t* pExport;

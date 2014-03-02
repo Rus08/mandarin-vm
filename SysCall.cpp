@@ -53,11 +53,20 @@ uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
 		pVM->Registers.r[0] = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
 		return VM_OK;
 	}
-	if(mem_size <= MAX_ALLOWED_LOCAL_MEMORY){
-		pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)realloc(pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory, mem_size);
-		pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = mem_size;
+	if(mem_size <= MAX_ALLOWED_FRAME_LOCAL_MEMORY){
+		uint32_t LocalUsed = pVM->pCurrentLocalMemory - pVM->pLocalMemory + pVM->CurrentLocalMemorySize;
+		if((LocalUsed + mem_size) > pVM->LocalMemorySize){
+			// need to allocate more memory
+			uint32_t new_size = pVM->LocalMemorySize + mem_size;
+			if(new_size > MAX_ALLOWED_LOCAL_MEMORY){
+				return VM_NOT_ENOUGH_MEMORY;
+			}
+			pVM->pLocalMemory = (uint8_t*)realloc(pVM->pLocalMemory, new_size);
+			pVM->LocalMemorySize = new_size;
+		}
 	}
-	pVM->Registers.r[0] = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
+	pVM->CurrentLocalMemorySize = mem_size;
+	pVM->Registers.r[0] = pVM->CurrentLocalMemorySize;
 
 	return VM_OK;
 }
