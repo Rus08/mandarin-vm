@@ -5,7 +5,7 @@
 #include "Execute32Bit.h"
 #include "Execute16Bit.h"
 
-#ifdef _DEBUG
+#ifdef STAT_COUNTERS
 #include "VMAsm/Instructions.h"
 #endif
 
@@ -34,7 +34,7 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->DispatchFlag = false;
 	pVM->hDC = hDC;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
-#ifdef WIN32
+#ifdef _WIN32
 	QueryPerformanceCounter(&pVM->Timer);
 #endif
 #ifdef STAT_COUNTERS

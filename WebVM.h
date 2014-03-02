@@ -1,5 +1,5 @@
 #include <stdint.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -11,9 +11,11 @@
 #define REGISTER_MAX 32
 #define STACK_START_SIZE 16
 #define LOCALMEMORY_START_SIZE 128
-#define MAX_ALLOWED_GLOBAL_MEMORY 65536
+#define MAX_ALLOWED_GLOBAL_MEMORY 8 * 1048576
 #define MAX_ALLOWED_LOCAL_MEMORY 4096
 #define MAX_ALLOWED_STACK_SIZE 128
+#define SLEEP_DURATION 20
+#define MAX_SLEEP_DURATION 5000
 
 #define STAT_COUNTERS
 
@@ -36,7 +38,7 @@ enum VM_STATUS_CODE{
 	VM_INVALID_CALLBACK,
 	VM_NOTINTIME_CALLBACK_CALL,
 	VM_STACK_IS_TOO_BIG,
-	VM_DATA_SECTOR_IS_TOO_BIG;
+	VM_DATA_SECTOR_IS_TOO_BIG,
 	VM_NOT_ENOUGH_MEMORY,
 // render related
 
@@ -86,7 +88,7 @@ struct VirtualMachine{
 	bool DispatchFlag;
 	uint32_t Callbacks[2];
 	struct Render* pRender;
-#ifdef WIN32
+#ifdef _WIN32
 	HDC hDC;
 	LARGE_INTEGER Timer;
 #else

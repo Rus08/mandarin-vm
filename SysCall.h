@@ -20,6 +20,8 @@ enum DoubleOps{
 	VM_DOUBLE_DIV,
 };
 
+
+
 uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId);
 
 uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM);
@@ -29,9 +31,14 @@ uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM);
 uint32_t SysDebugOutput(struct VirtualMachine* pVM);
 uint32_t SysGetTimer(struct VirtualMachine* pVM);
+uint32_t SysSleep(struct VirtualMachine* pVM);
 uint32_t SysInteger64Operations(struct VirtualMachine* pVM);
 uint32_t SysDoubleOperations(struct VirtualMachine* pVM);
 uint32_t SysSetRender(struct VirtualMachine* pVM);
+uint32_t SysRenderCreateTexture(struct VirtualMachine* pVM);
+uint32_t SysRenderUpdateTexture(struct VirtualMachine* pVM);
 uint32_t SysRenderClear(struct VirtualMachine* pVM);
+uint32_t SysRenderSetTexture(struct VirtualMachine* pVM);
 uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM);
 uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM);
+uint32_t SysDecodeImage(struct VirtualMachine* pVM);

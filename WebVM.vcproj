@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\libjpeg-turbo-gcc\include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_WARNINGS;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -58,7 +59,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="opengl32.lib"
+				AdditionalDependencies="opengl32.lib libturbojpeg.a pthreadVC2.lib"
+				AdditionalLibraryDirectories="..\libjpeg-turbo-gcc\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -103,6 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\libjpeg-turbo-gcc\include"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_WARNINGS;_WINDOWS"
 				RuntimeLibrary="2"
 				StructMemberAlignment="0"
@@ -122,7 +125,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="opengl32.lib"
+				AdditionalDependencies="opengl32.lib libturbojpeg.a pthreadVC2.lib"
+				AdditionalLibraryDirectories="..\libjpeg-turbo-gcc\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -176,6 +180,22 @@
 					RelativePath=".\Render\RenderDefault.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\Render\SysCallRender.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Media"
+				>
+				<File
+					RelativePath=".\Media\jpeg_decoder.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\SysCallMedia.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -208,6 +228,14 @@
 				>
 				<File
 					RelativePath=".\Render\RenderDefault.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Media"
+				>
+				<File
+					RelativePath=".\Media\SysCallMedia.h"
 					>
 				</File>
 			</Filter>

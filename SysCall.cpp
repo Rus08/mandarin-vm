@@ -2,6 +2,7 @@
 #include <string.h>
 #include "WebVM.h"
 #include "SysCall.h"
+#include "Media\SysCallMedia.h"
 #include "SysCallTable.h"
 
 
@@ -133,6 +134,19 @@ uint32_t SysGetTimer(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
+/*
+	void Sleep(uint32_t ms)
+	Sleeps defined amount of milliseconds
+*/
+uint32_t SysSleep(struct VirtualMachine* pVM)
+{
+#ifdef _WIN32
+	Sleep(pVM->Registers.r[0]);
+#endif
+
+	return VM_OK;
+}
+
 uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
@@ -248,115 +262,3 @@ uint32_t SysDoubleOperations(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-// SetRender(id, enable)
-// id - 0, Default Render
-// id - 1, OpenGL ES 2.0
-// enable - 0, disable
-// enable - 1, enable
-// return value
-// 0 - success
-// 1 - not available
-// 2 - can't operate, because other render is working or no render is working
-
-uint32_t SysSetRender(struct VirtualMachine* pVM)
-{
-	uint32_t id = pVM->Registers.r[0];
-	uint32_t enable = pVM->Registers.r[1];
-
-	if(id > 1 || enable > 1){
-		return VM_INVALID_SYSCALL;
-	}
-	if(pVM->hDC == NULL){
-		// no-render configuration
-		pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
-		return VM_OK;
-	}
-#ifndef RENDER_ES20
-	if(id == 1){
-		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-		return VM_OK;
-	}
-#else
-//	if(id == 0){
-//
-//	}
-#endif
-	if(enable == 1){
-		if(pVM->pRender != NULL)
-		{
-			// caller trying to enable render that is already running or while another running
-			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-			return VM_OK;
-		}else{
-			// probe to enable default render
-			pVM->pRender = (struct Render*)malloc(sizeof(struct Render));
-			memset(pVM->pRender, 0, sizeof(struct Render));
-			
-			if(RenderInit(pVM->pRender, pVM->hDC) != VM_OK){
-				free(pVM->pRender);
-				pVM->pRender = NULL;
-				pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
-			}else{
-				pVM->Registers.r[0] = VM_RENDER_OK;
-			}
-			return VM_OK;
-		}
-	}else{
-		if(pVM->pRender == NULL)
-		{
-			// caller trying to disable render that is not running or while another running
-			pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-			return VM_OK;
-		}else{
-			// probe to disable default render
-			RenderDeInit(pVM->pRender, pVM->hDC);
-			free(pVM->pRender);
-			pVM->pRender = NULL;
-			pVM->Registers.r[0] = VM_RENDER_OK;
-			return VM_OK;
-		}
-	}
-
-	return VM_OK;
-}
-
-uint32_t SysRenderClear(struct VirtualMachine* pVM)
-{
-	uint32_t Color = pVM->Registers.r[0];
-
-	if(pVM->pRender == NULL){
-		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-		return VM_OK;
-	}
-
-	RenderClear(pVM->pRender, Color & 0xff, (Color >> 8) & 0xff, (Color >> 16) & 0xff, (Color >> 24) & 0xff);
-
-	return VM_OK;
-}
-
-uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM)
-{
-	if(pVM->pRender == NULL){
-		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-		return VM_OK;
-	}
-	RenderSwapBuffers(pVM->pRender, pVM->hDC);
-
-	return VM_OK;
-}
-
-uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM)
-{
-	uint32_t pQuad = pVM->Registers.r[0];
-
-	if(pVM->pRender == NULL){
-		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
-		return VM_OK;
-	}
-	if(((uint64_t)pQuad + sizeof(struct Quad)) > pVM->GlobalMemorySize){
-		return VM_DATA_ACCESS_VIOLATION;
-	}
-	RenderDrawQuad(pVM->pRender, (struct Quad*)(pVM->pGlobalMemory + pQuad));
-
-	return VM_OK;
-}
