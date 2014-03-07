@@ -11,6 +11,7 @@ struct SysCall SysCallTable[] = {
 	SysDebugOutput,
 	SysGetTimer,
 	SysSleep,
+	SysFloatOperations,
 	SysInteger64Operations,
 	SysDoubleOperations,
 	SysSetRender,

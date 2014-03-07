@@ -13,6 +13,7 @@ struct SysCall SysCalls[] = {
 	"DebugOutput",
 	"GetTimer",
 	"Sleep",
+	"FloatOperations",
 	"Integer64Operations",
 	"DoubleOperations",
 	"SetRender",

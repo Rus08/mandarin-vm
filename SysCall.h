@@ -3,6 +3,15 @@
 #define SYSCALL __fastcall
 #endif
 
+enum FloatOps{
+	VM_FLOAT_MOD,
+	VM_FLOAT_POW,
+	VM_FLOAT_FRC,
+	VM_FLOAT_COS,
+	VM_FLOAT_SIN,
+	VM_FLOAT_TAN,
+};
+
 enum Integer64Ops{
 	VM_INT64_ADD,
 	VM_INT64_SUB,
@@ -36,6 +45,7 @@ uint32_t SYSCALL SysDispatchCallbacks(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysDebugOutput(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysGetTimer(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysSleep(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysFloatOperations(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysInteger64Operations(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysDoubleOperations(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysSetRender(struct VirtualMachine* pVM);

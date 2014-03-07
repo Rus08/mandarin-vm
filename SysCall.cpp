@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "SysCall.h"
@@ -151,6 +152,52 @@ uint32_t SYSCALL SysSleep(struct VirtualMachine* pVM)
 #ifdef _WIN32
 	Sleep(pVM->Registers.r[0]);
 #endif
+
+	return VM_OK;
+}
+
+uint32_t SYSCALL SysFloatOperations(struct VirtualMachine* pVM)
+{
+	uint32_t id = pVM->Registers.r[0];
+	float op1 = *(float*)&pVM->Registers.r[1];
+	float op2 = *(float*)&pVM->Registers.r[2];
+
+	switch(id){
+		case VM_FLOAT_MOD:
+		{
+			*(float*)&pVM->Registers.r[0] = fmodf(op1, op2);
+		}
+		break;
+		case VM_FLOAT_POW:
+		{
+			*(float*)&pVM->Registers.r[0] = powf(op1, op2);
+		}
+		break;
+		case VM_FLOAT_FRC:
+		{
+			float temp;
+			*(float*)&pVM->Registers.r[0] = modff(op1, &temp);
+		}
+		break;
+		case VM_FLOAT_COS:
+		{
+			*(float*)&pVM->Registers.r[0] = cosf(op1);
+		}
+		break;
+		case VM_FLOAT_SIN:
+		{
+			*(float*)&pVM->Registers.r[0] = sinf(op1);
+		}
+		break;
+		case VM_FLOAT_TAN:
+		{
+			*(float*)&pVM->Registers.r[0] = tanf(op1);
+		}
+		break;
+		default:
+			assert(false);
+			return VM_INVALID_SYSCALL;
+	};
 
 	return VM_OK;
 }
