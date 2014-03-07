@@ -8,7 +8,7 @@
 #include "SysCallTable.h"
 
 #ifdef STAT_COUNTERS
-#include "VMAsm/Instructions.h"
+#include "Tools/VMAsmLib/Instructions.h"
 #endif
 
 uint32_t CheckPass(struct VirtualMachine* pVM);
@@ -18,7 +18,8 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, HDC hDC)
 {
 	uint32_t SC;
-
+	
+	memset(pVM, 0, sizeof(struct VirtualMachine));
 	pVM->pCode = pCode;
 	pVM->CodeSize = CodeSize;
 	pVM->pGlobalMemory = pData;

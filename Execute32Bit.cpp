@@ -65,6 +65,7 @@
 			// third operand is register
 			for(uint32_t i = 0; i <= rep; i++){
 				if(pVM->Registers.r[top + i] == 0){
+					assert(false);
 					return VM_DIVIDE_BY_ZERO;
 				}
 				*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] / *(int32_t*)&pVM->Registers.r[top + i];
@@ -76,6 +77,7 @@
 			I3OperandsInt_Base();
 			// third operand is integer
 			if(top == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			// sign extending
@@ -89,6 +91,7 @@
 			// third operand is register
 			for(uint32_t i = 0; i <= rep; i++){
 				if(pVM->Registers.r[top + i] == 0){
+					assert(false);
 					return VM_DIVIDE_BY_ZERO;
 				}
 				*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] % *(int32_t*)&pVM->Registers.r[top + i];
@@ -100,6 +103,7 @@
 			I3OperandsInt_Base();
 			// third operand is integer
 			if(top == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			// sign extending
@@ -406,6 +410,7 @@
 			pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
 			CheckStackSize();
 			if(IfAvailableLocalMemory(pVM, LOCAL_MEMORY_FRAME_START_SIZE) != VM_OK){
+				assert(false);
 				return VM_NOT_ENOUGH_MEMORY;
 			}
 			
@@ -423,6 +428,7 @@
 			pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
 			CheckStackSize();
 			if(IfAvailableLocalMemory(pVM, LOCAL_MEMORY_FRAME_START_SIZE) != VM_OK){
+				assert(false);
 				return VM_NOT_ENOUGH_MEMORY;
 			}
 			
@@ -559,11 +565,13 @@
 			uint32_t SysCallId = fop;
 
 			if(SysCallId >= sizeof(SysCallTable) / sizeof(struct SysCall)){
+				assert(false);
 				return VM_INVALID_SYSCALL;
 			}
 				
 			uint32_t SC = SysCallTable[SysCallId].pFunc(pVM);
 			if(SC != VM_OK){
+				assert(false);
 				return SC;
 			}
 		}
@@ -590,9 +598,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 4, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i);
 			}
@@ -602,9 +609,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i);
 			}
@@ -614,9 +620,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 2, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i);
 			}
@@ -626,9 +631,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->GlobalMemorySize); // type check is uint32_t because u can't take integer offset more than 4gb
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i);
 			}
@@ -638,9 +642,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 1, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pGlobalMemory + sop + i);
 			}
@@ -650,9 +653,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pGlobalMemory + sop + i);
 			}
@@ -662,9 +664,8 @@
 		{	// store
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 4, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
@@ -674,9 +675,8 @@
 		{	// store
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 4 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
@@ -686,9 +686,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 2, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
@@ -698,9 +697,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 2 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
@@ -710,9 +708,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint64_t, 1, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pGlobalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
@@ -722,9 +719,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if(((uint64_t)sop + 1 * rep) > pVM->GlobalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->GlobalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pGlobalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
@@ -734,9 +730,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 4 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i);
 			}
@@ -746,9 +741,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 4 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i);
 			}
@@ -758,9 +752,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 2 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i);
 			}
@@ -770,9 +763,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 2 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i);
 			}
@@ -782,9 +774,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 1 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCurrentLocalMemory + sop + i);
 			}
@@ -794,9 +785,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 1 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCurrentLocalMemory + sop + i);
 			}
@@ -806,9 +796,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 4 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pCurrentLocalMemory + *(int32_t*)&sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
@@ -818,9 +807,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 4 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
 			}
@@ -830,9 +818,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 2 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
@@ -842,9 +829,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 2 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
 			}
@@ -854,9 +840,8 @@
 		{
 			I2OperandsMem_Base();
 			// second operand is register
-			if((/*(uint64_t)*/sop + 1 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pCurrentLocalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}
@@ -866,9 +851,8 @@
 		{
 			I2OperandsMemInt_Base();
 			// second operand is integer
-			if((/*(uint64_t)*/sop + 1 * rep) > pVM->CurrentLocalMemorySize){
-				return VM_DATA_ACCESS_VIOLATION;
-			}
+			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
+
 			for(uint32_t i = 0; i < rep; i++){
 				*(uint8_t*)(pVM->pCurrentLocalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
 			}

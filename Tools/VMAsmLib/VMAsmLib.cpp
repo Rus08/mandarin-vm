@@ -4,13 +4,6 @@
 #include "VMAsm.h"
 #include "Util.h"
 
-
-char* pSource = 0;
-char* pDataSource = 0;
-struct Segment CodeSeg;
-struct Segment DataSeg;
-
-
 int ClearComments(char* pAsm, int file_size)
 {
 	for(int i = 0; i < file_size - 1; i++){
@@ -105,22 +98,49 @@ int MakeLabelsMap(struct Segment* pSeg)
 	return curr_label;
 }
 
+int OnErrorExit(char* pSource, struct Segment* pCodeSeg, struct Segment* pDataSeg)
+{
+	if(pSource != NULL){
+		free(pSource);
+	}
+	if(pCodeSeg->pStrings != NULL){
+		free(pCodeSeg->pStrings);
+	}
+	if(pCodeSeg->pLabels != NULL){
+		free(pCodeSeg->pLabels);
+	}
+	if(pCodeSeg->pBinary != NULL){
+		free(pCodeSeg->pBinary);
+	}
+	free(pCodeSeg);
 
-int main(int argc, char* argv[])
+	if(pDataSeg->pStrings != NULL){
+		free(pDataSeg->pStrings);
+	}
+	if(pDataSeg->pLabels != NULL){
+		free(pDataSeg->pLabels);
+	}
+	if(pDataSeg->pBinary != NULL){
+		free(pDataSeg->pBinary);
+	}
+	free(pDataSeg);
+
+	return 0;
+}
+
+int AsmFileToMemory(char* FileName, char** ppCode, int* pCodeSize, char** ppData, int* pDataSize)
 {
 	FILE* fp = 0;
 	int	file_size = 0;
 	int code_size = 0;
-	
+	char* pSource = 0;
+	char* pDataSource = 0;
+	struct Segment* pCodeSeg;
+	struct Segment* pDataSeg;
 
-	if(argc != 4){
-		printf("Use VMAsm file.in code.out data.out.\n");
-		return 0;
-	}
-	
-	fp = fopen(argv[1], "rb");
+	fp = fopen(FileName, "rb");
 	if(fp == 0){
-		printf("File %s not found.\n", argv[1]);
+		printf("File %s not found.\n", FileName);
 		return 0;
 	}
 
@@ -138,11 +158,13 @@ int main(int argc, char* argv[])
 			pSource[i] = ' ';
 		}
 	}
-
-	memset(&CodeSeg, 0, sizeof(struct Segment));
-	memset(&DataSeg, 0, sizeof(struct Segment));
-	CodeSeg.type = SEG_CODE;
-	DataSeg.type = SEG_DATA;
+	
+	pCodeSeg = (struct Segment*)malloc(sizeof(struct Segment));
+	pDataSeg = (struct Segment*)malloc(sizeof(struct Segment));
+	memset(pCodeSeg, 0, sizeof(struct Segment));
+	memset(pDataSeg, 0, sizeof(struct Segment));
+	pCodeSeg->type = SEG_CODE;
+	pDataSeg->type = SEG_DATA;
 	// clear all comments
 	ClearComments(pSource, file_size);
 
@@ -154,59 +176,47 @@ int main(int argc, char* argv[])
 		code_size = pDataSource - pSource;
 	}
 	// parse code
-	CodeSeg.StringsNum = MakeStringsMap(pSource, code_size, &CodeSeg);
-	CodeSeg.LabelsNum = MakeLabelsMap(&CodeSeg);
-	for(int i = 0; i < CodeSeg.StringsNum; i++){
-		ParseString(&CodeSeg.pStrings[i]);
+	pCodeSeg->StringsNum = MakeStringsMap(pSource, code_size, pCodeSeg);
+	pCodeSeg->LabelsNum = MakeLabelsMap(pCodeSeg);
+	for(int i = 0; i < pCodeSeg->StringsNum; i++){
+		ParseString(&pCodeSeg->pStrings[i]);
 	}
-	CalcSizeAndOffset(&CodeSeg);
+	CalcSizeAndOffset(pCodeSeg);
 	// parse data
 	if(pDataSource != NULL){
 		memset(pDataSource, ' ', strlen(".DATA"));
-		DataSeg.StringsNum = MakeStringsMap(pDataSource, file_size - code_size, &DataSeg);
-		DataSeg.LabelsNum = MakeLabelsMap(&DataSeg);
-		for(int i = 0; i < DataSeg.StringsNum; i++){
-			ParseString(&DataSeg.pStrings[i]);
+		pDataSeg->StringsNum = MakeStringsMap(pDataSource, file_size - code_size, pDataSeg);
+		pDataSeg->LabelsNum = MakeLabelsMap(pDataSeg);
+		for(int i = 0; i < pDataSeg->StringsNum; i++){
+			ParseString(&pDataSeg->pStrings[i]);
 		}
-		CalcDataSizeAndOffset(&DataSeg, CodeSeg.StringsNum);
+		CalcDataSizeAndOffset(pDataSeg, pCodeSeg->StringsNum);
 	}
-	if(ProcessCode(pSource, code_size, &CodeSeg, &DataSeg) != 0){
+	if(ProcessCode(pSource, code_size, pCodeSeg, pDataSeg) != 0){
+		OnErrorExit(pSource, pCodeSeg, pDataSeg);
 		return -1;
 	}
-	if(ProcessData(pDataSource, file_size - code_size, &CodeSeg, &DataSeg, CodeSeg.StringsNum) != 0){
+	if(ProcessData(pDataSource, file_size - code_size, pCodeSeg, pDataSeg, pCodeSeg->StringsNum) != 0){
+		OnErrorExit(pSource, pCodeSeg, pDataSeg);
 		return -1;
 	}
 	
-
-	free(pSource);
-
-	// write code segment
-	fp = fopen(argv[2], "wb");
-	if(fp == 0){
-		printf("Can't open file %s for writing.\n", argv[2]);
-		return 0;
-	}
-
-	fwrite(CodeSeg.pBinary, 1, CodeSeg.pStrings[CodeSeg.StringsNum - 1].offset + CodeSeg.pStrings[CodeSeg.StringsNum - 1].binary_size, fp);
-	fclose(fp);
-	
+	*ppCode = pCodeSeg->pBinary;
+	*pCodeSize = pCodeSeg->pStrings[pCodeSeg->StringsNum - 1].offset + pCodeSeg->pStrings[pCodeSeg->StringsNum - 1].binary_size;
 	if(pDataSource != NULL){
-		fp = fopen(argv[3], "wb");
-		if(fp == 0){
-			printf("Can't open file %s for writing.\n", argv[3]);
-			return 0;
-		}
-		fwrite(DataSeg.pBinary, 1, DataSeg.pStrings[DataSeg.StringsNum - 1].offset + DataSeg.pStrings[DataSeg.StringsNum - 1].binary_size, fp);
-		fclose(fp);
-
-		free(DataSeg.pBinary);
-		free(DataSeg.pLabels);
-		free(DataSeg.pStrings);
+		*ppData = pDataSeg->pBinary;
+		*pDataSize = pDataSeg->pStrings[pDataSeg->StringsNum - 1].offset + pDataSeg->pStrings[pDataSeg->StringsNum - 1].binary_size;
+		free(pDataSeg->pLabels);
+		free(pDataSeg->pStrings);
+	}else{
+		*ppData = NULL;
+		*pDataSize = 0;
 	}
-
-	free(CodeSeg.pBinary);
-	free(CodeSeg.pLabels);
-	free(CodeSeg.pStrings);
+	free(pCodeSeg->pLabels);
+	free(pCodeSeg->pStrings);
+	free(pCodeSeg);
+	free(pDataSeg);
+	free(pSource);
 
 	return 0;
 }

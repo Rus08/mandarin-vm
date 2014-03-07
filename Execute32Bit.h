@@ -194,6 +194,7 @@ enum InstructionsId{
 \
 	fop = pVM->Registers.r[fop];\
 	if(((uint64_t)fop + 4) > pVM->CodeSize){\
+		assert(false);\
 		return VM_CODE_ACCESS_VIOLATION;\
 	}
 #else
@@ -203,6 +204,7 @@ enum InstructionsId{
 	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
 	fop = pVM->Registers.r[fop];\
 	if(((uint64_t)fop + 4) > pVM->CodeSize){\
+		assert(false);\
 		return VM_CODE_ACCESS_VIOLATION;\
 	}
 #endif
@@ -258,6 +260,11 @@ enum InstructionsId{
 	
 #endif
 
+#define I2OperandsMem_Check(type, size, memsize)\
+	if(((type)sop + size * rep) > memsize){\
+		assert(false);\
+		return VM_DATA_ACCESS_VIOLATION;\
+	}\
 
 
 inline uint32_t IfAvailableLocalMemory(struct VirtualMachine* pVM, uint32_t size)

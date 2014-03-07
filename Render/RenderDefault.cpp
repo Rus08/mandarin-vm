@@ -1,6 +1,7 @@
 #include <stdlib.h>
 //#include "../WebVM.h"
 #include <stdint.h>
+#include <assert.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
