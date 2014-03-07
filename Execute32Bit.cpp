@@ -877,13 +877,15 @@
 
 			if((flags & 0x1) != 0){ 
 				// local memory
-				if(((uint64_t)fop + top) >= pVM->CurrentLocalMemorySize){
+				if(*(int32_t*)&fop < pVM->MaxNegativeOffset ||(/*(uint64_t)*/*(int32_t*)&fop + top) > pVM->CurrentLocalMemorySize){
+					assert(false);
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					pDst = pVM->pCurrentLocalMemory + fop;
+					pDst = pVM->pCurrentLocalMemory + *(int32_t*)&fop;
 				}
 			}else{
-				if(((uint64_t)fop + top) >= pVM->GlobalMemorySize){
+				if(((uint64_t)fop + top) > pVM->GlobalMemorySize){
+					assert(false);
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pDst = pVM->pGlobalMemory + fop;
@@ -891,13 +893,15 @@
 			}
 			if((flags & 0x2) != 0){
 				// local memory
-				if(((uint64_t)sop + top) >= pVM->CurrentLocalMemorySize){
+				if(*(int32_t*)&sop < pVM->MaxNegativeOffset ||(/*(uint64_t)*/sop + top) > pVM->CurrentLocalMemorySize){
+					assert(false);
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					pSrc = pVM->pCurrentLocalMemory + sop;
+					pSrc = pVM->pCurrentLocalMemory + *(int32_t*)&sop;
 				}
 			}else{
-				if(((uint64_t)sop + top) >= pVM->GlobalMemorySize){
+				if(((uint64_t)sop + top) > pVM->GlobalMemorySize){
+					assert(false);
 					return VM_DATA_ACCESS_VIOLATION;
 				}else{
 					pSrc = pVM->pGlobalMemory + sop;
