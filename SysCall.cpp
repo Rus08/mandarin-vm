@@ -4,11 +4,11 @@
 #include "Execute32Bit.h"
 #include "SysCall.h"
 #include "Media\SysCallMedia.h"
-#include "SysCallTable.h"
+//#include "SysCallTable.h"
 
 
 
-uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId)
+/*uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId)
 {
 
 	if(SysCallId >= sizeof(SysCallTable) / sizeof(struct SysCall)){
@@ -16,9 +16,9 @@ uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId)
 	}
 
 	return SysCallTable[SysCallId].pFunc(pVM);
-}
+}*/
 
-uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 {
 	uint32_t mem_size = pVM->Registers.r[0];
 
@@ -37,6 +37,7 @@ uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
 		if(pVM->pGlobalMemory != NULL){
 			pVM->GlobalMemorySize = mem_size;
 		}else{
+			assert(false);
 			return VM_NOT_ENOUGH_MEMORY;
 		}
 	}
@@ -45,7 +46,7 @@ uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysSetLocalMemory(struct VirtualMachine* pVM)
 {
 	uint32_t mem_size = pVM->Registers.r[0];
 
@@ -64,12 +65,14 @@ uint32_t SysSetLocalMemory(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRegisterCallback(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM)
 {
 	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
+		assert(false);
 		return VM_INVALID_CALLBACK;
 	}
 	if(((uint64_t)pVM->Registers.r[1] + 4) > pVM->CodeSize){
+		assert(false);
 		return VM_CODE_ACCESS_VIOLATION;
 	}
 	pVM->Callbacks[pVM->Registers.r[0]] = pVM->Registers.r[1];
@@ -77,9 +80,10 @@ uint32_t SysRegisterCallback(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysUnRegisterCallback(struct VirtualMachine* pVM)
 {
 	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
+		assert(false);
 		return VM_INVALID_CALLBACK;
 	}
 	pVM->Callbacks[pVM->Registers.r[0]] = 0;
@@ -87,7 +91,7 @@ uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysDispatchCallbacks(struct VirtualMachine* pVM)
 {
 	pVM->DispatchFlag = true;
 	pVM->Registers.PC = pVM->Registers.PC + 4;
@@ -95,17 +99,19 @@ uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM)
 	return VM_DISPATCH;
 }
 
-uint32_t SysDebugOutput(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysDebugOutput(struct VirtualMachine* pVM)
 {
 	uint32_t addr = pVM->Registers.r[0];
 	uint32_t size = pVM->Registers.r[1];
 	uint8_t* pTemp;
 
 	if(((uint64_t)addr + size) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	pTemp = (uint8_t*)malloc(size + 2);
 	if(pTemp == NULL){
+		assert(false);
 		return VM_NOT_ENOUGH_MEMORY;
 	}
 	strncpy((char*)pTemp, (char*)(pVM->pGlobalMemory + addr), size);
@@ -119,7 +125,7 @@ uint32_t SysDebugOutput(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysGetTimer(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysGetTimer(struct VirtualMachine* pVM)
 {
 	uint64_t Timer;
 #ifdef _WIN32
@@ -140,7 +146,7 @@ uint32_t SysGetTimer(struct VirtualMachine* pVM)
 	void Sleep(uint32_t ms)
 	Sleeps defined amount of milliseconds
 */
-uint32_t SysSleep(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysSleep(struct VirtualMachine* pVM)
 {
 #ifdef _WIN32
 	Sleep(pVM->Registers.r[0]);
@@ -149,7 +155,7 @@ uint32_t SysSleep(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysInteger64Operations(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
 	uint32_t *op1 = &pVM->Registers.r[1]; // r1-r2, need check for Big Endian
@@ -174,6 +180,7 @@ uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 		case VM_SINT64_DIV:
 		{
 			if(*(int64_t*)op2 == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 / *(int64_t*)op2;
@@ -182,6 +189,7 @@ uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 		case VM_UINT64_DIV:
 		{
 			if(*(uint64_t*)op2 == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			*(uint64_t*)&pVM->Registers.r[0] = *(uint64_t*)op1 / *(uint64_t*)op2;
@@ -190,6 +198,7 @@ uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 		case VM_SINT64_MOD:
 		{
 			if(*(int64_t*)op2 == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			*(int64_t*)&pVM->Registers.r[0] = *(int64_t*)op1 % *(int64_t*)op2;
@@ -198,6 +207,7 @@ uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 		case VM_UINT64_MOD:
 		{
 			if(*(uint64_t*)op2 == 0){
+				assert(false);
 				return VM_DIVIDE_BY_ZERO;
 			}
 			*(uint64_t*)&pVM->Registers.r[0] = *(uint64_t*)op1 % *(uint64_t*)op2;
@@ -224,13 +234,14 @@ uint32_t SysInteger64Operations(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+			assert(false);
 			return VM_INVALID_SYSCALL;
 	};
 
 	return VM_OK;
 }
 
-uint32_t SysDoubleOperations(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysDoubleOperations(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
 	double op1 = *(double*)&pVM->Registers.r[1]; // r1-r2, need check for Big Endian
@@ -258,6 +269,7 @@ uint32_t SysDoubleOperations(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+			assert(false);
 			return VM_INVALID_SYSCALL;
 	};
 

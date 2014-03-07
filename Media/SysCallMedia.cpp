@@ -24,7 +24,7 @@
 		VM_DECODER_REACHED_MAX_THREADS - number of threads currently running by VM is reached their limit, wait a bit
 
 */
-uint32_t SysDecodeImage(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
 	pthread_t thread;
@@ -36,7 +36,13 @@ uint32_t SysDecodeImage(struct VirtualMachine* pVM)
 			uint32_t src_size = pVM->Registers.r[2];
 			uint32_t struct_addr = pVM->Registers.r[3];
 
+			if(((uint64_t)src_addr + src_size) > pVM->GlobalMemorySize){
+				assert(false);
+				return VM_DATA_ACCESS_VIOLATION;
+			}
+
 			if(((uint64_t)struct_addr + sizeof(struct ImageInfo)) > pVM->GlobalMemorySize){
+				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			pVM->Registers.r[0] = GetImageInfo(pVM->pGlobalMemory + src_addr, src_size, (struct ImageInfo*)(pVM->pGlobalMemory + struct_addr));
@@ -48,6 +54,7 @@ uint32_t SysDecodeImage(struct VirtualMachine* pVM)
 			uint32_t addr = pVM->Registers.r[1];
 
 			if(((uint64_t)addr + sizeof(UserDecodeStruct)) > pVM->GlobalMemorySize){
+				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 
@@ -56,9 +63,11 @@ uint32_t SysDecodeImage(struct VirtualMachine* pVM)
 			// check buffers
 			pInfo->pUser = (struct UserDecodeStruct*)(pVM->pGlobalMemory + addr);
 			if(((uint64_t)pInfo->pUser->pSrc + pInfo->pUser->size) > pVM->GlobalMemorySize){
+				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			if(((uint64_t)pInfo->pUser->pDst + pInfo->pUser->dst_size) > pVM->GlobalMemorySize){
+				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			pInfo->pSrc = pVM->pGlobalMemory + pInfo->pUser->pSrc;
@@ -70,11 +79,9 @@ uint32_t SysDecodeImage(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+			assert(false);
 			return VM_INVALID_SYSCALL;		
 	}
-
-	
-
 
 	return VM_OK;
 }
@@ -89,6 +96,7 @@ uint32_t GetImageInfo(uint8_t* pSrc, uint32_t size, struct ImageInfo* pInfo)
 		// image is jpeg format
 		return GetJPEGInfo(pSrc, size, pInfo);
 	}else{
+		assert(false);
 		return VM_DECODER_DECODE_FAILED;
 	}
 

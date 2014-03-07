@@ -15,12 +15,13 @@
 // 1 - not available
 // 2 - can't operate, because other render is working or no render is working
 
-uint32_t SysSetRender(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysSetRender(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
 	uint32_t enable = pVM->Registers.r[1];
 
 	if(id > 1 || enable > 1){
+		assert(false);
 		return VM_INVALID_SYSCALL;
 	}
 	if(pVM->hDC == NULL){
@@ -77,7 +78,7 @@ uint32_t SysSetRender(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderCreateTexture(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderCreateTexture(struct VirtualMachine* pVM)
 {
 	uint32_t addr = pVM->Registers.r[0];
 
@@ -86,6 +87,7 @@ uint32_t SysRenderCreateTexture(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if(((uint64_t)addr + sizeof(struct Texture)) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	pVM->Registers.r[0] = RenderCreateTexture(pVM->pRender, (struct Texture*)(pVM->pGlobalMemory + addr));
@@ -94,7 +96,7 @@ uint32_t SysRenderCreateTexture(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderUpdateTexture(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderUpdateTexture(struct VirtualMachine* pVM)
 {
 	uint32_t tex_addr = pVM->Registers.r[0];
 	uint32_t data_addr = pVM->Registers.r[1];
@@ -105,9 +107,11 @@ uint32_t SysRenderUpdateTexture(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if(((uint64_t)tex_addr + sizeof(struct Texture)) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	if(((uint64_t)data_addr + size) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	pVM->Registers.r[0] = RenderUpdateTexture(pVM->pRender, (struct Texture*)(pVM->pGlobalMemory + tex_addr), 0, size, pVM->pGlobalMemory + data_addr);
@@ -115,7 +119,7 @@ uint32_t SysRenderUpdateTexture(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderClear(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderClear(struct VirtualMachine* pVM)
 {
 	uint32_t addr = pVM->Registers.r[0];
 	uint32_t Color = pVM->Registers.r[1];	
@@ -125,6 +129,7 @@ uint32_t SysRenderClear(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if((uint64_t)addr + sizeof(struct Rect) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 
@@ -133,7 +138,7 @@ uint32_t SysRenderClear(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderSetTexture(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderSetTexture(struct VirtualMachine* pVM)
 {
 	uint32_t addr = pVM->Registers.r[0];
 
@@ -142,6 +147,7 @@ uint32_t SysRenderSetTexture(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if((uint64_t)addr + sizeof(struct Texture) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	pVM->Registers.r[0] = RenderSetTexture(pVM->pRender, (struct Texture*)(pVM->pGlobalMemory + addr));
@@ -149,7 +155,7 @@ uint32_t SysRenderSetTexture(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderSwapBuffers(struct VirtualMachine* pVM)
 {
 	if(pVM->pRender == NULL){
 		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
@@ -160,7 +166,7 @@ uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM)
+uint32_t SYSCALL SysRenderDrawQuad(struct VirtualMachine* pVM)
 {
 	uint32_t pQuad = pVM->Registers.r[0];
 
@@ -169,6 +175,7 @@ uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if(((uint64_t)pQuad + sizeof(struct Quad)) > pVM->GlobalMemorySize){
+		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
 	pVM->Registers.r[0] = RenderDrawQuad(pVM->pRender, (struct Quad*)(pVM->pGlobalMemory + pQuad));

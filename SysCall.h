@@ -1,4 +1,8 @@
 
+#ifdef _WIN32
+#define SYSCALL __fastcall
+#endif
+
 enum Integer64Ops{
 	VM_INT64_ADD,
 	VM_INT64_SUB,
@@ -22,23 +26,23 @@ enum DoubleOps{
 
 
 
-uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId);
+//uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId);
 
-uint32_t SysSetGlobalMemory(struct VirtualMachine* pVM);
-uint32_t SysSetLocalMemory(struct VirtualMachine* pVM);
-uint32_t SysRegisterCallback(struct VirtualMachine* pVM);
-uint32_t SysUnRegisterCallback(struct VirtualMachine* pVM);
-uint32_t SysDispatchCallbacks(struct VirtualMachine* pVM);
-uint32_t SysDebugOutput(struct VirtualMachine* pVM);
-uint32_t SysGetTimer(struct VirtualMachine* pVM);
-uint32_t SysSleep(struct VirtualMachine* pVM);
-uint32_t SysInteger64Operations(struct VirtualMachine* pVM);
-uint32_t SysDoubleOperations(struct VirtualMachine* pVM);
-uint32_t SysSetRender(struct VirtualMachine* pVM);
-uint32_t SysRenderCreateTexture(struct VirtualMachine* pVM);
-uint32_t SysRenderUpdateTexture(struct VirtualMachine* pVM);
-uint32_t SysRenderClear(struct VirtualMachine* pVM);
-uint32_t SysRenderSetTexture(struct VirtualMachine* pVM);
-uint32_t SysRenderSwapBuffers(struct VirtualMachine* pVM);
-uint32_t SysRenderDrawQuad(struct VirtualMachine* pVM);
-uint32_t SysDecodeImage(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysSetLocalMemory(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysUnRegisterCallback(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysDispatchCallbacks(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysDebugOutput(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysGetTimer(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysSleep(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysInteger64Operations(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysDoubleOperations(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysSetRender(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderCreateTexture(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderUpdateTexture(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderClear(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderSetTexture(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderSwapBuffers(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysRenderDrawQuad(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM);

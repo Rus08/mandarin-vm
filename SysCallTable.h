@@ -1,5 +1,5 @@
 struct SysCall{
-	uint32_t (*pFunc)(struct VirtualMachine* pVM);
+	uint32_t (SYSCALL *pFunc)(struct VirtualMachine* pVM);
 };
 
 struct SysCall SysCallTable[] = {

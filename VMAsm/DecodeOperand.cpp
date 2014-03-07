@@ -6,7 +6,7 @@
 #include "Util.h"
 
 
-int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut)
+int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, bool signflag, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut)
 {
 	unsigned int op = 0;
 	int r = CheckForHiLo(Op);
@@ -41,7 +41,10 @@ int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, int St
 				printf("Error. Operand at line %d is too big!\n", StringNum);
 				return -1;
 			}
-			op = atoi(Op) & IntMaxSize;
+			op = atoi(Op);
+		}
+		if(signflag == true){
+			op = op + IntMaxSize / 2 + 1;
 		}
 		*pLastopintflag = 1;
 		op = (op & mask) >> shift;

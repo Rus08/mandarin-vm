@@ -79,14 +79,14 @@ int CodeDataInstruction(struct String* pStrings, int StringNum, struct Segment* 
 		{
 			if(pString->repeat == 0){
 				for(int i = 0; i < pString->opnum; i++){
-					if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[i], 0xffffffff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 					}
 					((unsigned int*)pOutBuf)[i] = op;
 				}
 			}else{
 				for(int i = 0; i < pString->repeat; i++){
-					if(DecodeOperand(pString->op[0], 0xffffffff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[0], 0xffffffff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 					}
 					((unsigned int*)pOutBuf)[i] = op;
@@ -98,14 +98,14 @@ int CodeDataInstruction(struct String* pStrings, int StringNum, struct Segment* 
 		{
 			if(pString->repeat == 0){
 				for(int i = 0; i < pString->opnum; i++){
-					if(DecodeOperand(pString->op[i], 0xffff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[i], 0xffff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 				 	}
 					((unsigned short*)pOutBuf)[i] = op;
 				}
 			}else{
 				for(int i = 0; i < pString->repeat; i++){
-					if(DecodeOperand(pString->op[0], 0xffff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[0], 0xffff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 					}
 					((unsigned short*)pOutBuf)[i] = op;
@@ -117,14 +117,14 @@ int CodeDataInstruction(struct String* pStrings, int StringNum, struct Segment* 
 		{
 			if(pString->repeat == 0){
 				for(int i = 0; i < pString->opnum; i++){
-					if(DecodeOperand(pString->op[i], 0xff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[i], 0xff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 					}
 					((unsigned char*)pOutBuf)[i] = op;
 				}
 			}else{
 				for(int i = 0; i < pString->repeat; i++){
-					if(DecodeOperand(pString->op[0], 0xff, &lastopintflag, StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
+					if(DecodeOperand(pString->op[0], 0xff, &lastopintflag, IfSigned(pString->id), StringOffset + StringNum, pCodeSeg, pDataSeg, &op) != 0){
 						return -1;
 					}
 					((unsigned char*)pOutBuf)[i] = op;

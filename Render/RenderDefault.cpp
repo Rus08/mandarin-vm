@@ -28,17 +28,21 @@ uint32_t RenderInit(struct Render* pRender, HDC hDC)
 
 	pixelformat = ChoosePixelFormat(hDC, &pfd);
 	if(pixelformat == 0){
+		assert(false);
 		return VM_RENDER_INIT_FAILED;
 	}
 	if(SetPixelFormat(hDC, pixelformat, &pfd) != TRUE){
+		assert(false);
 		return VM_RENDER_INIT_FAILED;
 	}
 	pRender->hRC = wglCreateContext(hDC);
 	if(pRender->hRC == NULL){
+		assert(false);
 		return VM_RENDER_INIT_FAILED;
 	}
 	if(wglMakeCurrent(hDC, pRender->hRC) != TRUE){
 		wglDeleteContext(pRender->hRC);
+		assert(false);
 		return VM_RENDER_INIT_FAILED;
 	}
 	glGetIntegerv(GL_VIEWPORT, ViewPort);
@@ -65,6 +69,7 @@ uint32_t RenderInit(struct Render* pRender, HDC hDC)
 uint32_t RenderCreateTexture(struct Render* pRender, struct Texture* pTexture)
 {
 	if(pTexture->width > 2048 || pTexture->height > 2048){
+		assert(false);
 		return VM_RENDER_TEXTURE_TOO_BIG;
 	}
 	glGenTextures(1, &pRender->Textures[pRender->TexCount]);
@@ -82,6 +87,7 @@ uint32_t RenderCreateTexture(struct Render* pRender, struct Texture* pTexture)
 uint32_t RenderUpdateTexture(struct Render* pRender, struct Texture* pTexture, uint32_t offset, uint32_t size, uint8_t* pData)
 {
 	if(pTexture->width > 2048 || pTexture->height > 2048){
+		assert(false);
 		return VM_RENDER_TEXTURE_TOO_BIG;
 	}
 

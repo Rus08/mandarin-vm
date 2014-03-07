@@ -38,12 +38,12 @@ uint32_t Execute16Bit(struct VirtualMachine* pVM, uint16_t Instruction)
 		break;
 		case VM_HFSUB:
 		{
-			*(float*)pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] - *(float*)&pVM->Registers.r[top];
+			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] - *(float*)&pVM->Registers.r[top];
 		}
 		break;
 		case VM_HFMUL:
 		{
-			*(float*)pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] * *(float*)&pVM->Registers.r[top];
+			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] * *(float*)&pVM->Registers.r[top];
 		}
 		break;
 		case VM_HNOP:
@@ -51,7 +51,8 @@ uint32_t Execute16Bit(struct VirtualMachine* pVM, uint16_t Instruction)
 
 		}
 		break;
-
+		default:
+			assert(false);
 	};
 
 	return VM_OK;

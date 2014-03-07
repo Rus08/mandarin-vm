@@ -2,6 +2,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <assert.h>
 
 #ifndef RENDER_ES20
 #include <GL/gl.h>
@@ -108,7 +109,7 @@ struct VirtualMachine{
 #endif
 #ifdef STAT_COUNTERS
 	uint64_t Count;
-	uint64_t ExecTable[64];
+	uint64_t ExecTable[128];
 	uint64_t RegistersHit[32];
 #endif
 };

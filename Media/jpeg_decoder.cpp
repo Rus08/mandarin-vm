@@ -106,6 +106,7 @@ void jpeg_sleep(j_decompress_ptr cinfo, struct DecodeStruct* pInfo)
 		jpeg_destroy_decompress(cinfo);
 		pInfo->pUser->status_code = VM_DECODER_REACHED_MAX_SLEEP_TIME;
 		// exit
+		free(pInfo);
 		pthread_exit(NULL);
 	}
 #ifdef _WIN32
@@ -125,6 +126,7 @@ void error_exit(j_common_ptr cinfo)
 	pInfo->pUser->status_code = VM_DECODER_DECODE_FAILED;
 	(*cinfo->err->output_message)(cinfo);
 	jpeg_destroy_decompress((j_decompress_ptr)cinfo);
+	free(pInfo);
 	pthread_exit(NULL);
 }
 

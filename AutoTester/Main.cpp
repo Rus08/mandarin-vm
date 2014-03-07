@@ -159,13 +159,15 @@ int main(int argc, char* argv[])
 		if(argc <= 2){
 			if(argc == 2 && strcmp(argv[1], "-notbreak") == 0){
 				not_break = true;
+				fp = fopen("Tests\\list.txt", "rb");
+			}else{
+				fp = fopen(argv[1], "rb");
 			}
-			fp = fopen("Tests\\list.txt", "r");
 		}else{
 			if(strcmp(argv[2], "-notbreak") == 0){
 				not_break = true;
 			}
-			fp = fopen(argv[1], "r");
+			fp = fopen(argv[1], "rb");
 		}
 			
 

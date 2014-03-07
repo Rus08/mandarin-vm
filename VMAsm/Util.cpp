@@ -62,6 +62,31 @@ int GetDataSize(int id)
 	return DataInstructions[id].size;
 }
 
+int GetOperandCount(int id)
+{
+	return Instructions[id].opnum;
+}
+
+int GetIntMaxSize(int id)
+{
+	return Instructions[id].intmaxsize;
+}
+
+bool IfSigned(int id)
+{
+	return Instructions[id].signflag;
+}
+
+bool IfCodeSeg(int id)
+{
+	return Instructions[id].CodeSeg;
+}
+
+bool IfDataSeg(int id)
+{
+	return Instructions[id].DataSeg;
+}
+
 int GetFileSize(char* path)
 {
 	FILE* fp = 0;
@@ -78,16 +103,6 @@ int GetFileSize(char* path)
 
 	fclose(fp);
 	return size;
-}
-
-int GetOperandCount(int id)
-{
-	return Instructions[id].opnum;
-}
-
-int GetIntMaxSize(int id)
-{
-	return Instructions[id].intmaxsize;
 }
 
 unsigned int GetLabelAddr(char* name, struct Segment* pSeg)
