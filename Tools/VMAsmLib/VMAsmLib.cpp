@@ -30,6 +30,8 @@ int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg)
 			strings_num = strings_num + 1;
 		}
 	}
+	strings_num = strings_num + 1;
+	
 
 	pSeg->pStrings = (struct String*)malloc(sizeof(struct String) * strings_num);
 	memset(pSeg->pStrings, 0, sizeof(struct String) * strings_num);
@@ -43,6 +45,10 @@ int MakeStringsMap(char* pAsm, int file_size, struct Segment* pSeg)
 			curr_str = curr_str + 1;
 		}
 	}
+	// handle last string
+	pSeg->pStrings[strings_num - 1].pBegin = pBegin;
+	pSeg->pStrings[strings_num - 1].pEnd = pAsm + file_size;
+
 	pSeg->StringsNum = strings_num;
 	return strings_num;
 }
@@ -141,14 +147,14 @@ int AsmFileToMemory(char* FileName, char** ppCode, int* pCodeSize, char** ppData
 	fp = fopen(FileName, "rb");
 	if(fp == 0){
 		printf("File %s not found.\n", FileName);
-		return 0;
+		return -1;
 	}
 
 	fseek(fp, 0, SEEK_END);
 	file_size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	pSource = (char*)malloc(file_size);
+	pSource = (char*)malloc(file_size + 1); // +1 needed for case when file ended not with \n to place 0 terminator
 	fread(pSource, 1, file_size, fp);
 	fclose(fp);
 

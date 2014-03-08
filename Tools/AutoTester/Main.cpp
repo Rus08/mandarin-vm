@@ -80,6 +80,7 @@ int MakeStringsMap(char* pAsm, int file_size)
 			curr_str = curr_str + 1;
 		}
 	}
+	pStrings[strings_num - 1].pEnd = pAsm + file_size;
 	StringsNum = strings_num;
 
 	for(int i = 0; i < StringsNum; i++){
@@ -261,7 +262,7 @@ int main(int argc, char* argv[])
 		file_size = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
 
-		pText = (char*)malloc(file_size);
+		pText = (char*)malloc(file_size + 1);
 		fread(pText, 1, file_size, fp);
 
 		fclose(fp);

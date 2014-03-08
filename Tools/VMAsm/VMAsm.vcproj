@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="2"
@@ -86,7 +86,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y ..\Debug\VMAsm.exe ..\AutoTester\VMAsm.exe"
+				CommandLine="copy /Y Debug\VMAsm.exe ..\AutoTester\VMAsm.exe"
 				ExcludedFromBuild="false"
 			/>
 		</Configuration>
