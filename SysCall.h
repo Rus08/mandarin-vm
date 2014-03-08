@@ -56,3 +56,4 @@ uint32_t SYSCALL SysRenderSetTexture(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysRenderSwapBuffers(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysRenderDrawQuad(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM);
+uint32_t SYSCALL SysFileManager(struct VirtualMachine* pVM);

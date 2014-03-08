@@ -34,6 +34,28 @@ int ThreadsNum = 0;
 bool not_break = false;
 int	 error_count = 0;
 
+
+uint32_t VMFileManagerGetHandle(void)
+{
+	return VM_OK;
+}
+uint32_t VMFileManagerSetFlags(uint32_t handle, uint32_t flag_description, uint32_t flag_value)
+{
+	return VM_OK;
+}
+uint32_t VMFileManagerReadFile(uint32_t handle, struct FileStruct* pInfo)
+{
+	return VM_OK;
+}
+uint32_t VMFileManagerWriteFile(uint32_t handle, struct FileStruct* pInfo)
+{
+	return VM_OK;
+}
+uint32_t VMFileManagerCloseHandle(uint32_t handle)
+{
+	return VM_OK;
+}
+
 static unsigned int DecodeHex(char* Op)
 {
 	unsigned int op = 0;

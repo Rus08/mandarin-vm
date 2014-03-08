@@ -214,6 +214,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Media\SysCallFile.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Media\SysCallMedia.cpp"
 					>
 				</File>

@@ -22,4 +22,5 @@ struct SysCall SysCallTable[] = {
 	SysRenderSwapBuffers,
 	SysRenderDrawQuad,
 	SysDecodeImage,
+	SysFileManager,
 };
