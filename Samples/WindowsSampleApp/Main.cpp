@@ -34,6 +34,8 @@ char* GetErrorText(uint32_t id){
 	return ErrorResolveTable[id];
 }
 
+uint32_t VMFileManagerInit();
+
 //#endif
 
 LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -150,6 +152,7 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Create virtual machine
 	hDC = GetDC(hwnd);
 	SC = VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0, hDC);
+	VMFileManagerInit();
 	
 	if(SC != VM_OK){
 		char temp[64] = "";

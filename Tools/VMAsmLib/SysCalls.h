@@ -24,4 +24,5 @@ struct SysCall SysCalls[] = {
 	"RenderSwapBuffers",
 	"RenderDrawQuad",
 	"DecodeImage",
+	"FileManager",
 };

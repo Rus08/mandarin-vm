@@ -571,7 +571,7 @@
 				
 			uint32_t SC = SysCallTable[SysCallId].pFunc(pVM);
 			if(SC != VM_OK){
-				assert(false);
+				assert(SC == VM_DISPATCH);
 				return SC;
 			}
 		}
