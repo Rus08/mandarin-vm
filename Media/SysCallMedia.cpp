@@ -45,15 +45,28 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-
 			// check buffers
 			pFile = (struct UserFileStruct*)(pVM->pGlobalMemory + file_addr);
 			if(((uint64_t)pFile->pBuf + pFile->buf_size) > pVM->GlobalMemorySize){
 				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
+			struct DecodeStruct* pInfo;
+			pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
+			if(pInfo == NULL){
+				assert(false);
+				return VM_NOT_ENOUGH_MEMORY;
+			}
 			pImageInfo = (struct ImageInfo*)(pVM->pGlobalMemory + struct_addr);
-			pVM->Registers.r[0] = GetImageInfo(pVM, pFile, pImageInfo);
+
+			memset(pInfo, 0, sizeof(struct DecodeStruct));
+			pInfo->pVM = pVM;
+			pInfo->pFile = pFile;
+			pInfo->pUser = (struct UserDecodeStruct*)pImageInfo;
+			pInfo->pSrc = pVM->pGlobalMemory + pFile->pBuf;
+			pInfo->src_size = pFile->buf_size;
+			
+			pVM->Registers.r[0] = GetImageInfo(pVM, pFile, pInfo, pImageInfo);
 		}
 		break;
 		case VM_DECODE_JPEG:
@@ -84,6 +97,10 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			struct DecodeStruct* pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
+			if(pInfo == NULL){
+				assert(false);
+				return VM_NOT_ENOUGH_MEMORY;
+			}
 			memset(pInfo, 0, sizeof(struct DecodeStruct));
 			pInfo->pVM = pVM;
 			pInfo->pFile = pFile;
@@ -109,21 +126,12 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 
 
 
-uint32_t GetImageInfo(struct VirtualMachine* pVM, struct UserFileStruct* pFile, struct ImageInfo* pImageInfo)
+uint32_t GetImageInfo(struct VirtualMachine* pVM, struct UserFileStruct* pFile, struct DecodeStruct* pInfo, struct ImageInfo* pImageInfo)
 {
 	uint8_t JPEG_id[] = { 0xff, 0xd8 };
 
 	if(pFile->available_size >=2 && memcmp(pVM->pGlobalMemory + pFile->pBuf, JPEG_id, sizeof(JPEG_id)) == 0){
 		// image is jpeg format
-		struct DecodeStruct* pInfo;
-
-		pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
-		memset(pInfo, 0, sizeof(struct DecodeStruct));
-		pInfo->pVM = pVM;
-		pInfo->pFile = pFile;
-		pInfo->pUser = (struct UserDecodeStruct*)pImageInfo;
-		pInfo->pSrc = pVM->pGlobalMemory + pFile->pBuf;
-		pInfo->src_size = pFile->buf_size;
 
 		if(AddThread(pVM, GetJPEGInfo, pInfo) != VM_OK){
 			assert(false);
@@ -134,7 +142,6 @@ uint32_t GetImageInfo(struct VirtualMachine* pVM, struct UserFileStruct* pFile, 
 	//	assert(false);
 		return VM_DECODER_NOT_ENOUGH_DATA;
 	}
-
 
 	return VM_DECODER_OK;
 }

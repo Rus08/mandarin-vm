@@ -5,7 +5,7 @@
 #include "WebVM.h"
 #include "ThreadManager.h"
 
-uint32_t InitThreads(struct VirtualMachine* pVM)
+inline uint32_t InitThreads(struct VirtualMachine* pVM)
 {
 	pVM->pThreads = (uint8_t*)malloc(sizeof(pthread_t) * MAX_ALLOWED_THREADS);
 	if(pVM->pThreads == NULL){
@@ -79,7 +79,7 @@ uint32_t ThreadExit(struct VirtualMachine* pVM, bool NormalExit, void* Arg)
 	return VM_OK;
 }
 
-uint32_t DeInitThreads(struct VirtualMachine* pVM)
+inline uint32_t DeInitThreads(struct VirtualMachine* pVM)
 {
 	pthread_t* pThreads = (pthread_t*)pVM->pThreads;
 	if(pVM->pThreads != NULL){

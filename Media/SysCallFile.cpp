@@ -81,6 +81,7 @@ uint32_t SYSCALL SysFileManager(struct VirtualMachine* pVM)
 				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
+			pStruct->handle = handle;
 			pStruct->pBuf = pVM->pGlobalMemory + pStruct->pUser->pBuf;
 			pStruct->buf_size = pStruct->pUser->buf_size;
 			pStruct->available_size = 0;

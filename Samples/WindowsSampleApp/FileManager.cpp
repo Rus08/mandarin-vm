@@ -67,10 +67,12 @@ uint32_t VMFileManagerSetFlags(uint32_t handle, uint32_t flag_description, uint3
 
 void* VMFileReadThreadFunc(void* Arg)
 {
+	struct FileStruct* pInfo = (struct FileStruct*)Arg;
 	CURLcode SC;
 
-	SC = curl_easy_perform((CURL*)Arg);
+	SC = curl_easy_perform((CURL*)pInfo->handle);
 
+	free(pInfo);
 	return NULL;
 }
 
@@ -83,7 +85,7 @@ uint32_t VMFileManagerReadFile(uint32_t handle, struct FileStruct* pInfo)
 	//curl_easy_setopt((CURL*)handle, CURLOPT_BUFFERSIZE, 4000);
 	
 	pInfo->pUser->available_size = 0;
-	pthread_create(&thread, 0, VMFileReadThreadFunc, (void*)handle);
+	pthread_create(&thread, 0, VMFileReadThreadFunc, (void*)pInfo);
 	/*if(SC != CURLE_OK){
 		return VM_OK;
 	}*/

@@ -27,6 +27,7 @@ struct UserFileStruct{
 
 struct FileStruct{
 	struct UserFileStruct* pUser;
+	uint32_t handle;
 	uint8_t* pBuf;
 	uint32_t buf_size;
 	uint32_t available_size;
