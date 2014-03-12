@@ -71,7 +71,7 @@ struct Instruction Instructions16Bit[] = {
 	"hand", 2, 3, 0, false, true, true,
 	"hor", 2, 3, 0, false, true, true,
 	"hfadd", 2, 3, 0, false, true, true,
-	"hfsub", 2, 3, 0, false, true, true,
+	"hmul", 2, 3, 0, false, true, true,
 	"hfmul", 2, 3, 0, false, true, true,
 	"hnop", 2, 0, 0, false, true, true,
 };

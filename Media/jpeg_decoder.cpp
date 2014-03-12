@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <jpeglib.h>
-#define PTW32_STATIC_LIB
-#include <pthread.h>
 #include "..\WebVM.h"
+#include "..\ThreadManager.h"
 #include "SysCallMedia.h"
 #include "SysCallFile.h"
 
@@ -23,8 +22,9 @@ void jpeg_sleep(j_decompress_ptr cinfo, struct DecodeStruct* pInfo)
 		jpeg_destroy_decompress(cinfo);
 		pInfo->pUser->status_code = VM_DECODER_REACHED_MAX_SLEEP_TIME;
 		// exit
+		struct VirtualMachine* pVM = pInfo->pVM;
 		free(pInfo);
-		pthread_exit(NULL);
+		ThreadExit(pVM, false, NULL);
 	}
 #ifdef _WIN32
 	Sleep(SLEEP_DURATION);
@@ -89,8 +89,10 @@ void error_exit(j_common_ptr cinfo)
 	pInfo->pUser->status_code = VM_DECODER_DECODE_FAILED;
 	(*cinfo->err->output_message)(cinfo);
 	jpeg_destroy_decompress((j_decompress_ptr)cinfo);
+	// exit
+	struct VirtualMachine* pVM = pInfo->pVM;
 	free(pInfo);
-	pthread_exit(NULL);
+	ThreadExit(pVM, false, NULL);
 }
 
 void jpeg_memory_src(j_decompress_ptr cinfo, const JOCTET* buffer, uint32_t size)
@@ -207,6 +209,7 @@ void* DecodeJPEG(void* pArg)
 	jpeg_destroy_decompress(&cinfo);
 	pInfo->pUser->status_code = VM_DECODER_OK;
 
+	ThreadExit(pInfo->pVM, true, NULL);
 	free(pInfo);
 
 	return NULL;

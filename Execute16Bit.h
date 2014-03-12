@@ -6,7 +6,7 @@ enum Instructions16BitId{
 	VM_HAND,
 	VM_HOR,
 	VM_HFADD,
-	VM_HFSUB,
+	VM_HMUL,
 	VM_HFMUL,
 	VM_HNOP,
 };

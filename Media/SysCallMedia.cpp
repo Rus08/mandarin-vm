@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#define PTW32_STATIC_LIB
-#include <pthread.h>
 #ifndef _WIN32
 #include <time.h>
 #endif
 #include "..\WebVM.h"
+#include "..\ThreadManager.h"
 #include "..\SysCall.h"
 #include "SysCallMedia.h"
 #include "SysCallFile.h"
@@ -28,7 +27,6 @@
 uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 {
 	uint32_t id = pVM->Registers.r[0];
-	pthread_t thread;
 
 	switch(id){
 		case VM_DECODER_GET_INFO:
@@ -87,12 +85,18 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 			}
 			struct DecodeStruct* pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
 			memset(pInfo, 0, sizeof(struct DecodeStruct));
+			pInfo->pVM = pVM;
 			pInfo->pFile = pFile;
 			pInfo->pUser = pUserInfo;
 			pInfo->pSrc = pVM->pGlobalMemory + pFile->pBuf;
 			pInfo->pDst = pVM->pGlobalMemory + pUserInfo->pDst;
 			pInfo->src_size = pFile->buf_size;
-			pthread_create(&thread, NULL, DecodeJPEG, pInfo);
+
+			if(AddThread(pVM, DecodeJPEG, pInfo) != VM_OK){
+				assert(false);
+				pVM->Registers.r[0] = VM_DECODER_CANT_CREATE_THREAD;
+			}
+			pVM->Registers.r[0] = VM_DECODER_OK;
 		}
 		break;
 		default:
@@ -112,16 +116,19 @@ uint32_t GetImageInfo(struct VirtualMachine* pVM, struct UserFileStruct* pFile, 
 	if(pFile->available_size >=2 && memcmp(pVM->pGlobalMemory + pFile->pBuf, JPEG_id, sizeof(JPEG_id)) == 0){
 		// image is jpeg format
 		struct DecodeStruct* pInfo;
-		pthread_t thread;
 
 		pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
 		memset(pInfo, 0, sizeof(struct DecodeStruct));
+		pInfo->pVM = pVM;
 		pInfo->pFile = pFile;
 		pInfo->pUser = (struct UserDecodeStruct*)pImageInfo;
 		pInfo->pSrc = pVM->pGlobalMemory + pFile->pBuf;
 		pInfo->src_size = pFile->buf_size;
-		pthread_create(&thread, NULL, GetJPEGInfo, pInfo);
 
+		if(AddThread(pVM, GetJPEGInfo, pInfo) != VM_OK){
+			assert(false);
+			return VM_DECODER_CANT_CREATE_THREAD;
+		}
 		return VM_DECODER_OK;
 	}else{
 	//	assert(false);

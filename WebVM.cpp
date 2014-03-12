@@ -4,6 +4,7 @@
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "Execute16Bit.h"
+#include "ThreadManager.h"
 #include "SysCall.h"
 #include "SysCallTable.h"
 
@@ -49,6 +50,12 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->Registers.PC = 0;
 	pVM->Registers.FLAGS = 0;
 	pVM->DispatchFlag = false;
+	// threads
+	SC = InitThreads(pVM);
+	if(SC != VM_OK){
+		assert(false);
+		return SC;
+	}
 	pVM->hDC = hDC;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
 #ifdef _WIN32
@@ -90,10 +97,6 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 		// check if instruction 32bit or 16bit
 		if(pVM->pCode[PC] & 0x01){
 			// 32bit
-			/*if((pVM->Registers.FLAGS & Int16BitFlag) != 0){
-				// Error here
-				return -1;
-			}*/
 			/*RC = Execute32Bit(pVM, *(uint32_t*)&(pVM->pCode[PC]));
 			if(RC != VM_OK){
 				return RC;
@@ -109,8 +112,8 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 #endif
 		}else{
 			// 16 bit
-			//pVM->Registers.FLAGS = (pVM->Registers.FLAGS & ~Int16BitFlag) | (~pVM->Registers.FLAGS & Int16BitFlag); // Not 16BitFlag
-			Execute16Bit(pVM, *(uint16_t*)&(pVM->pCode[PC]));
+			uint16_t Instruction = *(uint16_t*)&(pVM->pCode[PC]);
+#include "Execute16Bit.cpp"
 			pVM->Registers.PC = pVM->Registers.PC + 2;
 #ifdef STAT_COUNTERS
 			pVM->Count = pVM->Count + 1;
@@ -130,6 +133,8 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 		}
 		free(pVM->pRender);
 	}
+	// Clear threads
+	DeInitThreads(pVM);
 	// Clear code segment
 	if(pVM->pCode != NULL){
 		free(pVM->pCode);

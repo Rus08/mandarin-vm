@@ -19,6 +19,7 @@
 #define MAX_ALLOWED_STACK_SIZE 128
 #define SLEEP_DURATION 20
 #define MAX_SLEEP_DURATION 5000
+#define MAX_ALLOWED_THREADS 10
 
 //#define STAT_COUNTERS
 
@@ -43,6 +44,7 @@ enum VM_STATUS_CODE{
 	VM_STACK_IS_TOO_BIG,
 	VM_DATA_SECTOR_IS_TOO_BIG,
 	VM_NOT_ENOUGH_MEMORY,
+	VM_TOO_MANY_THREADS,
 // render related
 
 };
@@ -99,6 +101,10 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
+// threads
+	uint8_t* pThreads;
+	bool	 ThreadAlive[MAX_ALLOWED_THREADS];
+	uint32_t ThreadsNum;
 	uint32_t Callbacks[2];
 	struct Render* pRender;
 #ifdef _WIN32

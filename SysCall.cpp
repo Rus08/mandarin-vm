@@ -5,6 +5,7 @@
 #include "Execute32Bit.h"
 #include "SysCall.h"
 #include "Media\SysCallMedia.h"
+#include "ThreadManager.h"
 //#include "SysCallTable.h"
 
 
@@ -23,6 +24,12 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 {
 	uint32_t mem_size = pVM->Registers.r[0];
 
+	if(GetAliveThreadsNum(pVM) != 0){
+		// u must not change global memory size while threads working with it are still active
+		pVM->Registers.r[0] = VM_SYSCALL_BLOCKED_BY_THREADS;
+		return VM_OK;
+	}
+
 	if(mem_size == 0){
 		// free
 		if(pVM->GlobalMemorySize > 0){
@@ -30,7 +37,7 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 			pVM->pGlobalMemory = 0;
 			pVM->GlobalMemorySize = 0;
 		}
-		pVM->Registers.r[0] = 0;
+		pVM->Registers.r[0] = VM_SYSCALL_OK;
 		return VM_OK;
 	}
 	if(mem_size <= MAX_ALLOWED_GLOBAL_MEMORY){
@@ -77,6 +84,7 @@ uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM)
 		return VM_CODE_ACCESS_VIOLATION;
 	}
 	pVM->Callbacks[pVM->Registers.r[0]] = pVM->Registers.r[1];
+	pVM->Registers.r[0] = VM_SYSCALL_OK;
 
 	return VM_OK;
 }

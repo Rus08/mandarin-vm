@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "VMAsm.h"
 
 int ParseString(struct String* pString)
@@ -11,7 +12,7 @@ int ParseString(struct String* pString)
 	int opnum = 0;
 
 	// skip spacings
-	while(*pCurr == ' ' || *pCurr == '\t'){
+	while((*pCurr == ' ' || *pCurr == '\t') && pCurr != pEnd){
 		pCurr = pCurr + 1;
 	}
 
@@ -91,12 +92,15 @@ int ParseString(struct String* pString)
 		}
 		// make operand ended string
 		*(pTemp + 1) = 0;
-		pCurr = pCurr + 1;
-		
-		// skip spacings
-		while(*pCurr == ' ' || *pCurr == '\t'){
+		if(pCurr < pEnd){
 			pCurr = pCurr + 1;
+			
+			// skip spacings
+			while((*pCurr == ' ' || *pCurr == '\t') && pCurr != pEnd){
+				pCurr = pCurr + 1;
+			}
 		}
+		assert(pCurr <= pEnd);
 		if(pCurr == pEnd && i < (opnum - 1)){
 			// end of string
 			return -1;

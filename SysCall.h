@@ -3,6 +3,12 @@
 #define SYSCALL __fastcall
 #endif
 
+// using to return in user context
+enum SysCallStatusCodes{
+	VM_SYSCALL_OK,
+	VM_SYSCALL_BLOCKED_BY_THREADS,
+};
+
 enum FloatOps{
 	VM_FLOAT_MOD,
 	VM_FLOAT_POW,

@@ -11,7 +11,7 @@ uint32_t VMFileManagerInit()
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	return VM_OK;
+	return VM_FILE_OK;
 }
 
 size_t WriteMemoryCallback(void* pData, size_t size, size_t nmemb, void* userp)
@@ -62,7 +62,7 @@ uint32_t VMFileManagerSetFlags(uint32_t handle, uint32_t flag_description, uint3
 		}
 	};
 
-	return 0;
+	return VM_FILE_OK;
 }
 
 void* VMFileReadThreadFunc(void* Arg)
@@ -89,16 +89,16 @@ uint32_t VMFileManagerReadFile(uint32_t handle, struct FileStruct* pInfo)
 	}*/
 
 
-	return VM_OK;
+	return VM_FILE_OK;
 }
 
 uint32_t VMFileManagerWriteFile(uint32_t handle, struct FileStruct* pInfo)
 {
-	return VM_OK;
+	return VM_FILE_OK;
 }
 
 uint32_t VMFileManagerCloseHandle(uint32_t handle)
 {
 	curl_easy_cleanup((CURL*)handle);
-	return VM_OK;
+	return VM_FILE_OK;
 }

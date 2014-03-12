@@ -8,14 +8,14 @@
 
 #include <time.h>
 
-struct String{
+struct _String{
 	char* pBegin;
 	char* pEnd;
 	char* pResult;
 	char* pSC;
 };
 
-struct String* pStrings = 0;
+struct _String* pStrings = 0;
 int StringsNum = 0;
 
 enum ThreadFlags{
@@ -90,8 +90,8 @@ int MakeStringsMap(char* pAsm, int file_size)
 		}
 	}
 
-	pStrings = (struct String*)malloc(sizeof(struct String) * strings_num);
-	memset(pStrings, 0, sizeof(struct String) * strings_num);
+	pStrings = (struct _String*)malloc(sizeof(struct _String) * strings_num);
+	memset(pStrings, 0, sizeof(struct _String) * strings_num);
 
 	pBegin = pAsm;
 	for(int i = 0; i < file_size; i++){	

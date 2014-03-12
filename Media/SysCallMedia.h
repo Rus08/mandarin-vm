@@ -12,6 +12,7 @@ enum DECODER_STATUS_CODE{
 	VM_DECODER_DECODING,
 	VM_DECODER_REACHED_MAX_SLEEP_TIME,
 	VM_DECODER_NOT_ENOUGH_DATA,
+	VM_DECODER_CANT_CREATE_THREAD,
 };
 
 enum VM_DECODER_FORMATS{
@@ -43,6 +44,7 @@ struct UserDecodeStruct{
 	uint32_t decoded;
 };
 struct DecodeStruct{
+	struct VirtualMachine* pVM;
 	struct UserFileStruct* pFile;
 	struct UserDecodeStruct* pUser;
 	uint8_t* pSrc;

@@ -157,10 +157,33 @@
 			<File
 				RelativePath=".\CheckPass.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Execute16Bit.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Execute32Bit.cpp"
@@ -188,6 +211,10 @@
 			</File>
 			<File
 				RelativePath=".\SysCall.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ThreadManager.cpp"
 				>
 			</File>
 			<File
@@ -242,6 +269,10 @@
 			</File>
 			<File
 				RelativePath=".\SysCallTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ThreadManager.h"
 				>
 			</File>
 			<File
