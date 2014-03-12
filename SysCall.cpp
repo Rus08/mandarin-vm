@@ -323,6 +323,16 @@ uint32_t SYSCALL SysDoubleOperations(struct VirtualMachine* pVM)
 			*(double*)&pVM->Registers.r[0] = op1 / op2;
 		}
 		break;
+		case VM_DOUBLE_DTOF:
+		{
+			*(float*)&pVM->Registers.r[0] = (float)*(double*)&pVM->Registers.r[1];
+		}
+		break;
+		case VM_DOUBLE_FTOD:
+		{
+			*(double*)&pVM->Registers.r[0] = *(float*)&pVM->Registers.r[1];
+		}
+		break;
 		default:
 			assert(false);
 			return VM_INVALID_SYSCALL;
