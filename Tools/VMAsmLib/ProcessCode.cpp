@@ -20,13 +20,10 @@ int ProcessCode(char* pSource, int code_size, struct Segment* pCodeSeg, struct S
 			continue;
 		}
 
-		if(Get16BitId(pCodeSeg->pStrings[i].instr_name) == -1){
-			// labels in both segments
-			int id = pCodeSeg->pStrings[i].id;
-			rc = CodeInstruction(pCodeSeg->pStrings, i, IfCodeSeg(id) ? pCodeSeg : NULL, IfDataSeg(id) ? pDataSeg : NULL, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
-		}else{
-			rc = Code16BitInstruction(pCodeSeg->pStrings, i, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
-		}
+		// labels in both segments
+		int id = pCodeSeg->pStrings[i].id;
+		rc = CodeInstruction(pCodeSeg->pStrings, i, IfCodeSeg(id) ? pCodeSeg : NULL, IfDataSeg(id) ? pDataSeg : NULL, pCodeSeg->pBinary + pCodeSeg->pStrings[i].offset);
+		
 		if(rc != 0){
 			return -1;
 		}
@@ -49,11 +46,6 @@ int CalcSizeAndOffset(struct Segment* pSeg)
 		pSeg->pStrings[i].id = GetId(pSeg->pStrings[i].instr_name);
 		pSeg->pStrings[i].binary_size = 4/*GetSize(pSeg->pStrings[i].id)*/;
 
-		if(pSeg->pStrings[i].id == -1){
-			// check for 16 bit instruction
-			pSeg->pStrings[i].id = Get16BitId(pSeg->pStrings[i].instr_name);
-			pSeg->pStrings[i].binary_size = 2;
-		}
 		if(pSeg->pStrings[i].id == -1){
 			// Invalid instruction
 			printf("Invalid instruction at line: %d.\n", i);
@@ -134,66 +126,63 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pCod
 	if(pString->repeat != 0){
 		pString->repeat = pString->repeat - 1;
 	}
+	int formnum = (pString->repeat != 0) * 2 + lastopintflag;
+
+	if(GetCodeId(pString->id, formnum) == -1 && pString->id != GetId("memcpy")){
+		printf("Error. Invalid instruction %s form at line %d!\n", pString->instr_name, StringNum);
+		return -1;
+	}
 
 	if(pString->id <= GetId("xor")){
 		// 3 operand instructions
 		instr = op[2] << 5;
 		instr = (instr | op[1]) << 5;
-		if(lastopintflag == 0){
+		if(formnum == 0 || formnum == 2){
 			instr = (instr | op[0]) << 5;
-			instr = (instr | pString->repeat) << 6;	
+			instr = (instr | pString->repeat) << 8;	
 		}else{
-			instr = (instr | op[0]) << 6;
+			instr = (instr | op[0]) << 8;
 			if(pString->repeat != 0){
 				printf("Error. Instruction %s can't have repeat while have integer operand!\n", pString->instr_name);
 				return -1;
 			}
 		}
-		instr = (instr | pString->id) << 1;
-		instr = (instr | lastopintflag) << 1;
 	}
 	if(GetId("xor") < pString->id && pString->id <= GetId("not")){
 		// 2 operand instructions
 		instr = op[1] << 5;
-		if(lastopintflag == 0){
+		if(formnum == 0 || formnum == 2){
 			instr = (instr | op[0]) << 5;
-			instr = (instr | pString->repeat) << 6;
+			instr = (instr | pString->repeat) << 8;
 		}else{
-			instr = (instr | op[0]) << 6;
+			instr = (instr | op[0]) << 8;
 		}
-		instr = (instr | pString->id) << 1;
-		instr = (instr | lastopintflag) << 1;
 	}
 	if(GetId("not") < pString->id && pString->id <= GetId("jmp")){
 		// 1 operand instructions
-		instr = op[0] << 6;
-		instr = (instr | pString->id) << 1;
-		instr = (instr | lastopintflag) << 1;
+		instr = op[0] << 8;
 	}
 	if(GetId("jmp") < pString->id && pString->id <= GetId("storelb")){
 		// 2 operand memory instructions
 		instr = op[1] << 5;
 		instr = (instr | op[0]) << 5;
-		instr = (instr | pString->repeat) << 6;
-		instr = (instr | pString->id) << 1;
-		instr = (instr | lastopintflag) << 1;
+		instr = (instr | pString->repeat) << 8;
 	}
 	if(GetId("storelb") < pString->id && pString->id <= GetId("memcpy")){
 		// non-pair instructions
-		int id = GetId("storelb") * 2 + (pString->id - GetId("storelb")) + 1;
 
 		if(pString->id <= GetId("ldi")){
 			// 2 operand instructions
 			instr = op[1] << 5;
-			instr = (instr | op[0]) << 7;
+			instr = (instr | op[0]) << 8;
 		}else if(pString->id <= GetId("copy")){
 			// 2 operand instructions
 			instr = op[1] << 5;
 			instr = (instr | op[0]) << 5;
-			instr = (instr | pString->repeat) << 7;
+			instr = (instr | pString->repeat) << 8;
 		}else if(pString->id <= GetId("syscall")){
 			// 1 operand instructions
-			instr = op[0] << 7;
+			instr = op[0] << 8;
 		}else if(pString->id <= GetId("ret")){
 			instr = instr;
 		}else if(pString->id <= GetId("memcpy")){
@@ -202,11 +191,11 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pCod
 			instr = (instr | op[1]) << 5;
 			instr = (instr | op[0]) << 5;
 			int flags = (lastopintflag << 2) | (lflag[1] << 1) | lflag[0];
-			instr = (instr | flags) << 7;
+			instr = (instr | flags) << 8;
+			formnum = 0;
 		}
-		instr = (instr | id) << 1;
 	}
-	instr = (instr | 1); // 32 bit flag
+	instr = instr | GetCodeId(pString->id, formnum);
 	*(unsigned int*)pOutBuf = instr;
 
 	return 0;

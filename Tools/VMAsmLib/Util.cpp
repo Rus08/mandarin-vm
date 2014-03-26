@@ -12,6 +12,7 @@ char* hilotable[8] = {	"hi32", "hi24", "hi16", "hi8", "lo32", "lo24", "lo16", "l
 unsigned int masktable[8] = { 0xffffffff, 0xffffff00, 0xffff0000, 0x0000ff00, 0xffffffff, 0x00ffffff, 0x0000ffff, 0x000000ff };
 int shifttable[8] = { 32, 24, 16, 8, 0, 0, 0, 0 };
 
+
 int GetId(char* name)
 {
 	int id = -1;
@@ -25,17 +26,27 @@ int GetId(char* name)
 	return id;
 }
 
-int Get16BitId(char* name)
+int GetCodeId(int id, int formnum)
 {
-	int id = -1;
+	int code_id = 0;
 
-	for(int b = 0; b < sizeof(Instructions16Bit) / sizeof(struct Instruction); b++){
-		if(strncmp(name, Instructions16Bit[b].name, strlen(Instructions16Bit[b].name)) == 0){
-			id = b;
-			break;
+	if(Instructions[id].rrform[formnum] == false){
+		return -1;
+	}
+
+	for(int i = 0; i < id; i++){
+		for(int b = 0; b < 4; b++){
+			if(Instructions[i].rrform[b] == true){
+				code_id = code_id + 1;
+			}
 		}
 	}
-	return id;
+	for(int i = 0; i < formnum; i++){
+		if(Instructions[id].rrform[i] == true){
+			code_id = code_id + 1;
+		}
+	}
+	return code_id;
 }
 
 int GetDataId(char* name)

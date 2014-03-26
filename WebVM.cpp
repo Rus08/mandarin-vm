@@ -94,8 +94,6 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 
 	for(uint32_t im = 0; im < RunCount; im++){
 		uint32_t PC = pVM->Registers.PC;
-		// check if instruction 32bit or 16bit
-		if(pVM->pCode[PC] & 0x01){
 			// 32bit
 			/*RC = Execute32Bit(pVM, *(uint32_t*)&(pVM->pCode[PC]));
 			if(RC != VM_OK){
@@ -110,15 +108,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			//id = (id >> 1) & 63;
 			pVM->ExecTable[id] = pVM->ExecTable[id] + 1;
 #endif
-		}else{
-			// 16 bit
-			uint16_t Instruction = *(uint16_t*)&(pVM->pCode[PC]);
-#include "Execute16Bit.cpp"
-			pVM->Registers.PC = pVM->Registers.PC + 2;
-#ifdef STAT_COUNTERS
-			pVM->Count = pVM->Count + 1;
-#endif
-		}
+
 	}
 
 	return VM_OK;

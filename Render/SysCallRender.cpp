@@ -92,7 +92,6 @@ uint32_t SYSCALL SysRenderCreateTexture(struct VirtualMachine* pVM)
 	}
 	pVM->Registers.r[0] = RenderCreateTexture(pVM->pRender, (struct Texture*)(pVM->pGlobalMemory + addr));
 
-
 	return VM_OK;
 }
 
@@ -123,17 +122,23 @@ uint32_t SYSCALL SysRenderClear(struct VirtualMachine* pVM)
 {
 	uint32_t addr = pVM->Registers.r[0];
 	uint32_t Color = pVM->Registers.r[1];	
+	struct Rect* pRect;
 
 	if(pVM->pRender == NULL){
 		pVM->Registers.r[0] = VM_RENDER_WRONG_CALL;
 		return VM_OK;
 	}
-	if((uint64_t)addr + sizeof(struct Rect) > pVM->GlobalMemorySize){
+	if(addr != 0 && (uint64_t)addr + sizeof(struct Rect) > pVM->GlobalMemorySize){
 		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
+	if(addr == 0){
+		pRect = NULL;
+	}else{
+		pRect = (struct Rect*)(pVM->pGlobalMemory + addr);
+	}
 
-	pVM->Registers.r[0] = RenderClear(pVM->pRender, (struct Rect*)(pVM->pGlobalMemory + addr), Color);
+	pVM->Registers.r[0] = RenderClear(pVM->pRender, pRect, Color);
 
 	return VM_OK;
 }

@@ -8,253 +8,26 @@
 
 //uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 //{
-	uint32_t id = (Instruction >> 1) & 127; // 0b00111111 get the instruction id
+	uint32_t id = Instruction & 0xff; // 0b00111111 get the instruction id
 
 	switch(id){
-		case VM_ADD:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] + pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_ADDI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] + top;
-		}
-		break;
-		case VM_SUB:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] - pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_SUBI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] - top;
-		}
-		break;
-		case VM_MUL:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] * pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_MULI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] * top;
-		}
-		break;
-		case VM_DIV:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				if(pVM->Registers.r[top + i] == 0){
-					assert(false);
-					return VM_DIVIDE_BY_ZERO;
-				}
-				*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] / *(int32_t*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_DIVI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			if(top == 0){
-				assert(false);
-				return VM_DIVIDE_BY_ZERO;
-			}
-			// sign extending
-			top = top - 8192;
-			*(int32_t*)&pVM->Registers.r[fop] = *(int32_t*)&pVM->Registers.r[sop] / *(int32_t*)&top;
-		}
-		break;
-		case VM_MOD:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				if(pVM->Registers.r[top + i] == 0){
-					assert(false);
-					return VM_DIVIDE_BY_ZERO;
-				}
-				*(int32_t*)&pVM->Registers.r[fop + i] = *(int32_t*)&pVM->Registers.r[sop + i] % *(int32_t*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_MODI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			if(top == 0){
-				assert(false);
-				return VM_DIVIDE_BY_ZERO;
-			}
-			// sign extending
-			top = top - 8192;
-			*(int32_t*)&pVM->Registers.r[fop] = *(int32_t*)&pVM->Registers.r[sop] % *(int32_t*)&top;
-		}
-		break;
-		case VM_FADD:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				*(float*)&pVM->Registers.r[fop + i] = *(float*)&pVM->Registers.r[sop + i] + *(float*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_FADDI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] + (float)top;
-		}
-		break;
-		case VM_FSUB:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				*(float*)&pVM->Registers.r[fop + i] = *(float*)&pVM->Registers.r[sop + i] - *(float*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_FSUBI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] - (float)top;
-		}
-		break;
-		case VM_FMUL:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				*(float*)&pVM->Registers.r[fop + i] = *(float*)&pVM->Registers.r[sop + i] * *(float*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_FMULI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] * (float)top;
-		}
-		break;
-		case VM_FDIV:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				*(float*)&pVM->Registers.r[fop + i] = *(float*)&pVM->Registers.r[sop + i] / *(float*)&pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_FDIVI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			*(float*)&pVM->Registers.r[fop] = *(float*)&pVM->Registers.r[sop] / (float)top;
-		}
-		break;
-		case VM_SHL:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] << pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_SHLI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] << top;
-		}
-		break;
-		case VM_SHR:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] >> pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_SHRI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] >> top;
-		}
-		break;
-		case VM_AND:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] & pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_ANDI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] & top;
-		}
-		break;
-		case VM_OR:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] | pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_ORI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] | top;
-		}
-		break;
-		case VM_XOR:
-		{
-			I3Operands_Base();
-			// third operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i] ^ pVM->Registers.r[top + i];
-			}
-		}
-		break;
-		case VM_XORI:
-		{
-			I3OperandsInt_Base();
-			// third operand is integer
-			pVM->Registers.r[fop] = pVM->Registers.r[sop] ^ top;
-		}
-		break;
+		I3Operands(VM_ADD, uint32_t, +, *(uint32_t*)&, false, 0);
+		I3Operands(VM_SUB, uint32_t, -, *(uint32_t*)&, false, 0);
+		I3Operands(VM_MUL, uint32_t, *, *(uint32_t*)&, false, 0);
+		I3Operands(VM_DIV, uint32_t, /, *(uint32_t*)&, true, 0);
+		I3Operands(VM_SDIV, int32_t, /, *(int32_t*)&, true, 8192);
+		I3Operands(VM_MOD, uint32_t, %, *(uint32_t*)&, true, 0);
+		I3Operands(VM_SMOD, int32_t, %, *(int32_t*)&, true, 8192);
+		I3Operands(VM_FADD, float, +, *(int32_t*)&, false, 8192);
+		I3Operands(VM_FSUB, float, -, *(int32_t*)&, false, 8192);
+		I3Operands(VM_FMUL, float, *, *(int32_t*)&, false, 8192);
+		I3Operands(VM_FDIV, float, /, *(int32_t*)&, false, 8192);
+		I3Operands(VM_SHL, uint32_t, <<, *(uint32_t*)&, false, 0);
+		I3Operands(VM_SHR, uint32_t, >>, *(uint32_t*)&, false, 0);
+		I3Operands(VM_SAR, int32_t, >>, *(uint32_t*)&, false, 0);
+		I3Operands(VM_AND, uint32_t, &, *(uint32_t*)&, false, 0);
+		I3Operands(VM_OR, uint32_t, |, *(uint32_t*)&, false, 0);
+		I3Operands(VM_XOR, uint32_t, ^, *(uint32_t*)&, false, 0);
 		case VM_CMP:
 		{
 			I2Operands_Base();
@@ -293,22 +66,7 @@
 			pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
 		}
 		break;
-		case VM_NEG:
-		{
-			I2Operands_Base();
-			// second operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = -*(int32_t*)&pVM->Registers.r[sop + i];
-			}
-		}
-		break;
-		case VM_NEGI:
-		{
-			I2OperandsInt_Base();
-			// second operand is integer
-			pVM->Registers.r[fop] = -*(int32_t*)&sop;
-		}
-		break;
+		I2Operands(VM_NEG, uint32_t, -*(int32_t*)&, 0);
 		case VM_LDI:
 		{
 			I2OperandsInt_Base();
@@ -317,6 +75,13 @@
 		}
 		break;
 		case VM_MOV:
+		{
+			I2Operands_Base();
+			// second operand is register
+			pVM->Registers.r[fop] = pVM->Registers.r[sop];
+		}
+		break;
+		case VM_MOVV:
 		{
 			I2Operands_Base();
 			// second operand is register
@@ -355,52 +120,20 @@
 		{
 			I2Operands_Base();
 			// second operand is register
+			pVM->Registers.r[fop] = (uint32_t)(int32_t)*(float*)&pVM->Registers.r[sop];
+		}
+		break;
+		case VM_FTOIV:
+		{
+			I2Operands_Base();
+			// second operand is register
 			for(uint32_t i = 0; i <= rep; i++){
 				pVM->Registers.r[fop + i] = (uint32_t)(int32_t)*(float*)&pVM->Registers.r[sop + i];
 			}
 		}
 		break;
-		case VM_FTOII:
-		{
-			I2OperandsInt_Base();
-			// second operand is integer
-			pVM->Registers.r[fop] = (uint32_t)(int32_t)*(float*)&sop;
-		}
-		break;
-		case VM_ITOF:
-		{
-			I2Operands_Base();
-			// second operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				float b = (float)*(int32_t*)&pVM->Registers.r[sop + i];
-				pVM->Registers.r[fop + i] = *(uint32_t*)&b;
-			}
-		}
-		break;
-		case VM_ITOFI:
-		{
-			I2OperandsInt_Base();
-			// second operand is integer
-			float b = (float)((int32_t)sop - 262144);
-			pVM->Registers.r[fop] = *(uint32_t*)&b;
-		}
-		break;
-		case VM_NOT:
-		{
-			I2Operands_Base();
-			// second operand is register
-			for(uint32_t i = 0; i <= rep; i++){
-				pVM->Registers.r[fop + i] = ~pVM->Registers.r[sop + i];
-			}
-		}
-		break;
-		case VM_NOTI:
-		{
-			I2OperandsInt_Base();
-			// second operand is integer
-			pVM->Registers.r[fop] = ~sop;
-		}
-		break;
+		I2Operands(VM_ITOF, float, (float)*(int32_t*)&, 262144);
+		I2Operands(VM_NOT, uint32_t, ~, 0);
 		case VM_CALL:
 		{
 			//	Save context and allocate local memory for new context
@@ -594,270 +327,18 @@
 
 			break;
 		}
-		case VM_LOAD:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 4, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i);
-			}
-		}
-		break;
-		case VM_LOADI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 4, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i);
-			}
-		}
-		break;
-		case VM_LOADW:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 2, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i);
-			}
-		}
-		break;
-		case VM_LOADWI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 2, pVM->GlobalMemorySize); // type check is uint32_t because u can't take integer offset more than 4gb
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i);
-			}
-		}
-		break;
-		case VM_LOADB:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 1, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pGlobalMemory + sop + i);
-			}
-		}
-		break;
-		case VM_LOADBI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 1, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pGlobalMemory + sop + i);
-			}
-		}
-		break;
-		case VM_STORE:
-		{	// store
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 4, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STOREI:
-		{	// store
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 4, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint32_t*)(pVM->pGlobalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STOREW:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 2, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STOREWI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 2, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint16_t*)(pVM->pGlobalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STOREB:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint64_t, 1, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint8_t*)(pVM->pGlobalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STOREBI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 1, pVM->GlobalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint8_t*)(pVM->pGlobalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_LOADL:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i);
-			}
-		}
-		break;
-		case VM_LOADLI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i);
-			}
-		}
-		break;
-		case VM_LOADLW:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i);
-			}
-		}
-		break;
-		case VM_LOADLWI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i);
-			}
-		}
-		break;
-		case VM_LOADLB:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCurrentLocalMemory + sop + i);
-			}
-		}
-		break;
-		case VM_LOADLBI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				pVM->Registers.r[fop + i] = *(uint8_t*)(pVM->pCurrentLocalMemory + sop + i);
-			}
-		}
-		break;
-		case VM_STOREL:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint32_t*)(pVM->pCurrentLocalMemory + *(int32_t*)&sop + 4 * i) = pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STORELI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 4, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint32_t*)(pVM->pCurrentLocalMemory + sop + 4 * i) = pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STORELW:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STORELWI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 2, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint16_t*)(pVM->pCurrentLocalMemory + sop + 2 * i) = (uint16_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STORELB:
-		{
-			I2OperandsMem_Base();
-			// second operand is register
-			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint8_t*)(pVM->pCurrentLocalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
-		case VM_STORELBI:
-		{
-			I2OperandsMemInt_Base();
-			// second operand is integer
-			I2OperandsMem_Check(uint32_t, 1, pVM->CurrentLocalMemorySize);
-
-			for(uint32_t i = 0; i < rep; i++){
-				*(uint8_t*)(pVM->pCurrentLocalMemory + sop + i) = (uint8_t)pVM->Registers.r[fop + i];
-			}
-		}
-		break;
+		I2OperandsMem(VM_LOAD, uint32_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, true);
+		I2OperandsMem(VM_LOADW, uint16_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, true);
+		I2OperandsMem(VM_LOADB, uint8_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, true);
+		I2OperandsMem(VM_STORE, uint32_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
+		I2OperandsMem(VM_STOREW, uint16_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
+		I2OperandsMem(VM_STOREB, uint8_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
+		I2OperandsMem(VM_LOADL, uint32_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
+		I2OperandsMem(VM_LOADLW, uint16_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
+		I2OperandsMem(VM_LOADLB, uint8_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
+		I2OperandsMem(VM_STOREL, uint32_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
+		I2OperandsMem(VM_STORELW, uint16_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
+		I2OperandsMem(VM_STORELB, uint8_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
 		case VM_MEMCPY:
 		{
 			// 3 operand instructions
@@ -911,8 +392,11 @@
 		}			
 		break;
 		default:
+		{
+			assert(false);
 			return VM_INVALID_OPCODE;
-		};
+		}
+	};
 
 //	return VM_OK;
 //}

@@ -157,6 +157,7 @@ int AsmFileToMemory(char* FileName, char** ppCode, int* pCodeSize, char** ppData
 	pSource = (char*)malloc(file_size + 1); // +1 needed for case when file ended not with \n to place 0 terminator
 	fread(pSource, 1, file_size, fp);
 	fclose(fp);
+	pSource[file_size] = 0;
 
 	// clear \r
 	for(int i = 0; i < file_size; i++){

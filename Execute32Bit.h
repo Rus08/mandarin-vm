@@ -1,48 +1,42 @@
 #define INT_FLAG 1
+
+#define I3OPENUM(arg)\
+	arg,\
+	arg##I,\
+	arg##V
+
+#define IMEMENUM(arg)\
+	arg,\
+	arg##I,\
+	arg##V,\
+	arg##VI
+
 enum InstructionsId{
-	VM_ADD,
-	VM_ADDI,
-	VM_SUB,
-	VM_SUBI,
-	VM_MUL,
-	VM_MULI,
-	VM_DIV,
-	VM_DIVI,
-	VM_MOD,
-	VM_MODI,
-	VM_FADD,
-	VM_FADDI,
-	VM_FSUB,
-	VM_FSUBI,
-	VM_FMUL,
-	VM_FMULI,
-	VM_FDIV,
-	VM_FDIVI,
-	VM_SHL,
-	VM_SHLI,
-	VM_SHR,
-	VM_SHRI,
-	VM_AND,
-	VM_ANDI,
-	VM_OR,
-	VM_ORI,
-	VM_XOR,
-	VM_XORI,
+	I3OPENUM(VM_ADD),
+	I3OPENUM(VM_SUB),
+	I3OPENUM(VM_MUL),
+	I3OPENUM(VM_DIV),
+	I3OPENUM(VM_SDIV),
+	I3OPENUM(VM_MOD),
+	I3OPENUM(VM_SMOD),
+	I3OPENUM(VM_FADD),
+	I3OPENUM(VM_FSUB),
+	I3OPENUM(VM_FMUL),
+	I3OPENUM(VM_FDIV),
+	I3OPENUM(VM_SHL),
+	I3OPENUM(VM_SHR),
+	I3OPENUM(VM_SAR),
+	I3OPENUM(VM_AND),
+	I3OPENUM(VM_OR),
+	I3OPENUM(VM_XOR),
 ///////////////////
-	VM_CMP,
-	VM_CMPI,
-	VM_SCMP,
-	VM_SCMPI,
-	VM_NEG,
-	VM_NEGI,
-	VM_FCMP,
-	VM_FCMPI,
-	VM_FTOI,
-	VM_FTOII,
-	VM_ITOF,
-	VM_ITOFI,
-	VM_NOT,
-	VM_NOTI,
+	I3OPENUM(VM_CMP),
+	I3OPENUM(VM_SCMP),
+	I3OPENUM(VM_NEG),
+	I3OPENUM(VM_FCMP),
+	I3OPENUM(VM_FTOI),
+	I3OPENUM(VM_ITOF),
+	I3OPENUM(VM_NOT),
 ///////////////////
 	VM_CALL,
 	VM_CALLI,
@@ -61,34 +55,23 @@ enum InstructionsId{
 	VM_JMP,
 	VM_JMPI,
 ///////////////////
-	VM_LOAD,
-	VM_LOADI,
-	VM_LOADW,
-	VM_LOADWI,
-	VM_LOADB,
-	VM_LOADBI,
-	VM_STORE,
-	VM_STOREI,
-	VM_STOREW,
-	VM_STOREWI,
-	VM_STOREB,
-	VM_STOREBI,
+	IMEMENUM(VM_LOAD),
+	IMEMENUM(VM_LOADW),
+	IMEMENUM(VM_LOADB),
+	IMEMENUM(VM_STORE),
+	IMEMENUM(VM_STOREW),
+	IMEMENUM(VM_STOREB),
 // local
-	VM_LOADL,
-	VM_LOADLI,
-	VM_LOADLW,
-	VM_LOADLWI,
-	VM_LOADLB,
-	VM_LOADLBI,
-	VM_STOREL,
-	VM_STORELI,
-	VM_STORELW,
-	VM_STORELWI,
-	VM_STORELB,
-	VM_STORELBI,
+	IMEMENUM(VM_LOADL),
+	IMEMENUM(VM_LOADLW),
+	IMEMENUM(VM_LOADLB),
+	IMEMENUM(VM_STOREL),
+	IMEMENUM(VM_STORELW),
+	IMEMENUM(VM_STORELB),
 ///////////////////
 	VM_LDI,
 	VM_MOV,
+	VM_MOVV,
 	VM_COPY,
 	VM_SYSCALL,
 	VM_RET,
@@ -152,6 +135,43 @@ enum InstructionsId{
 
 #endif
 
+#define I3Operands(id, type, op, INTprefix, divcheck, intunpack)\
+	case id:\
+	{\
+		I3Operands_Base();\
+		/* third operand is register*/\
+		if(divcheck != false && pVM->Registers.r[top] == 0){\
+			assert(false);\
+			return VM_DIVIDE_BY_ZERO;\
+		}\
+		*(type*)&pVM->Registers.r[fop] = *(type*)&pVM->Registers.r[sop] op *(type*)&pVM->Registers.r[top];\
+	}\
+	break;\
+	case id##I:\
+	{\
+		I3OperandsInt_Base();\
+		/* third operand is integer*/\
+		if(intunpack != 0){\
+			top = top - intunpack;\
+		}\
+		*(type*)&pVM->Registers.r[fop] = *(type*)&pVM->Registers.r[sop] op INTprefix##top;\
+	}\
+	break;\
+	case id##V:\
+	{\
+		I3Operands_Base();\
+		/* third operand is register*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			if(divcheck != false && pVM->Registers.r[top + i] == 0){\
+				assert(false);\
+				return VM_DIVIDE_BY_ZERO;\
+			}\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top + i];\
+		}\
+	}\
+	break;\
+	
+
 // 2 operand instructions
 // 0b00011111 get the repeat modifier
 // 0b00011111 get the first operand
@@ -185,6 +205,34 @@ enum InstructionsId{
 	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
 	
 #endif
+
+#define I2Operands(id, type, op, intunpack)\
+	case id:\
+	{\
+		I2Operands_Base();\
+		/* second operand is register*/\
+		*(type*)&pVM->Registers.r[fop] = op##pVM->Registers.r[sop];\
+	}\
+	break;\
+	case id##I:\
+	{\
+		I2OperandsInt_Base();\
+		/* second operand is integer*/\
+		if(intunpack != 0){\
+			sop = sop - intunpack;\
+		}\
+		*(type*)&pVM->Registers.r[fop] = op##sop;\
+	}\
+	break;\
+	case id##V:\
+	{\
+		I2Operands_Base();\
+		/* second operand is register*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			*(type*)&pVM->Registers.r[fop + i] = op##pVM->Registers.r[sop + i];\
+		}\
+	}\
+	break;\
 
 // 1 operand instructions
 // 0b00000001 get last integer flag
@@ -260,12 +308,69 @@ enum InstructionsId{
 	
 #endif
 
-#define I2OperandsMem_Check(type, size, memsize)\
+#define I2OperandsMem_Check(type, size, rep, memsize)\
 	if(((type)sop + size * rep) > memsize){\
 		assert(false);\
 		return VM_DATA_ACCESS_VIOLATION;\
 	}\
 
+#define I2OperandsMem(id, type, pointer, memsize, load)\
+	case id:\
+	{\
+		I2OperandsMem_Base();\
+		/* second operand is register*/\
+		I2OperandsMem_Check(uint64_t, sizeof(type), 1, memsize);\
+\
+		if(load == true){\
+			pVM->Registers.r[fop] = *(type*)(pointer + sop);\
+		}else{\
+			*(type*)(pointer + sop) = pVM->Registers.r[fop];\
+		}\
+	}\
+	break;\
+	case id##I:\
+	{\
+		I2OperandsMemInt_Base();\
+		/* second operand is integer*/\
+		I2OperandsMem_Check(uint32_t, sizeof(type), 1, memsize);\
+\
+		if(load == true){\
+			pVM->Registers.r[fop] = *(type*)(pointer + sop);\
+		}else{\
+			*(type*)(pointer + sop) = pVM->Registers.r[fop];\
+		}\
+	}\
+	break;\
+	case id##V:\
+	{\
+		I2OperandsMem_Base();\
+		/* second operand is register*/\
+		I2OperandsMem_Check(uint64_t, sizeof(type), rep, memsize);\
+\
+		for(uint32_t i = 0; i < rep; i++){\
+			if(load == true){\
+				pVM->Registers.r[fop + i] = *(type*)(pointer + sop + sizeof(type) * i);\
+			}else{\
+				*(type*)(pointer + sop + sizeof(type) * i) = pVM->Registers.r[fop + i];\
+			}\
+		}\
+	}\
+	break;\
+	case id##VI:\
+	{\
+		I2OperandsMemInt_Base();\
+		/* second operand is integer*/\
+		I2OperandsMem_Check(uint32_t, sizeof(type), rep, memsize);\
+\
+		for(uint32_t i = 0; i < rep; i++){\
+			if(load == true){\
+				pVM->Registers.r[fop + i] = *(type*)(pointer + sop + sizeof(type) * i);\
+			}else{\
+				*(type*)(pointer + sop + sizeof(type) * i) = pVM->Registers.r[fop + i];\
+			}\
+		}\
+	}\
+	break;\
 
 inline uint32_t IfAvailableLocalMemory(struct VirtualMachine* pVM, uint32_t size)
 {

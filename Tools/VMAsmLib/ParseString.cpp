@@ -58,7 +58,7 @@ int ParseString(struct String* pString)
 	}
 
 	// skip spacings
-	while(*pCurr == ' ' || *pCurr == '\t'){
+	while((*pCurr == ' ' || *pCurr == '\t') && pCurr != pEnd){
 		pCurr = pCurr + 1;
 	}
 	if(pCurr == pEnd){

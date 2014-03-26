@@ -1,7 +1,7 @@
 
 
 int GetId(char* name);
-int Get16BitId(char* name);
+int GetCodeId(int id, int formnum);
 int GetDataId(char* name);
 int GetSize(int id);
 int GetDataSize(int id);
