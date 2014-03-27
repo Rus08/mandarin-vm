@@ -203,8 +203,10 @@ uint32_t SYSCALL SysFloatOperations(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+		{
 			assert(false);
 			return VM_INVALID_SYSCALL;
+		}
 	};
 
 	return VM_OK;
@@ -289,8 +291,10 @@ uint32_t SYSCALL SysInteger64Operations(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+		{
 			assert(false);
 			return VM_INVALID_SYSCALL;
+		}
 	};
 
 	return VM_OK;
@@ -334,8 +338,10 @@ uint32_t SYSCALL SysDoubleOperations(struct VirtualMachine* pVM)
 		}
 		break;
 		default:
+		{
 			assert(false);
 			return VM_INVALID_SYSCALL;
+		}
 	};
 
 	return VM_OK;

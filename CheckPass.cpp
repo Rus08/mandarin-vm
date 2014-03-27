@@ -3,12 +3,16 @@
 #include <string.h>
 #include "WebVM.h"
 #include "Execute32Bit.h"
-#include "Execute16Bit.h"
 
 
 uint32_t CheckPass(struct VirtualMachine* pVM)
 {
 	uint32_t pc = 0;
+
+	if(pVM->CodeSize < 4){
+		assert(false);
+		return VM_CODE_ACCESS_VIOLATION;
+	}
 
 	while(pc < (pVM->CodeSize - 4)){
 		// 32 bit

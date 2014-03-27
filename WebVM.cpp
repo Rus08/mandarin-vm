@@ -3,10 +3,8 @@
 #include <string.h>
 #include "WebVM.h"
 #include "Execute32Bit.h"
-#include "Execute16Bit.h"
 #include "ThreadManager.h"
 #include "SysCall.h"
-#include "SysCallTable.h"
 
 #ifdef STAT_COUNTERS
 #include "Tools/VMAsmLib/Instructions.h"
@@ -71,44 +69,6 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	if(SC != VM_OK){
 		assert(false);
 		return SC;
-	}
-
-	return VM_OK;
-}
-
-uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
-{
-	//uint32_t RC; // Result Code
-	// start check
-	if(pVM->CodeSize < 2){
-		assert(false);
-		return VM_CODE_ACCESS_VIOLATION;
-	}
-	if(pVM->pCode[0] & 0x01){
-		if(pVM->CodeSize < 4){
-			assert(false);
-			return VM_CODE_ACCESS_VIOLATION;
-		}
-	}
-	pVM->DispatchFlag = false;
-
-	for(uint32_t im = 0; im < RunCount; im++){
-		uint32_t PC = pVM->Registers.PC;
-			// 32bit
-			/*RC = Execute32Bit(pVM, *(uint32_t*)&(pVM->pCode[PC]));
-			if(RC != VM_OK){
-				return RC;
-			}*/
-			uint32_t Instruction = *(uint32_t*)&(pVM->pCode[PC]);
-#include "Execute32Bit.cpp"
-			pVM->Registers.PC = pVM->Registers.PC + 4;
-#ifdef STAT_COUNTERS
-			pVM->Count = pVM->Count + 1;
-			//uint32_t id = *(uint32_t*)&(pVM->pCode[PC]);
-			//id = (id >> 1) & 63;
-			pVM->ExecTable[id] = pVM->ExecTable[id] + 1;
-#endif
-
 	}
 
 	return VM_OK;

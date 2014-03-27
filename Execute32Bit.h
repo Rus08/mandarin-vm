@@ -135,6 +135,9 @@ enum InstructionsId{
 
 #endif
 
+#define IDefaultEnd()\
+	pVM->Registers.PC = pVM->Registers.PC + 4;
+
 #define I3Operands(id, type, op, INTprefix, divcheck, intunpack)\
 	case id:\
 	{\
@@ -145,6 +148,7 @@ enum InstructionsId{
 			return VM_DIVIDE_BY_ZERO;\
 		}\
 		*(type*)&pVM->Registers.r[fop] = *(type*)&pVM->Registers.r[sop] op *(type*)&pVM->Registers.r[top];\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##I:\
@@ -155,6 +159,7 @@ enum InstructionsId{
 			top = top - intunpack;\
 		}\
 		*(type*)&pVM->Registers.r[fop] = *(type*)&pVM->Registers.r[sop] op INTprefix##top;\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##V:\
@@ -168,6 +173,7 @@ enum InstructionsId{
 			}\
 			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top + i];\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 	
@@ -212,6 +218,7 @@ enum InstructionsId{
 		I2Operands_Base();\
 		/* second operand is register*/\
 		*(type*)&pVM->Registers.r[fop] = op##pVM->Registers.r[sop];\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##I:\
@@ -222,6 +229,7 @@ enum InstructionsId{
 			sop = sop - intunpack;\
 		}\
 		*(type*)&pVM->Registers.r[fop] = op##sop;\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##V:\
@@ -231,6 +239,7 @@ enum InstructionsId{
 		for(uint32_t i = 0; i <= rep; i++){\
 			*(type*)&pVM->Registers.r[fop + i] = op##pVM->Registers.r[sop + i];\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 
@@ -326,6 +335,7 @@ enum InstructionsId{
 		}else{\
 			*(type*)(pointer + sop) = pVM->Registers.r[fop];\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##I:\
@@ -339,6 +349,7 @@ enum InstructionsId{
 		}else{\
 			*(type*)(pointer + sop) = pVM->Registers.r[fop];\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##V:\
@@ -354,6 +365,7 @@ enum InstructionsId{
 				*(type*)(pointer + sop + sizeof(type) * i) = pVM->Registers.r[fop + i];\
 			}\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 	case id##VI:\
@@ -369,6 +381,7 @@ enum InstructionsId{
 				*(type*)(pointer + sop + sizeof(type) * i) = pVM->Registers.r[fop + i];\
 			}\
 		}\
+		IDefaultEnd();\
 	}\
 	break;\
 
