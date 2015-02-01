@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <setjmp.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -11,11 +12,7 @@
 
 #define REGISTER_MAX 32
 #define STACK_START_SIZE 16
-#define LOCAL_MEMORY_START_SIZE 128 * 1024
-#define LOCAL_MEMORY_FRAME_START_SIZE 128
 #define MAX_ALLOWED_GLOBAL_MEMORY 32 * 1048576
-#define MAX_ALLOWED_FRAME_LOCAL_MEMORY 1024 * 1024
-#define MAX_ALLOWED_LOCAL_MEMORY 8 * 1024 * 1024
 #define MAX_ALLOWED_STACK_SIZE 128
 #define SLEEP_DURATION 20
 #define MAX_SLEEP_DURATION 5000
@@ -30,8 +27,6 @@ enum VM_STATUS_CODE{
 // instructions
 	VM_INVALID_REPEAT_MODIFIER,
 	VM_INVALID_OPCODE,
-	VM_INVALID_INSTRUCTION_ALIGN,
-	VM_INVALID_ADDRESS_ALIGN,
 	VM_INVALID_LAST_INSTRUCTION,
 	VM_CODE_ACCESS_VIOLATION,
 	VM_DATA_ACCESS_VIOLATION,
@@ -74,6 +69,7 @@ enum FLAGS{
 struct _Registers{
 	uint32_t r[32];
 	uint32_t PC; // Program Counter
+	uint8_t  REQ; // Equal or not
 	uint32_t FLAGS;
 };
 
@@ -84,12 +80,6 @@ struct VirtualMachine{
 //	global memory
 	uint8_t* pGlobalMemory;
 	uint32_t GlobalMemorySize;
-//  local memory
-	uint8_t* pLocalMemory;
-	uint32_t LocalMemorySize;
-	uint8_t* pCurrentLocalMemory;
-	uint32_t CurrentLocalMemorySize;
-	int32_t MaxNegativeOffset;
 //  call stack
 	struct Call* pCallStack;
 	uint32_t CallStackSize;
@@ -101,6 +91,7 @@ struct VirtualMachine{
 	uint32_t ExportSize;
 	struct _Registers Registers;
 	bool DispatchFlag;
+	jmp_buf CheckPassJmpBuf;
 // threads
 	uint8_t* pThreads;
 	bool	 ThreadAlive[MAX_ALLOWED_THREADS];

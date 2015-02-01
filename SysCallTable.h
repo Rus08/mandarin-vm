@@ -4,7 +4,6 @@ struct SysCall{
 
 struct SysCall SysCallTable[] = {
 	SysSetGlobalMemory,
-	SysSetLocalMemory,
 	SysRegisterCallback,
 	SysUnRegisterCallback,
 	SysDispatchCallbacks,

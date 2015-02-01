@@ -1,9 +1,14 @@
-#define INT_FLAG 1
 
 #define I3OPENUM(arg)\
 	arg,\
 	arg##I,\
-	arg##V
+	arg##V,\
+	arg##VS
+
+#define I3OPFENUM(arg)\
+	arg,\
+	arg##V,\
+	arg##VS
 
 #define IMEMENUM(arg)\
 	arg,\
@@ -19,10 +24,10 @@ enum InstructionsId{
 	I3OPENUM(VM_SDIV),
 	I3OPENUM(VM_MOD),
 	I3OPENUM(VM_SMOD),
-	I3OPENUM(VM_FADD),
-	I3OPENUM(VM_FSUB),
-	I3OPENUM(VM_FMUL),
-	I3OPENUM(VM_FDIV),
+	I3OPFENUM(VM_FADD),
+	I3OPFENUM(VM_FSUB),
+	I3OPFENUM(VM_FMUL),
+	I3OPFENUM(VM_FDIV),
 	I3OPENUM(VM_SHL),
 	I3OPENUM(VM_SHR),
 	I3OPENUM(VM_SAR),
@@ -30,30 +35,46 @@ enum InstructionsId{
 	I3OPENUM(VM_OR),
 	I3OPENUM(VM_XOR),
 ///////////////////
-	I3OPENUM(VM_CMP),
-	I3OPENUM(VM_SCMP),
-	I3OPENUM(VM_NEG),
-	I3OPENUM(VM_FCMP),
-	I3OPENUM(VM_FTOI),
+	I3OPENUM(VM_CMP_EQ),
+	I3OPENUM(VM_CMP_NEQ),
+	I3OPENUM(VM_CMP_GR),
+	I3OPENUM(VM_CMP_LS),
+	I3OPENUM(VM_CMP_GRE),
+	I3OPENUM(VM_CMP_LSE),
+	I3OPENUM(VM_SCMP_GR),
+	I3OPENUM(VM_SCMP_LS),
+	I3OPENUM(VM_SCMP_GRE),
+	I3OPENUM(VM_SCMP_LSE),
+	VM_NEG,
+	VM_NEGV,
+	VM_LDI,
+	VM_LDIVS,
+	I3OPFENUM(VM_FCMP_EQ),
+	I3OPFENUM(VM_FCMP_NEQ),
+	I3OPFENUM(VM_FCMP_GR),
+	I3OPFENUM(VM_FCMP_LS),
+	I3OPFENUM(VM_FCMP_GRE),
+	I3OPFENUM(VM_FCMP_LSE),
+	I3OPFENUM(VM_FTOI),
 	I3OPENUM(VM_ITOF),
-	I3OPENUM(VM_NOT),
+	VM_NOT,
+	VM_NOTV,
+	VM_MOV,
+	VM_MOVV,
+	VM_MOVVS,
 ///////////////////
 	VM_CALL,
 	VM_CALLI,
+	VM_RET,
 	VM_JEQ,
 	VM_JEQI,
 	VM_JNE,
 	VM_JNEI,
-	VM_JGR,
-	VM_JGRI,
-	VM_JLS,
-	VM_JLSI,
-	VM_JGE,
-	VM_JGEI,
-	VM_JLE,
-	VM_JLEI,
+	I3OPENUM(VM_JEQR),
+	I3OPENUM(VM_JNER),
 	VM_JMP,
 	VM_JMPI,
+	VM_SYSCALL,
 ///////////////////
 	IMEMENUM(VM_LOAD),
 	IMEMENUM(VM_LOADW),
@@ -61,50 +82,28 @@ enum InstructionsId{
 	IMEMENUM(VM_STORE),
 	IMEMENUM(VM_STOREW),
 	IMEMENUM(VM_STOREB),
-// local
-	IMEMENUM(VM_LOADL),
-	IMEMENUM(VM_LOADLW),
-	IMEMENUM(VM_LOADLB),
-	IMEMENUM(VM_STOREL),
-	IMEMENUM(VM_STORELW),
-	IMEMENUM(VM_STORELB),
-///////////////////
-	VM_LDI,
-	VM_MOV,
-	VM_MOVV,
-	VM_COPY,
-	VM_SYSCALL,
-	VM_RET,
 ////////////////////
 	VM_MEMCPY,
-	
+	VM_MEMCPYI	
 };
 
 //uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction);
 
 
 // 3 operand instructions
-// 0b00011111 get the repeat modifier
-// 0b00011111 get the first operand
-// 0b00000001 get last integer flag
-// 0b00011111 get the second operand
-// get the third operand
-//uint32_t result;
-// repeat check
+// this is for 3 operand register-register
 #ifndef STAT_COUNTERS
 #define I3Operands_Base()\
 \
-	uint32_t rep = (Instruction >> 8) & 31; \
-	uint32_t fop = (Instruction >> 13) & 31; \
-	uint32_t sop = (Instruction >> 18) & 31; \
-	uint32_t top = (Instruction >> 23)/* & 511*/; 
+	uint32_t fop = (Instruction >> 8) & 31; \
+	uint32_t sop = (Instruction >> 13) & 31; \
+	uint32_t top = (Instruction >> 27); 
 #else
 	#define I3Operands_Base()\
 \
-	uint32_t rep = (Instruction >> 8) & 31; \
-	uint32_t fop = (Instruction >> 13) & 31; \
-	uint32_t sop = (Instruction >> 18) & 31; \
-	uint32_t top = (Instruction >> 23); \
+	uint32_t fop = (Instruction >> 8) & 31; \
+	uint32_t sop = (Instruction >> 13) & 31; \
+	uint32_t top = (Instruction >> 27); \
 	\
 	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
 	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
@@ -114,18 +113,43 @@ enum InstructionsId{
 
 #endif
 
+// this is for 3 operand register-integer forms
 #ifndef STAT_COUNTERS
-#define I3OperandsInt_Base()\
+#define I3OperandsI_Base()\
 \
 	uint32_t fop = (Instruction >> 8) & 31; \
 	uint32_t sop = (Instruction >> 13) & 31; \
-	uint32_t top = (Instruction >> 18)/* & 511*/; 
+	uint32_t top = (Instruction >> 18)/* & 16383*/; 
 #else
-	#define I3OperandsInt_Base()\
+	#define I3OperandsI_Base()\
 \
 	uint32_t fop = (Instruction >> 8) & 31; \
 	uint32_t sop = (Instruction >> 13) & 31; \
 	uint32_t top = (Instruction >> 18); \
+	\
+	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
+	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
+	if((id & 1) == 0){\
+		pVM->RegistersHit[top] = pVM->RegistersHit[top] + 1;\
+	}\
+
+#endif
+
+// this is for 3 operand register-register vector forms
+#ifndef STAT_COUNTERS
+#define I3OperandsV_Base()\
+\
+	uint32_t rep = (Instruction >> 8) & 31; \
+	uint32_t fop = (Instruction >> 13) & 31; \
+	uint32_t sop = (Instruction >> 18) & 31; \
+	uint32_t top = (Instruction >> 27)/* & 511*/; 
+#else
+	#define I3Operands_Base()\
+\
+	uint32_t rep = (Instruction >> 8) & 31; \
+	uint32_t fop = (Instruction >> 13) & 31; \
+	uint32_t sop = (Instruction >> 18) & 31; \
+	uint32_t top = (Instruction >> 27); \
 	\
 	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
 	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
@@ -153,7 +177,7 @@ enum InstructionsId{
 	break;\
 	case id##I:\
 	{\
-		I3OperandsInt_Base();\
+		I3OperandsI_Base();\
 		/* third operand is integer*/\
 		if(intunpack != 0){\
 			top = top - intunpack;\
@@ -164,7 +188,7 @@ enum InstructionsId{
 	break;\
 	case id##V:\
 	{\
-		I3Operands_Base();\
+		I3OperandsV_Base();\
 		/* third operand is register*/\
 		for(uint32_t i = 0; i <= rep; i++){\
 			if(divcheck != false && pVM->Registers.r[top + i] == 0){\
@@ -176,146 +200,213 @@ enum InstructionsId{
 		IDefaultEnd();\
 	}\
 	break;\
-	
-
-// 2 operand instructions
-// 0b00011111 get the repeat modifier
-// 0b00011111 get the first operand
-// 0b00000001 get last integer flag
-// 0b00011111 get the second operand
-#ifndef STAT_COUNTERS
-#define I2Operands_Base()\
-	uint32_t rep = (Instruction >> 8) & 31;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18)/* & 16383*/;
-#else
-#define I2Operands_Base()\
-	uint32_t rep = (Instruction >> 8) & 31;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18);\
-	\
-	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
-	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
-	
-#endif
-
-#ifndef STAT_COUNTERS
-#define I2OperandsInt_Base()\
-	uint32_t fop = (Instruction >> 8) & 31;\
-	uint32_t sop = (Instruction >> 13)/* & 16383*/;
-#else
-#define I2OperandsInt_Base()\
-	uint32_t fop = (Instruction >> 8) & 31;\
-	uint32_t sop = (Instruction >> 13)/* & 16383*/;\
-	\
-	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
-	
-#endif
-
-#define I2Operands(id, type, op, intunpack)\
-	case id:\
+	case id##VS:\
 	{\
-		I2Operands_Base();\
-		/* second operand is register*/\
-		*(type*)&pVM->Registers.r[fop] = op##pVM->Registers.r[sop];\
+		I3OperandsV_Base();\
+		/* third operand is register*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			if(divcheck != false && pVM->Registers.r[top + i] == 0){\
+				assert(false);\
+				return VM_DIVIDE_BY_ZERO;\
+			}\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top];\
+		}\
 		IDefaultEnd();\
 	}\
 	break;\
-	case id##I:\
+
+#define I3OperandsF(id, type, op, INTprefix, divcheck, intunpack)\
+	case id:\
 	{\
-		I2OperandsInt_Base();\
-		/* second operand is integer*/\
-		if(intunpack != 0){\
-			sop = sop - intunpack;\
+		I3Operands_Base();\
+		/* third operand is register*/\
+		if(divcheck != false && pVM->Registers.r[top] == 0){\
+			assert(false);\
+			return VM_DIVIDE_BY_ZERO;\
 		}\
-		*(type*)&pVM->Registers.r[fop] = op##sop;\
+		*(type*)&pVM->Registers.r[fop] = *(type*)&pVM->Registers.r[sop] op *(type*)&pVM->Registers.r[top];\
 		IDefaultEnd();\
 	}\
 	break;\
 	case id##V:\
 	{\
-		I2Operands_Base();\
-		/* second operand is register*/\
+		I3OperandsV_Base();\
+		/* third operand is register*/\
 		for(uint32_t i = 0; i <= rep; i++){\
-			*(type*)&pVM->Registers.r[fop + i] = op##pVM->Registers.r[sop + i];\
+			if(divcheck != false && pVM->Registers.r[top + i] == 0){\
+				assert(false);\
+				return VM_DIVIDE_BY_ZERO;\
+			}\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top + i];\
+		}\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##VS:\
+	{\
+		I3OperandsV_Base();\
+		/* third operand is register*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			if(divcheck != false && pVM->Registers.r[top + i] == 0){\
+				assert(false);\
+				return VM_DIVIDE_BY_ZERO;\
+			}\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top];\
 		}\
 		IDefaultEnd();\
 	}\
 	break;\
 
-// 1 operand instructions
-// 0b00000001 get last integer flag
+// 2 operand instructions
+// this is for 2 operand register-register
 #ifndef STAT_COUNTERS
-#define I1Operand_Base()\
-	uint32_t fop = Instruction >> 8;\
-\
-	fop = pVM->Registers.r[fop];\
-	if(((uint64_t)fop + 4) > pVM->CodeSize){\
-		assert(false);\
-		return VM_CODE_ACCESS_VIOLATION;\
-	}
+#define I2Operands_Base()\
+	uint32_t fop = (Instruction >> 8) & 31;\
+	uint32_t sop = (Instruction >> 27);
 #else
-#define I1Operand_Base()\
-	uint32_t fop = (Instruction >> 8);\
-\
-	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
-	fop = pVM->Registers.r[fop];\
-	if(((uint64_t)fop + 4) > pVM->CodeSize){\
-		assert(false);\
-		return VM_CODE_ACCESS_VIOLATION;\
-	}
-#endif
-
-#ifndef STAT_COUNTERS
-#define I1OperandInt_Base()\
-	uint32_t fop = (Instruction >> 8)/* & 16777215*/;\
-	
-#else
-#define I1OperandInt_Base()\
-	uint32_t fop = (Instruction >> 8);\
-
-#endif
-	
-
-// 2 operand memory instructions
-// 0b00011111 get the repeat modifier
-// 0b00011111 get the first operand
-// 0b00000001 get last integer flag
-// 0b00011111 get the second operand
-#ifndef STAT_COUNTERS
-#define I2OperandsMem_Base()\
-	uint32_t rep = ((Instruction >> 8) & 31) + 1;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18);\
-	sop = pVM->Registers.r[sop];\
-
-#else
-	#define I2OperandsMem_Base()\
-	uint32_t rep = ((Instruction >> 8) & 31) + 1;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18) & 31;\
-\
+#define I2Operands_Base()\
+	uint32_t fop = (Instruction >> 8) & 31;\
+	uint32_t sop = (Instruction >> 13);\
+	\
 	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
 	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
-	sop = pVM->Registers.r[sop];\
 	
+#endif
+
+// this is for register-integer form
+#ifndef STAT_COUNTERS
+#define I2OperandsI_Base()\
+	uint32_t fop = (Instruction >> 8) & 31;\
+	uint32_t sop = (Instruction >> 13)/* & 524287*/;
+#else
+#define I2OperandsI_Base()\
+	uint32_t fop = (Instruction >> 8) & 31;\
+	uint32_t sop = (Instruction >> 13);\
+	\
+	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
+	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
+	
+#endif
+
+// this is for 2 operand register-register vector forms
+#ifndef STAT_COUNTERS
+#define I2OperandsV_Base()\
+	uint32_t rep = (Instruction >> 8) & 31;\
+	uint32_t fop = (Instruction >> 13) & 31;\
+	uint32_t sop = (Instruction >> 27)/* & 31*/;
+#else
+#define I2Operands_Base()\
+	uint32_t rep = (Instruction >> 8) & 31;\
+	uint32_t fop = (Instruction >> 13) & 31;\
+	uint32_t sop = (Instruction >> 27);\
+	\
+	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
+	pVM->RegistersHit[sop] = pVM->RegistersHit[sop] + 1;\
+	
+#endif
+
+// cmp instructions
+#define I2OperandsCMP(id, type, op, INTprefix, intunpack)\
+	case id:\
+	{\
+		I2Operands_Base();\
+		/* second operand is register*/\
+		*(uint8_t*)&pVM->Registers.REQ = *(type*)&pVM->Registers.r[fop] op *(type*)&pVM->Registers.r[sop];\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##I:\
+	{\
+		I2OperandsI_Base();\
+		/* second operand is integer*/\
+		if(intunpack != 0){\
+			sop = sop - intunpack;\
+		}\
+		*(uint8_t*)&pVM->Registers.REQ = *(type*)&pVM->Registers.r[fop] op INTprefix##sop;\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##V:\
+	{\
+		I3OperandsV_Base();\
+		/* vector form operands are registers*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top + i];\
+		}\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##VS:\
+	{\
+		I3OperandsV_Base();\
+		/* vector form operands are registers*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top];\
+		}\
+		IDefaultEnd();\
+	}\
+	break;\
+
+
+#define I2OperandsFCMP(id, type, op)\
+	case id:\
+	{\
+		I2Operands_Base();\
+		/* second operand is register*/\
+		*(uint8_t*)&pVM->Registers.REQ = *(type*)&pVM->Registers.r[fop] op *(type*)&pVM->Registers.r[sop];\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##V:\
+	{\
+		I3OperandsV_Base();\
+		/* vector form operands are registers*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top + i];\
+		}\
+		IDefaultEnd();\
+	}\
+	break;\
+	case id##VS:\
+	{\
+		I3OperandsV_Base();\
+		/* vector form operands are registers*/\
+		for(uint32_t i = 0; i <= rep; i++){\
+			*(type*)&pVM->Registers.r[fop + i] = *(type*)&pVM->Registers.r[sop + i] op *(type*)&pVM->Registers.r[top];\
+		}\
+		IDefaultEnd();\
+	}\
+	break;\
+
+
+// 1 operand instructions
+#ifndef STAT_COUNTERS
+#define I1Operand_Base()\
+	uint32_t fop = Instruction >> 27;\
+	
+#else
+#define I1Operand_Base()\
+	uint32_t fop = (Instruction >> 27);\
+\
+	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;
 #endif
 
 #ifndef STAT_COUNTERS
-#define I2OperandsMemInt_Base()\
-	uint32_t rep = ((Instruction >> 8) & 31) + 1;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18);\
-
-#else
-	#define I2OperandsMemInt_Base()\
-	uint32_t rep = ((Instruction >> 8) & 31) + 1;\
-	uint32_t fop = (Instruction >> 13) & 31;\
-	uint32_t sop = (Instruction >> 18);\
-\
-	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;\
+#define I1OperandI_Base()\
+	uint32_t fop = Instruction >> 8;\
 	
+#else
+#define I1OperandI_Base()\
+	uint32_t fop = (Instruction >> 8);\
+\
+	pVM->RegistersHit[fop] = pVM->RegistersHit[fop] + 1;
 #endif
+	
+#define CodeAddressCheck(arg)\
+	if(((uint64_t)(arg) + 4) > pVM->CodeSize){\
+		assert(false);\
+		return VM_CODE_ACCESS_VIOLATION;\
+	}
 
 #define I2OperandsMem_Check(type, size, rep, memsize)\
 	if(((type)sop + size * rep) > memsize){\
@@ -326,7 +417,7 @@ enum InstructionsId{
 #define I2OperandsMem(id, type, pointer, memsize, load)\
 	case id:\
 	{\
-		I2OperandsMem_Base();\
+		I2Operands_Base();\
 		/* second operand is register*/\
 		I2OperandsMem_Check(uint64_t, sizeof(type), 1, memsize);\
 \
@@ -340,7 +431,7 @@ enum InstructionsId{
 	break;\
 	case id##I:\
 	{\
-		I2OperandsMemInt_Base();\
+		I2OperandsI_Base();\
 		/* second operand is integer*/\
 		I2OperandsMem_Check(uint32_t, sizeof(type), 1, memsize);\
 \
@@ -354,7 +445,7 @@ enum InstructionsId{
 	break;\
 	case id##V:\
 	{\
-		I2OperandsMem_Base();\
+		I2OperandsV_Base();\
 		/* second operand is register*/\
 		I2OperandsMem_Check(uint64_t, sizeof(type), rep, memsize);\
 \
@@ -370,7 +461,7 @@ enum InstructionsId{
 	break;\
 	case id##VI:\
 	{\
-		I2OperandsMemInt_Base();\
+		I2OperandsV_Base();\
 		/* second operand is integer*/\
 		I2OperandsMem_Check(uint32_t, sizeof(type), rep, memsize);\
 \
@@ -384,21 +475,6 @@ enum InstructionsId{
 		IDefaultEnd();\
 	}\
 	break;\
-
-inline uint32_t IfAvailableLocalMemory(struct VirtualMachine* pVM, uint32_t size)
-{
-	uint32_t LocalUsed = pVM->pCurrentLocalMemory - pVM->pLocalMemory + pVM->CurrentLocalMemorySize;
-	if((LocalUsed + LOCAL_MEMORY_FRAME_START_SIZE) > pVM->LocalMemorySize){
-		// need to allocate more memory
-		uint32_t new_size = pVM->LocalMemorySize + 64 * LOCAL_MEMORY_FRAME_START_SIZE;
-		if(new_size > MAX_ALLOWED_LOCAL_MEMORY){
-			return VM_NOT_ENOUGH_MEMORY;
-		}
-		pVM->pLocalMemory = (uint8_t*)realloc(pVM->pLocalMemory, new_size);
-		pVM->LocalMemorySize = new_size;
-	}
-	return VM_OK;
-}
 
 #define CheckStackSize(){\
 	if(pVM->CurrentStackTop == pVM->CallStackSize){\
@@ -416,10 +492,5 @@ inline uint32_t IfAvailableLocalMemory(struct VirtualMachine* pVM, uint32_t size
 }
 
 #define MakeCall(){\
-	pVM->MaxNegativeOffset = pVM->MaxNegativeOffset - pVM->CurrentLocalMemorySize;\
-	pVM->pCurrentLocalMemory = pVM->pCurrentLocalMemory + pVM->CurrentLocalMemorySize;\
-	pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = pVM->CurrentLocalMemorySize;\
-	pVM->CurrentLocalMemorySize = LOCAL_MEMORY_FRAME_START_SIZE;\
 	pVM->pCallStack[pVM->CurrentStackTop].regPC = pVM->Registers.PC + 4; /* next instruction after call*/ \
-	pVM->pCallStack[pVM->CurrentStackTop].regFLAGS = pVM->Registers.FLAGS;\
 }

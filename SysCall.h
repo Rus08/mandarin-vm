@@ -46,7 +46,6 @@ enum DoubleOps{
 //uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId);
 
 uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM);
-uint32_t SYSCALL SysSetLocalMemory(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysUnRegisterCallback(struct VirtualMachine* pVM);
 uint32_t SYSCALL SysDispatchCallbacks(struct VirtualMachine* pVM);

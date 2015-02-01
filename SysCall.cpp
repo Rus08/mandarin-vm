@@ -54,25 +54,6 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
-uint32_t SYSCALL SysSetLocalMemory(struct VirtualMachine* pVM)
-{
-	uint32_t mem_size = pVM->Registers.r[0];
-
-	if(mem_size == 0){
-		// return current size
-		pVM->Registers.r[0] = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
-		return VM_OK;
-	}
-	if(mem_size <= MAX_ALLOWED_FRAME_LOCAL_MEMORY){
-		if(IfAvailableLocalMemory(pVM, mem_size) == VM_OK){
-			pVM->CurrentLocalMemorySize = mem_size;
-		}
-	}
-	pVM->Registers.r[0] = pVM->CurrentLocalMemorySize;
-
-	return VM_OK;
-}
-
 uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM)
 {
 	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){

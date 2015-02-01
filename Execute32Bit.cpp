@@ -5,7 +5,7 @@
 #include "SysCall.h"
 #include "SysCallTable.h"
 
-
+extern const uint32_t SysCallTableSize = sizeof(SysCallTable) / sizeof(struct SysCall);
 
 //uint32_t Execute32Bit(struct VirtualMachine* pVM, uint32_t Instruction)
 //{
@@ -27,64 +27,59 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			I3Operands(VM_SDIV, int32_t, /, *(int32_t*)&, true, 8192);
 			I3Operands(VM_MOD, uint32_t, %, *(uint32_t*)&, true, 0);
 			I3Operands(VM_SMOD, int32_t, %, *(int32_t*)&, true, 8192);
-			I3Operands(VM_FADD, float, +, *(int32_t*)&, false, 8192);
-			I3Operands(VM_FSUB, float, -, *(int32_t*)&, false, 8192);
-			I3Operands(VM_FMUL, float, *, *(int32_t*)&, false, 8192);
-			I3Operands(VM_FDIV, float, /, *(int32_t*)&, false, 8192);
+			I3OperandsF(VM_FADD, float, +, *(int32_t*)&, false, 8192);
+			I3OperandsF(VM_FSUB, float, -, *(int32_t*)&, false, 8192);
+			I3OperandsF(VM_FMUL, float, *, *(int32_t*)&, false, 8192);
+			I3OperandsF(VM_FDIV, float, /, *(int32_t*)&, false, 8192);
 			I3Operands(VM_SHL, uint32_t, <<, *(uint32_t*)&, false, 0);
 			I3Operands(VM_SHR, uint32_t, >>, *(uint32_t*)&, false, 0);
 			I3Operands(VM_SAR, int32_t, >>, *(uint32_t*)&, false, 0);
 			I3Operands(VM_AND, uint32_t, &, *(uint32_t*)&, false, 0);
 			I3Operands(VM_OR, uint32_t, |, *(uint32_t*)&, false, 0);
 			I3Operands(VM_XOR, uint32_t, ^, *(uint32_t*)&, false, 0);
-			case VM_CMP:
+			I2OperandsCMP(VM_CMP_EQ, uint32_t, ==, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_CMP_NEQ, uint32_t, !=, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_CMP_GR, uint32_t, >, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_CMP_LS, uint32_t, <, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_CMP_GRE, uint32_t, >=, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_CMP_LSE, uint32_t, <=, *(uint32_t*)&, 0);
+			I2OperandsCMP(VM_SCMP_GR, int32_t, >, *(int32_t*)&, 262144);
+			I2OperandsCMP(VM_SCMP_LS, int32_t, <, *(int32_t*)&, 262144);
+			I2OperandsCMP(VM_SCMP_GRE, int32_t, >=, *(int32_t*)&, 262144);
+			I2OperandsCMP(VM_SCMP_LSE, int32_t, <=, *(int32_t*)&, 262144);
+			case VM_NEG:
 			{
 				I2Operands_Base();
 				// second operand is register
-				sop = pVM->Registers.r[sop];
-
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] < sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				*(int32_t*)&pVM->Registers.r[fop] = -(int32_t)pVM->Registers.r[sop]; // check this for type?
 				IDefaultEnd();
 			}
 			break;
-			case VM_CMPI:
+			case VM_NEGV:
 			{
-				I2OperandsInt_Base();
-				// second operand is integer
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] < sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
-				IDefaultEnd();
-			}
-			break;
-			case VM_SCMP:
-			{
-				I2Operands_Base();
+				I2OperandsV_Base();
 				// second operand is register
-				sop = pVM->Registers.r[sop];
-				
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
+				for(uint32_t i = 0; i <= rep; i++){
+					*(int32_t*)&pVM->Registers.r[fop + i] = -(int32_t)pVM->Registers.r[sop + i]; // check this for type?
+				}
 				IDefaultEnd();
 			}
 			break;
-			case VM_SCMPI:
-			{
-				I2OperandsInt_Base();
-				// second operand is integer
-				sop = sop - 262144;
-				
-				pVM->Registers.FLAGS = pVM->Registers.r[fop] == sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(int32_t*)&pVM->Registers.r[fop] < *(int32_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
-				IDefaultEnd();
-			}
-			break;
-			I2Operands(VM_NEG, uint32_t, -*(int32_t*)&, 0);
 			case VM_LDI:
 			{
-				I2OperandsInt_Base();
+				I2OperandsI_Base();
 				// second operand is integer
 				pVM->Registers.r[fop] = sop;
+				IDefaultEnd();
+			}
+			break;
+			case VM_LDIVS:
+			{
+				I2OperandsV_Base();
+				// second operand is integer
+				for(uint32_t i = 0; i <= rep; i++){
+					pVM->Registers.r[fop + i] = sop;
+				}
 				IDefaultEnd();
 			}
 			break;
@@ -98,7 +93,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			break;
 			case VM_MOVV:
 			{
-				I2Operands_Base();
+				I2OperandsV_Base();
 				// second operand is register
 				for(uint32_t i = 0; i <= rep; i++){
 					pVM->Registers.r[fop + i] = pVM->Registers.r[sop + i];
@@ -106,9 +101,9 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				IDefaultEnd();
 			}
 			break;
-			case VM_COPY:
+			case VM_MOVVS:
 			{
-				I2Operands_Base();
+				I2OperandsV_Base();
 				// second operand is register
 				for(uint32_t i = 0; i <= rep; i++){
 					pVM->Registers.r[fop + i] = pVM->Registers.r[sop];
@@ -116,96 +111,146 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				IDefaultEnd();
 			}
 			break;
-			case VM_FCMP:
-			{
-				I2Operands_Base();
-				// second operand is register
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] == *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] < *(float*)&pVM->Registers.r[sop] ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
-				IDefaultEnd();
-			}
-			break;
-			case VM_FCMPI:
-			{
-				I2OperandsInt_Base();
-				// second operand is integer
-				sop = sop - 262144;
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] == (float)sop ? (pVM->Registers.FLAGS | ZeroFlag) : (pVM->Registers.FLAGS & ~ZeroFlag);
-				pVM->Registers.FLAGS = *(float*)&pVM->Registers.r[fop] < (float)*(int16_t*)&sop ? (pVM->Registers.FLAGS | SignFlag) : (pVM->Registers.FLAGS & ~SignFlag);
-				IDefaultEnd();
-			}
-			break;
+			I2OperandsFCMP(VM_FCMP_EQ, float, ==);
+			I2OperandsFCMP(VM_FCMP_NEQ, float, !=);
+			I2OperandsFCMP(VM_FCMP_GR, float, >);
+			I2OperandsFCMP(VM_FCMP_LS, float, <);
+			I2OperandsFCMP(VM_FCMP_GRE, float, >=);
+			I2OperandsFCMP(VM_FCMP_LSE, float, <=);
 			case VM_FTOI:
 			{
 				I2Operands_Base();
 				// second operand is register
-				pVM->Registers.r[fop] = (uint32_t)(int32_t)*(float*)&pVM->Registers.r[sop];
+				*(int32_t*)&pVM->Registers.r[fop] = (int32_t)*(float*)&pVM->Registers.r[sop];
 				IDefaultEnd();
 			}
 			break;
 			case VM_FTOIV:
 			{
-				I2Operands_Base();
+				I2OperandsV_Base();
 				// second operand is register
 				for(uint32_t i = 0; i <= rep; i++){
-					pVM->Registers.r[fop + i] = (uint32_t)(int32_t)*(float*)&pVM->Registers.r[sop + i];
+					*(int32_t*)&pVM->Registers.r[fop + i] = (int32_t)*(float*)&pVM->Registers.r[sop + i];
 				}
 				IDefaultEnd();
 			}
 			break;
-			I2Operands(VM_ITOF, float, (float)*(int32_t*)&, 262144);
-			I2Operands(VM_NOT, uint32_t, ~, 0);
+			case VM_FTOIVS:
+			{
+				I2OperandsV_Base();
+				// second operand is register
+				for(uint32_t i = 0; i <= rep; i++){
+					*(int32_t*)&pVM->Registers.r[fop + i] = (int32_t)*(float*)&pVM->Registers.r[sop + i];
+				}
+				IDefaultEnd();
+			}
+			break;
+			case VM_ITOF:
+			{
+				I2Operands_Base();
+				// second operand is register
+				*(float*)pVM->Registers.r[fop] = (float)*(int32_t*)&pVM->Registers.r[sop];
+				IDefaultEnd();
+			}
+			break;
+			case VM_ITOFI:
+			{
+				I2OperandsI_Base();
+				// second operand is integer
+				sop = sop - 262144;
+				*(float*)pVM->Registers.r[fop] = (float)*(int32_t*)&sop;
+				IDefaultEnd();
+			}
+			break;
+			case VM_ITOFV:
+			{
+				I2OperandsV_Base();
+				// second operand is register
+				for(uint32_t i = 0; i <= rep; i++){
+					*(float*)pVM->Registers.r[fop + i] = (float)*(int32_t*)&pVM->Registers.r[sop + i];
+				}
+				IDefaultEnd();
+			}
+			break;
+			case VM_ITOFVS:
+			{
+				I2OperandsV_Base();
+				// second operand is register
+				for(uint32_t i = 0; i <= rep; i++){
+					*(float*)pVM->Registers.r[fop + i] = (float)*(int32_t*)&pVM->Registers.r[sop];
+				}
+				IDefaultEnd();
+			}
+			break;
+			case VM_NOT:
+			{
+				I2Operands_Base();
+				// second operand is register
+				pVM->Registers.r[fop] = ~pVM->Registers.r[sop];
+				IDefaultEnd();
+			}
+			break;
+			case VM_NOTV:
+			{
+				I2OperandsV_Base();
+				// second operand is register
+				for(uint32_t i = 0; i <= rep; i++){
+					pVM->Registers.r[fop + i] = ~pVM->Registers.r[sop + i];
+				}
+				IDefaultEnd();
+			}
+			break;
 			case VM_CALL:
 			{
-				//	Save context and allocate local memory for new context
+				// Save context
 				// first operand is register
 				I1Operand_Base();
+				fop = pVM->Registers.r[fop];
+				CodeAddressCheck(fop);
 
 				pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
 				CheckStackSize();
-				if(IfAvailableLocalMemory(pVM, LOCAL_MEMORY_FRAME_START_SIZE) != VM_OK){
-					assert(false);
-					return VM_NOT_ENOUGH_MEMORY;
-				}
 				
 				MakeCall();
-				//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
-				pVM->Registers.PC = fop; // compensate address increment
+				pVM->Registers.PC = fop; 
 			}
 			break;
 			case VM_CALLI:
 			{
-				//	Save context and allocate local memory for new context
+				// Save context
 				// first operand is integer
-				I1OperandInt_Base();
+				I1OperandI_Base();
+
+				*(int32_t*)&fop = (*(int32_t*)&fop - 8388608) * 4; // unpack signed
+				//CodeAddressCheck(pVM->Registers.PC + *(int32_t*)&fop);
 
 				pVM->CurrentStackTop = pVM->CurrentStackTop + 1;
 				CheckStackSize();
-				if(IfAvailableLocalMemory(pVM, LOCAL_MEMORY_FRAME_START_SIZE) != VM_OK){
-					assert(false);
-					return VM_NOT_ENOUGH_MEMORY;
-				}
 				
 				MakeCall();
-				//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = (uint8_t*)malloc(LOCALMEMORY_START_SIZE);
-				pVM->Registers.PC = fop; // compensate address increment
+				pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&fop;
 			}
 			break;
 			case VM_JEQ:
 			{
 				// first operand is register
-				if((pVM->Registers.FLAGS & ZeroFlag) != 0){
+				if(pVM->Registers.REQ != 0){
 					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+					fop = pVM->Registers.r[fop];
+					CodeAddressCheck(fop);
+					pVM->Registers.PC = fop;
+				}else{
+					IDefaultEnd();
 				}
 			}
 			break;
 			case VM_JEQI:
 			{
 				// first operand is integer
-				if((pVM->Registers.FLAGS & ZeroFlag) != 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				if(pVM->Registers.REQ != 0){
+					I1OperandI_Base();
+					*(int32_t*)&fop = (*(int32_t*)&fop - 8388608) * 4; // unpack signed
+					pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&fop;
 				}else{
 					IDefaultEnd();
 				}
@@ -214,9 +259,11 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			case VM_JNE:
 			{
 				// first operand is register
-				if((pVM->Registers.FLAGS & ZeroFlag) == 0){
+				if(pVM->Registers.REQ == 0){
 					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+					fop = pVM->Registers.r[fop];
+					CodeAddressCheck(fop);
+					pVM->Registers.PC = fop;
 				}else{
 					IDefaultEnd();
 				}
@@ -225,125 +272,146 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			case VM_JNEI:
 			{
 				// first operand is integer
-				if((pVM->Registers.FLAGS & ZeroFlag) == 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				if(pVM->Registers.REQ == 0){
+					I1OperandI_Base();
+					*(int32_t*)&fop = (*(int32_t*)&fop - 8388608) * 4; // unpack signed
+					pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&fop;
 				}else{
 					IDefaultEnd();
 				}
 			}
 			break;
-			case VM_JGR:
+			case VM_JEQR:
 			{
-				// first operand is register
-				if((pVM->Registers.FLAGS & SignFlag) == 0 && (pVM->Registers.FLAGS & ZeroFlag) == 0){
-					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				// second operand is register
+				I2Operands_Base();
+				
+				if(fop != 0){
+					CodeAddressCheck(sop);
+					pVM->Registers.PC = sop;
 				}else{
 					IDefaultEnd();
 				}
 			}
 			break;
-			case VM_JGRI:
+			case VM_JEQRI:
 			{
-				// first operand is integer
-				if((pVM->Registers.FLAGS & SignFlag) == 0 && (pVM->Registers.FLAGS & ZeroFlag) == 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				// second operand is integer
+				I2OperandsI_Base();
+				if(fop != 0){
+					*(int32_t*)&sop = (*(int32_t*)&sop - 262144) * 4; // unpack signed
+					pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&sop;
 				}else{
 					IDefaultEnd();
 				}
 			}
 			break;
-			case VM_JLS:
+			case VM_JNER:
 			{
-				// first operand is register
-				if((pVM->Registers.FLAGS & SignFlag) != 0){
-					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				// second operand is register
+				I2Operands_Base();
+				
+				if(fop == 0){
+					CodeAddressCheck(sop);
+					pVM->Registers.PC = sop;
 				}else{
 					IDefaultEnd();
 				}
 			}
 			break;
-			case VM_JLSI:
+			case VM_JNERI:
 			{
-				// first operand is integer
-				if((pVM->Registers.FLAGS & SignFlag) != 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
+				// second operand is integer
+				I2OperandsI_Base();
+				if(fop == 0){
+					*(int32_t*)&sop = (*(int32_t*)&sop - 262144) * 4; // unpack signed
+					pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&sop;
 				}else{
 					IDefaultEnd();
 				}
 			}
 			break;
-			case VM_JGE:
+			case VM_JEQRV:
 			{
-				// first operand is register
-				if((pVM->Registers.FLAGS & SignFlag) == 0){
-					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
-				}else{
-					IDefaultEnd();
+				// second operand is register
+				I2OperandsV_Base();
+				
+				for(uint32_t i = 0; i <= rep; i++){
+					if(pVM->Registers.r[fop + i] != 0){
+						CodeAddressCheck(pVM->Registers.r[sop + i]);
+						pVM->Registers.PC = pVM->Registers.r[sop + i];
+						goto vm_jeqrv_exit;
+					}
 				}
+				IDefaultEnd();
 			}
+			vm_jeqrv_exit:
 			break;
-			case VM_JGEI:
+			case VM_JEQRVS:
 			{
-				// first operand is integer
-				if((pVM->Registers.FLAGS & SignFlag) == 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
-				}else{
-					IDefaultEnd();
+				// second operand is register
+				I2OperandsV_Base();
+				for(uint32_t i = 0; i <= rep; i++){
+					if(pVM->Registers.r[fop + i] != 0){
+						CodeAddressCheck(pVM->Registers.r[sop]);
+						pVM->Registers.PC = pVM->Registers.r[sop];
+						goto vm_jeqrvs_exit;
+					}
 				}
+				IDefaultEnd();
 			}
+			vm_jeqrvs_exit:
 			break;
-			case VM_JLE:
+			case VM_JNERV:
 			{
-				// first operand is register
-				if((pVM->Registers.FLAGS & SignFlag) != 0 || (pVM->Registers.FLAGS & ZeroFlag) != 0){
-					I1Operand_Base();
-					pVM->Registers.PC = fop; // compensate address increment
-				}else{
-					IDefaultEnd();
+				// second operand is register
+				I2OperandsV_Base();
+				
+				for(uint32_t i = 0; i <= rep; i++){
+					if(pVM->Registers.r[fop + i] == 0){
+						CodeAddressCheck(pVM->Registers.r[sop + i]);
+						pVM->Registers.PC = pVM->Registers.r[sop + i];
+						goto vm_jnerv_exit;
+					}
 				}
+				IDefaultEnd();
 			}
+			vm_jnerv_exit:
 			break;
-			case VM_JLEI:
+			case VM_JNERVS:
 			{
-				// first operand is integer
-				if((pVM->Registers.FLAGS & SignFlag) != 0 || (pVM->Registers.FLAGS & ZeroFlag) != 0){
-					I1OperandInt_Base();
-					pVM->Registers.PC = fop; // compensate address increment
-				}else{
-					IDefaultEnd();
+				// second operand is register
+				I2OperandsV_Base();
+				for(uint32_t i = 0; i <= rep; i++){
+					if(pVM->Registers.r[fop + i] == 0){
+						CodeAddressCheck(pVM->Registers.r[sop]);
+						pVM->Registers.PC = pVM->Registers.r[sop];
+						goto vm_jnervs_exit;
+					}
 				}
+				IDefaultEnd();
 			}
+			vm_jnervs_exit:
 			break;
 			case VM_JMP:
 			{
 				// first operand is register
 				I1Operand_Base();
-				pVM->Registers.PC = fop; // compensate address increment
+				pVM->Registers.PC = fop;
 			}
 			break;
 			case VM_JMPI:
 			{
 				// first operand is integer
-				I1OperandInt_Base();
-				pVM->Registers.PC = fop; // compensate address increment
+				I1OperandI_Base();
+				*(int32_t*)&fop = (*(int32_t*)&fop - 8388608) * 4; // unpack 24bit signed
+				pVM->Registers.PC = pVM->Registers.PC + *(int32_t*)&fop;
 			}
 			break;
 			case VM_SYSCALL:
 			{
-				I1OperandInt_Base();
+				I1OperandI_Base();
 				uint32_t SysCallId = fop;
-
-				if(SysCallId >= sizeof(SysCallTable) / sizeof(struct SysCall)){
-					assert(false);
-					return VM_INVALID_SYSCALL;
-				}
 					
 				uint32_t SC = SysCallTable[SysCallId].pFunc(pVM);
 				if(SC != VM_OK){
@@ -360,15 +428,8 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 					// program exit
 					return VM_COMPLETE;
 				}
-				pVM->MaxNegativeOffset = pVM->MaxNegativeOffset + pVM->CurrentLocalMemorySize;
-				pVM->pCurrentLocalMemory = pVM->pCurrentLocalMemory - pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
-				pVM->CurrentLocalMemorySize = pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize;
-				//pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.pMemory = NULL; // unnecessary
-				pVM->pCallStack[pVM->CurrentStackTop].LocalMemory.MemorySize = 0; // unnecessary
-				pVM->Registers.PC = pVM->pCallStack[pVM->CurrentStackTop].regPC; // compensate address increment
-				pVM->Registers.FLAGS = pVM->pCallStack[pVM->CurrentStackTop].regFLAGS;
+				pVM->Registers.PC = pVM->pCallStack[pVM->CurrentStackTop].regPC;
 				pVM->CurrentStackTop = pVM->CurrentStackTop - 1;
-
 				break;
 			}
 			I2OperandsMem(VM_LOAD, uint32_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, true);
@@ -377,61 +438,59 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			I2OperandsMem(VM_STORE, uint32_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
 			I2OperandsMem(VM_STOREW, uint16_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
 			I2OperandsMem(VM_STOREB, uint8_t, pVM->pGlobalMemory, pVM->GlobalMemorySize, false);
-			I2OperandsMem(VM_LOADL, uint32_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
-			I2OperandsMem(VM_LOADLW, uint16_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
-			I2OperandsMem(VM_LOADLB, uint8_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, true);
-			I2OperandsMem(VM_STOREL, uint32_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
-			I2OperandsMem(VM_STORELW, uint16_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
-			I2OperandsMem(VM_STORELB, uint8_t, pVM->pCurrentLocalMemory, pVM->CurrentLocalMemorySize, false);
 			case VM_MEMCPY:
 			{
 				// 3 operand instructions
-				uint32_t flags = (Instruction >> 8) & 31; // 0b00011111 get the flags
-				uint32_t fop = (Instruction >> 13) & 31; // 0b00011111 get the first operand
-				uint32_t last_int_flag = flags & 4; // 0b00000001 get last integer flag
-				uint32_t sop = (Instruction >> 18) & 31; // 0b00011111 get the second operand
-				uint32_t top = (Instruction >> 23)/* & 511*/; // get the third operand
+				I3Operands_Base();
 				uint8_t* pDst = 0;
 				uint8_t* pSrc = 0;
 
 				fop = pVM->Registers.r[fop];
 				sop = pVM->Registers.r[sop];
-				if(last_int_flag == 0){
-					top = pVM->Registers.r[top];
+				top = pVM->Registers.r[top];
+				
+				if(((uint64_t)fop + top) > pVM->GlobalMemorySize){
+					assert(false);
+					return VM_DATA_ACCESS_VIOLATION;
+				}else{
+					pDst = pVM->pGlobalMemory + fop;
 				}
+				
+				if(((uint64_t)sop + top) > pVM->GlobalMemorySize){
+					assert(false);
+					return VM_DATA_ACCESS_VIOLATION;
+				}else{
+					pSrc = pVM->pGlobalMemory + sop;
+				}
+				
+				memcpy(pDst, pSrc, top);
+				IDefaultEnd();
+			}			
+			break;
+			case VM_MEMCPYI: // optimize? this shares almost the same code with the vm_memcpy
+			{
+				// 3 operand instructions
+				I3Operands_Base();
+				uint8_t* pDst = 0;
+				uint8_t* pSrc = 0;
 
-				if((flags & 0x1) != 0){ 
-					// local memory
-					if(*(int32_t*)&fop < pVM->MaxNegativeOffset ||(/*(uint64_t)*/*(int32_t*)&fop + top) > pVM->CurrentLocalMemorySize){
-						assert(false);
-						return VM_DATA_ACCESS_VIOLATION;
-					}else{
-						pDst = pVM->pCurrentLocalMemory + *(int32_t*)&fop;
-					}
+				fop = pVM->Registers.r[fop];
+				sop = pVM->Registers.r[sop];
+				
+				if(((uint64_t)fop + top) > pVM->GlobalMemorySize){
+					assert(false);
+					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					if(((uint64_t)fop + top) > pVM->GlobalMemorySize){
-						assert(false);
-						return VM_DATA_ACCESS_VIOLATION;
-					}else{
-						pDst = pVM->pGlobalMemory + fop;
-					}
+					pDst = pVM->pGlobalMemory + fop;
 				}
-				if((flags & 0x2) != 0){
-					// local memory
-					if(*(int32_t*)&sop < pVM->MaxNegativeOffset ||(/*(uint64_t)*/sop + top) > pVM->CurrentLocalMemorySize){
-						assert(false);
-						return VM_DATA_ACCESS_VIOLATION;
-					}else{
-						pSrc = pVM->pCurrentLocalMemory + *(int32_t*)&sop;
-					}
+				
+				if(((uint64_t)sop + top) > pVM->GlobalMemorySize){
+					assert(false);
+					return VM_DATA_ACCESS_VIOLATION;
 				}else{
-					if(((uint64_t)sop + top) > pVM->GlobalMemorySize){
-						assert(false);
-						return VM_DATA_ACCESS_VIOLATION;
-					}else{
-						pSrc = pVM->pGlobalMemory + sop;
-					}
+					pSrc = pVM->pGlobalMemory + sop;
 				}
+				
 				memcpy(pDst, pSrc, top);
 				IDefaultEnd();
 			}			
@@ -442,7 +501,6 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				return VM_INVALID_OPCODE;
 			}
 		};
-		//pVM->Registers.PC = pVM->Registers.PC + 4;
 #ifdef STAT_COUNTERS
 		pVM->Count = pVM->Count + 1;
 		pVM->ExecTable[id] = pVM->ExecTable[id] + 1;

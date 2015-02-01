@@ -27,13 +27,6 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 		assert(false);
 		return VM_DATA_SECTOR_IS_TOO_BIG;
 	}
-	// local memory
-	pVM->pLocalMemory = (uint8_t*)malloc(LOCAL_MEMORY_START_SIZE);
-	memset(pVM->pLocalMemory, 0, LOCAL_MEMORY_START_SIZE);
-	pVM->pCurrentLocalMemory = pVM->pLocalMemory;
-	pVM->LocalMemorySize = LOCAL_MEMORY_START_SIZE;
-	pVM->CurrentLocalMemorySize = LOCAL_MEMORY_FRAME_START_SIZE;
-	pVM->MaxNegativeOffset = 0;
 	// call stack
 	pVM->pCallStack = (struct Call*)malloc(sizeof(Call) * STACK_START_SIZE);
 	memset(pVM->pCallStack, 0, sizeof(Call) * STACK_START_SIZE);
@@ -97,10 +90,7 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 		pVM->pGlobalMemory = NULL;
 		pVM->GlobalMemorySize = 0;
 	}
-	// Clear call stack and all call's local memory
-	free(pVM->pLocalMemory);
-	pVM->pLocalMemory = 0;
-	pVM->LocalMemorySize = 0;
+	// Clear call stack
 	free(pVM->pCallStack);
 	pVM->pCallStack = NULL;
 	pVM->CallStackSize = 0;
