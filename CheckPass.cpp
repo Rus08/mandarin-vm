@@ -51,7 +51,7 @@ void Check2OpVS(uint32_t Instruction, uint32_t pc, struct VirtualMachine* pVM)
 
 void Check1OpI(uint32_t Instruction, uint32_t pc, struct VirtualMachine* pVM)
 {
-	I1Operand_Base();
+	I1OperandI_Base();
 
 	*(int32_t*)&fop = (fop - 8388608) * 4; // unpack signed
 

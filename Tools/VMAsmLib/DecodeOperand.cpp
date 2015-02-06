@@ -6,7 +6,7 @@
 #include "Util.h"
 
 
-int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, bool signflag, int StringNum, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut)
+int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, bool signflag, int StringNum, int StringOffset, struct Segment* pCodeSeg, struct Segment* pDataSeg, unsigned int* pOut)
 {
 	unsigned int op = 0;
 	int r = CheckForHiLo(Op);
@@ -72,7 +72,7 @@ int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, bool s
 				return -1;
 			}
 			if(pCodeSeg != NULL){
-				op = GetLabelAddr(Op, pCodeSeg);
+				*(int32_t*)&op = ((int32_t)GetLabelAddr(Op, pCodeSeg) - *(int32_t*)&StringOffset) / 4 + IntMaxSize / 2 + 1;
 			}
 			if(op == -1 && pDataSeg != NULL){
 				op = GetLabelAddr(Op, pDataSeg);

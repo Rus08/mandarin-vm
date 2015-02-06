@@ -1,7 +1,6 @@
 
 
 int GetId(char* name);
-int GetCodeId(int id, int formnum);
 int GetDataId(char* name);
 int GetSize(int id);
 int GetDataSize(int id);
@@ -10,6 +9,8 @@ int GetIntMaxSize(int id);
 bool IfSigned(int id);
 bool IfCodeSeg(int id);
 bool IfDataSeg(int id);
+bool IfInteger(int id);
+bool IfVector(int id);
 int GetFileSize(char* path);
 unsigned int GetLabelAddr(char* name, struct Segment* pSeg);
 unsigned int GetSysCallAddr(char* name);

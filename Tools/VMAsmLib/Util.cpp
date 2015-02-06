@@ -26,29 +26,6 @@ int GetId(char* name)
 	return id;
 }
 
-int GetCodeId(int id, int formnum)
-{
-	int code_id = 0;
-
-	if(Instructions[id].rrform[formnum] == false){
-		return -1;
-	}
-
-	for(int i = 0; i < id; i++){
-		for(int b = 0; b < 4; b++){
-			if(Instructions[i].rrform[b] == true){
-				code_id = code_id + 1;
-			}
-		}
-	}
-	for(int i = 0; i < formnum; i++){
-		if(Instructions[id].rrform[i] == true){
-			code_id = code_id + 1;
-		}
-	}
-	return code_id;
-}
-
 int GetDataId(char* name)
 {
 	int id = -1;
@@ -96,6 +73,16 @@ bool IfCodeSeg(int id)
 bool IfDataSeg(int id)
 {
 	return Instructions[id].DataSeg;
+}
+
+bool IfInteger(int id)
+{
+	return Instructions[id].lastopint;
+}
+
+bool IfVector(int id)
+{
+	return Instructions[id].repeat;
 }
 
 int GetFileSize(char* path)
