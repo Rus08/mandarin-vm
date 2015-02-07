@@ -98,6 +98,10 @@ int CodeInstruction(struct String* pStrings, int StringNum, struct Segment* pCod
 		printf("Error. Instruction %s at line %d can't have integer operands!\n", pString->instr_name, StringNum);
 		return -1;
 	}
+	if(IfInteger(pString->id) == true && lastopintflag == 0){
+		printf("Error. Instruction %s at line %d should have integer last operand!\n", pString->instr_name, StringNum);
+		return -1;
+	}
 	if(IfVector(pString->id) == false && pString->repeat > 0){
 		printf("Error. Instruction %s at line %d can't have repeat modifier!\n", pString->instr_name, StringNum);
 		return -1;

@@ -19,7 +19,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 		uint32_t Instruction = *(uint32_t*)&(pVM->pCode[PC]);
 		uint32_t id = Instruction & 0xff; // 0b00111111 get the instruction id
 
-		switch(id){
+ 		switch(id){
 			I3Operands(VM_ADD, uint32_t, +, *(uint32_t*)&, false, 0);
 			I3Operands(VM_SUB, uint32_t, -, *(uint32_t*)&, false, 0);
 			I3Operands(VM_MUL, uint32_t, *, *(uint32_t*)&, false, 0);
@@ -287,6 +287,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				I2Operands_Base();
 				
 				if(fop != 0){
+					sop = pVM->Registers.r[sop];
 					CodeAddressCheck(sop);
 					pVM->Registers.PC = sop;
 				}else{
@@ -312,6 +313,7 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 				I2Operands_Base();
 				
 				if(fop == 0){
+					sop = pVM->Registers.r[sop];
 					CodeAddressCheck(sop);
 					pVM->Registers.PC = sop;
 				}else{
@@ -397,6 +399,8 @@ uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount)
 			{
 				// first operand is register
 				I1Operand_Base();
+				fop = pVM->Registers.r[fop];
+				CodeAddressCheck(fop);
 				pVM->Registers.PC = fop;
 			}
 			break;

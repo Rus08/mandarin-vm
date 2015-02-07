@@ -53,7 +53,7 @@ void Check1OpI(uint32_t Instruction, uint32_t pc, struct VirtualMachine* pVM)
 {
 	I1OperandI_Base();
 
-	*(int32_t*)&fop = (fop - 8388608) * 4; // unpack signed
+	*(int32_t*)&fop = ((int32_t)fop - 8388608) * 4; // unpack signed
 
 	if(((uint64_t)pc + *(int32_t*)&fop + 4) > pVM->CodeSize){
 		assert(false);
@@ -65,7 +65,7 @@ void Check2OpJMPI(uint32_t Instruction, uint32_t pc, struct VirtualMachine* pVM)
 {
 	I2Operands_Base();
 
-	*(int32_t*)&sop = (sop - 262144) * 4; // unpack signed
+	*(int32_t*)&sop = ((int32_t)sop - 262144) * 4; // unpack signed
 
 	if(((uint64_t)pc + *(int32_t*)&sop + 4) > pVM->CodeSize){
 		assert(false);
