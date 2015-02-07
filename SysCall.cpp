@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "SysCall.h"
@@ -123,7 +126,7 @@ uint32_t SYSCALL SysGetTimer(struct VirtualMachine* pVM)
 	QueryPerformanceCounter(&current);
 	QueryPerformanceFrequency(&freq);
 
-	Timer = (uint64_t)(1000000.0 * (double)(current.QuadPart - pVM->Timer.QuadPart) / (double)freq.QuadPart);
+	Timer = (uint64_t)(1000000.0 * (double)(current.QuadPart - (*(LARGE_INTEGER*)&pVM->Timer).QuadPart) / (double)freq.QuadPart);
 
 	pVM->Registers.r[0] = Timer & 0xffffffff;
 	pVM->Registers.r[1] = (Timer >> 32);

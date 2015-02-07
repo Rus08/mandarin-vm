@@ -1,9 +1,14 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <jpeglib.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "..\WebVM.h"
 #include "..\ThreadManager.h"
 #include "SysCallMedia.h"
 #include "SysCallFile.h"
+#include "..\Render\RenderDefault.h"
 
 
 

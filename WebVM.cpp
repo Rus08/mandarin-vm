@@ -1,10 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "WebVM.h"
 #include "Execute32Bit.h"
 #include "ThreadManager.h"
 #include "SysCall.h"
+#include "Render/RenderDefault.h"
 
 #ifdef STAT_COUNTERS
 #include "Tools/VMAsmLib/Instructions.h"
@@ -14,7 +18,7 @@ uint32_t CheckPass(struct VirtualMachine* pVM);
 
 
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
-				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, HDC hDC)
+				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, void* hDC)
 {
 	uint32_t SC;
 	
@@ -50,7 +54,7 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->hDC = hDC;
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
 #ifdef _WIN32
-	QueryPerformanceCounter(&pVM->Timer);
+	QueryPerformanceCounter((LARGE_INTEGER*)&pVM->Timer);
 #endif
 #ifdef STAT_COUNTERS
 	pVM->Count = 0;

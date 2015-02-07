@@ -3,6 +3,7 @@
 #include "..\WebVM.h"
 #include "..\SysCall.h"
 #include "..\Media\SysCallMedia.h"
+#include "..\Render\RenderDefault.h"
 
 
 // SetRender(id, enable)

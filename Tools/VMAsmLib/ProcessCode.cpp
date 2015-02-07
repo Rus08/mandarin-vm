@@ -47,7 +47,7 @@ int CalcSizeAndOffset(struct Segment* pSeg)
 
 		if(pSeg->pStrings[i].id == -1){
 			// Invalid instruction
-			printf("Invalid instruction at line: %d.\n", i);
+			printf("Invalid instruction %s at line: %d.\n", pSeg->pStrings[i].instr_name, i);
 			return -1;
 		}
 	}

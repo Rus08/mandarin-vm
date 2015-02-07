@@ -1,13 +1,13 @@
 #include <stdint.h>
 #include <setjmp.h>
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 #endif
 #include <assert.h>
 
 #ifndef RENDER_ES20
-#include <GL/gl.h>
-#include "Render/RenderDefault.h"
+//#include <GL/gl.h>
+//#include "Render/RenderDefault.h"
 #endif
 
 #define REGISTER_MAX 32
@@ -99,8 +99,8 @@ struct VirtualMachine{
 	uint32_t Callbacks[2];
 	struct Render* pRender;
 #ifdef _WIN32
-	HDC hDC;
-	LARGE_INTEGER Timer;
+	void* hDC;
+	int64_t Timer;
 #else
 	uint64_t Timer;
 #endif
@@ -112,7 +112,7 @@ struct VirtualMachine{
 };
 
 uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize, uint8_t* pData, uint32_t DataSize,
-				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, HDC hDC);
+				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, void* hDC);
 uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount);
 uint32_t VMDestroy(struct VirtualMachine* pVM);
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name);

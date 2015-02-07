@@ -9,8 +9,8 @@ enum VM_RENDER_STATUS_CODE{
 
 struct Texture{
 	uint16_t width, height;
-	GLuint	 texid;
-	GLint	 format;
+	uint32_t /*GLuint*/	 texid;
+	int32_t /*GLint*/	 format;
 };
 
 enum PIXEL_FORMATS{
@@ -19,12 +19,10 @@ enum PIXEL_FORMATS{
 };
 
 struct Render{
-#ifdef _WIN32
-	HGLRC hRC;
-#endif
+	void* /*HGLRC*/ hRC;
 	uint16_t ScreenWidth;
 	uint16_t ScreenHeight;
-	GLuint Textures[128]; // TODO vector
+	uint32_t /*GLuint*/ Textures[128]; // TODO vector
 	uint32_t TexCount;
 };
 
@@ -42,7 +40,7 @@ struct Quad{
 
 
 uint32_t RenderProbe(struct Render* pRender);
-uint32_t RenderInit(struct Render* pRender, HDC hDC);
+uint32_t RenderInit(struct Render* pRender, void* hDC);
 uint32_t RenderCreateTexture(struct Render* pRender, struct Texture* pTexture);
 uint32_t RenderUpdateTexture(struct Render* pRender, struct Texture* pTexture, uint32_t offset, uint32_t size, uint8_t* pData);
 uint32_t RenderClear(struct Render* pRender, struct Rect* pRect, uint32_t Color);
@@ -50,5 +48,5 @@ uint32_t RenderClear(struct Render* pRender, struct Rect* pRect, uint32_t Color)
 uint32_t RenderSetTexture(struct Render* pRender, struct Texture* pTexture);
 uint32_t RenderDrawQuad(struct Render* pRender, struct Quad* pQuad);
 
-uint32_t RenderSwapBuffers(struct Render* pRender, HDC hDC);
-uint32_t RenderDeInit(struct Render* pRender, HDC hDC);
+uint32_t RenderSwapBuffers(struct Render* pRender, void* hDC);
+uint32_t RenderDeInit(struct Render* pRender, void* hDC);

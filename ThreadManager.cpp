@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #define PTW32_STATIC_LIB
 #include <pthread.h>
 #include "WebVM.h"

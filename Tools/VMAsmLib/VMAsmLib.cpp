@@ -188,7 +188,11 @@ int AsmFileToMemory(char* FileName, char** ppCode, int* pCodeSize, char** ppData
 	for(int i = 0; i < pCodeSeg->StringsNum; i++){
 		ParseString(&pCodeSeg->pStrings[i]);
 	}
-	CalcSizeAndOffset(pCodeSeg);
+	if(CalcSizeAndOffset(pCodeSeg) == -1){
+		// error
+		OnErrorExit(pSource, pCodeSeg, pDataSeg);
+		return -1;
+	}
 	// parse data
 	if(pDataSource != NULL){
 		memset(pDataSource, ' ', strlen(".DATA"));
@@ -197,7 +201,11 @@ int AsmFileToMemory(char* FileName, char** ppCode, int* pCodeSize, char** ppData
 		for(int i = 0; i < pDataSeg->StringsNum; i++){
 			ParseString(&pDataSeg->pStrings[i]);
 		}
-		CalcDataSizeAndOffset(pDataSeg, pCodeSeg->StringsNum);
+		if(CalcDataSizeAndOffset(pDataSeg, pCodeSeg->StringsNum) == -1){
+			// error
+			OnErrorExit(pSource, pCodeSeg, pDataSeg);
+			return -1;
+		}
 	}
 	if(ProcessCode(pSource, code_size, pCodeSeg, pDataSeg) != 0){
 		OnErrorExit(pSource, pCodeSeg, pDataSeg);
