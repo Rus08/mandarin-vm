@@ -11,12 +11,14 @@
 #endif
 
 #define REGISTER_MAX 32
+// options
 #define STACK_START_SIZE 16
 #define MAX_ALLOWED_GLOBAL_MEMORY 32 * 1048576
 #define MAX_ALLOWED_STACK_SIZE 128
 #define SLEEP_DURATION 20
 #define MAX_SLEEP_DURATION 5000
 #define MAX_ALLOWED_THREADS 10
+//#define CUSTOM_ALLOCATOR
 
 //#define STAT_COUNTERS
 
@@ -49,28 +51,14 @@ enum VM_CALLBACKS{
 	VM_ONKEYUP,
 };
 
-struct _LocalMemory{
-//	uint8_t* pMemory;
-	uint32_t MemorySize;
-};
-
 struct Call{
 	uint32_t regPC; // Program Counter
-	uint32_t regFLAGS;
-	struct _LocalMemory LocalMemory;
-};
-
-enum FLAGS{
-//	Int16BitFlag = 1,
-	ZeroFlag = 2,
-	SignFlag = 4,
 };
 
 struct _Registers{
 	uint32_t r[32];
 	uint32_t PC; // Program Counter
 	uint8_t  REQ; // Equal or not
-	uint32_t FLAGS;
 };
 
 struct VirtualMachine{
@@ -115,6 +103,9 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 				  uint32_t* pImport, uint32_t ImportSize, uint32_t* pExport, uint32_t ExportSize, void* hDC);
 uint32_t VMRun(struct VirtualMachine* pVM, uint32_t RunCount);
 uint32_t VMDestroy(struct VirtualMachine* pVM);
+void* vm_malloc(uint32_t size);
+void* vm_realloc(void* pMemory, uint32_t size);
+void  vm_free(void* pMemory);
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name);
 
 uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key);

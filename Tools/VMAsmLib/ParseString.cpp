@@ -30,6 +30,11 @@ int ParseString(struct String* pString)
 	}
 	pString->instr_name = pBegin;
 
+	if(pCurr == pEnd){
+	// no operand instruction
+		return 0;
+	}
+
 	// check for repeat modifier
 	if(*pCurr == '['){
 		char temp[16] = { 0 };

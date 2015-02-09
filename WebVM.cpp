@@ -43,7 +43,6 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	pVM->ExportSize = ExportSize;
 	memset(pVM->Registers.r, 0, sizeof(pVM->Registers.r));
 	pVM->Registers.PC = 0;
-	pVM->Registers.FLAGS = 0;
 	pVM->DispatchFlag = false;
 	// threads
 	SC = InitThreads(pVM);
@@ -78,29 +77,46 @@ uint32_t VMDestroy(struct VirtualMachine* pVM)
 		if(pVM->pRender->hRC != NULL){
 			RenderDeInit(pVM->pRender, pVM->hDC);
 		}
-		free(pVM->pRender);
+		vm_free(pVM->pRender);
 	}
 	// Clear threads
 	DeInitThreads(pVM);
 	// Clear code segment
 	if(pVM->pCode != NULL){
-		free(pVM->pCode);
+		vm_free(pVM->pCode);
 		pVM->pCode = NULL;
 		pVM->CodeSize = 0;
 	}
 	// Clear data segment
 	if(pVM->pGlobalMemory != NULL){
-		free(pVM->pGlobalMemory);
+		vm_free(pVM->pGlobalMemory);
 		pVM->pGlobalMemory = NULL;
 		pVM->GlobalMemorySize = 0;
 	}
 	// Clear call stack
-	free(pVM->pCallStack);
+	vm_free(pVM->pCallStack);
 	pVM->pCallStack = NULL;
 	pVM->CallStackSize = 0;
 
 	return VM_OK;
 }
+
+#ifndef CUSTOM_ALLOCATOR
+void* vm_malloc(uint32_t size)
+{
+	return malloc(size);
+}
+
+void* vm_realloc(void* pMemory, uint32_t size)
+{
+	return realloc(pMemory, size);
+}
+
+void vm_free(void* pMemory)
+{
+	return free(pMemory);
+}
+#endif
 
 uint32_t VMPrintInfo(struct VirtualMachine* pVM, char* file_name)
 {

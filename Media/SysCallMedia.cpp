@@ -52,7 +52,7 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 				return VM_DATA_ACCESS_VIOLATION;
 			}
 			struct DecodeStruct* pInfo;
-			pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
+			pInfo = (struct DecodeStruct*)vm_malloc(sizeof(DecodeStruct));
 			if(pInfo == NULL){
 				assert(false);
 				return VM_NOT_ENOUGH_MEMORY;
@@ -96,7 +96,7 @@ uint32_t SYSCALL SysDecodeImage(struct VirtualMachine* pVM)
 				assert(false);
 				return VM_DATA_ACCESS_VIOLATION;
 			}
-			struct DecodeStruct* pInfo = (struct DecodeStruct*)malloc(sizeof(DecodeStruct));
+			struct DecodeStruct* pInfo = (struct DecodeStruct*)vm_malloc(sizeof(DecodeStruct));
 			if(pInfo == NULL){
 				assert(false);
 				return VM_NOT_ENOUGH_MEMORY;

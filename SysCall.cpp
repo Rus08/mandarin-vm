@@ -36,7 +36,7 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 	if(mem_size == 0){
 		// free
 		if(pVM->GlobalMemorySize > 0){
-			free(pVM->pGlobalMemory);
+			vm_free(pVM->pGlobalMemory);
 			pVM->pGlobalMemory = 0;
 			pVM->GlobalMemorySize = 0;
 		}
@@ -44,7 +44,7 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 		return VM_OK;
 	}
 	if(mem_size <= MAX_ALLOWED_GLOBAL_MEMORY){
-		pVM->pGlobalMemory = (uint8_t*)realloc(pVM->pGlobalMemory, mem_size);
+		pVM->pGlobalMemory = (uint8_t*)vm_realloc(pVM->pGlobalMemory, mem_size);
 		if(pVM->pGlobalMemory != NULL){
 			pVM->GlobalMemorySize = mem_size;
 		}else{
@@ -102,7 +102,7 @@ uint32_t SYSCALL SysDebugOutput(struct VirtualMachine* pVM)
 		assert(false);
 		return VM_DATA_ACCESS_VIOLATION;
 	}
-	pTemp = (uint8_t*)malloc(size + 2);
+	pTemp = (uint8_t*)vm_malloc(size + 2);
 	if(pTemp == NULL){
 		assert(false);
 		return VM_NOT_ENOUGH_MEMORY;
@@ -113,7 +113,7 @@ uint32_t SYSCALL SysDebugOutput(struct VirtualMachine* pVM)
 #ifdef _WIN32
 	OutputDebugStringA((char*)pTemp);
 #endif
-	free(pTemp);
+	vm_free(pTemp);
 
 	return VM_OK;
 }

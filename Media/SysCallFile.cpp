@@ -69,7 +69,7 @@ uint32_t SYSCALL SysFileManager(struct VirtualMachine* pVM)
 			uint32_t file_struct_addr = pVM->Registers.r[2];
 			struct FileStruct* pStruct;
 			
-			pStruct = (struct FileStruct*)malloc(sizeof(struct FileStruct));
+			pStruct = (struct FileStruct*)vm_malloc(sizeof(struct FileStruct));
 
 			if(((uint64_t)file_struct_addr + sizeof(struct UserFileStruct)) > pVM->GlobalMemorySize){
 				assert(false);

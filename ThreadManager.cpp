@@ -8,7 +8,7 @@
 
 inline uint32_t InitThreads(struct VirtualMachine* pVM)
 {
-	pVM->pThreads = (uint8_t*)malloc(sizeof(pthread_t) * MAX_ALLOWED_THREADS);
+	pVM->pThreads = (uint8_t*)vm_malloc(sizeof(pthread_t) * MAX_ALLOWED_THREADS);
 	if(pVM->pThreads == NULL){
 		assert(false);
 		return VM_NOT_ENOUGH_MEMORY;
@@ -90,7 +90,7 @@ inline uint32_t DeInitThreads(struct VirtualMachine* pVM)
 				pVM->ThreadAlive[i] = false;
 			}
 		}
-		free(pVM->pThreads);
+		vm_free(pVM->pThreads);
 	}
 	return VM_OK;
 }

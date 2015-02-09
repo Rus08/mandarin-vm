@@ -28,7 +28,7 @@ void jpeg_sleep(j_decompress_ptr cinfo, struct DecodeStruct* pInfo)
 		pInfo->pUser->status_code = VM_DECODER_REACHED_MAX_SLEEP_TIME;
 		// exit
 		struct VirtualMachine* pVM = pInfo->pVM;
-		free(pInfo);
+		vm_free(pInfo);
 		ThreadExit(pVM, false, NULL);
 	}
 #ifdef _WIN32
@@ -96,7 +96,7 @@ void error_exit(j_common_ptr cinfo)
 	jpeg_destroy_decompress((j_decompress_ptr)cinfo);
 	// exit
 	struct VirtualMachine* pVM = pInfo->pVM;
-	free(pInfo);
+	vm_free(pInfo);
 	ThreadExit(pVM, false, NULL);
 }
 
@@ -158,7 +158,7 @@ void* GetJPEGInfo(void* pArg)
 	/* Step 8: Release JPEG decompression object */
 	jpeg_destroy_decompress(&cinfo);
 	pInfo->pUser->status_code = VM_DECODER_OK;
-	free(pInfo);	
+	vm_free(pInfo);	
 
 	return NULL;
 }
@@ -215,7 +215,7 @@ void* DecodeJPEG(void* pArg)
 	pInfo->pUser->status_code = VM_DECODER_OK;
 
 	ThreadExit(pInfo->pVM, true, NULL);
-	free(pInfo);
+	vm_free(pInfo);
 
 	return NULL;
 }

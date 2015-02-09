@@ -48,11 +48,11 @@ uint32_t SYSCALL SysSetRender(struct VirtualMachine* pVM)
 			return VM_OK;
 		}else{
 			// probe to enable default render
-			pVM->pRender = (struct Render*)malloc(sizeof(struct Render));
+			pVM->pRender = (struct Render*)vm_malloc(sizeof(struct Render));
 			memset(pVM->pRender, 0, sizeof(struct Render));
 			
 			if(RenderInit(pVM->pRender, pVM->hDC) != VM_OK){
-				free(pVM->pRender);
+				vm_free(pVM->pRender);
 				pVM->pRender = NULL;
 				pVM->Registers.r[0] = VM_RENDER_NOT_AVAILABLE;
 			}else{
@@ -69,7 +69,7 @@ uint32_t SYSCALL SysSetRender(struct VirtualMachine* pVM)
 		}else{
 			// probe to disable default render
 			RenderDeInit(pVM->pRender, pVM->hDC);
-			free(pVM->pRender);
+			vm_free(pVM->pRender);
 			pVM->pRender = NULL;
 			pVM->Registers.r[0] = VM_RENDER_OK;
 			return VM_OK;

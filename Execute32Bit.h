@@ -482,7 +482,7 @@ enum InstructionsId{
 		if(pVM->CallStackSize >= MAX_ALLOWED_STACK_SIZE){\
 			return VM_STACK_IS_TOO_BIG;\
 		}\
-		struct Call* pCallStack = (Call*)realloc(pVM->pCallStack, sizeof(Call) * pVM->CallStackSize);\
+		struct Call* pCallStack = (Call*)vm_realloc(pVM->pCallStack, sizeof(Call) * pVM->CallStackSize);\
 		if(pCallStack == NULL){\
 			assert(false);\
 			return VM_NOT_ENOUGH_MEMORY;\
