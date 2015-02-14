@@ -3,8 +3,8 @@
 #include <curl.h>
 #define PTW32_STATIC_LIB
 #include <pthread.h>
-#include "../../WebVM.h"
-#include "../../Media/SysCallFile.h"
+#include <WebVM.h>
+#include <Media/SysCallFile.h>
 
 
 uint32_t VMFileManagerInit()
@@ -103,4 +103,11 @@ uint32_t VMFileManagerCloseHandle(uint32_t handle)
 {
 	curl_easy_cleanup((CURL*)handle);
 	return VM_FILE_OK;
+}
+
+uint32_t VMFileManagerDeInit()
+{
+	curl_global_cleanup();
+
+	return VM_OK;
 }

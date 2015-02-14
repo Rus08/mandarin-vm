@@ -58,3 +58,7 @@ struct DecodeStruct{
 uint32_t GetImageInfo(struct VirtualMachine* pVM, struct UserFileStruct* pFile, struct DecodeStruct* pInfo, struct ImageInfo* pImageInfo);
 void* GetJPEGInfo(void* pInfo);
 void* DecodeJPEG(void* pInfo);
+
+
+uint32_t VMFontManagerInit();
+uint32_t VMFontManagerDeInit();

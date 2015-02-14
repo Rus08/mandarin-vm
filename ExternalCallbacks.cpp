@@ -20,9 +20,11 @@ uint32_t VMOnKeyDown(struct VirtualMachine* pVM, uint32_t Key)
 	struct CallbacksBuffer* pBuf = 0;
 
 	if(pVM->DispatchFlag == false){
+		assert(false);
 		return VM_NOTINTIME_CALLBACK_CALL;
 	}
 	if(pVM->Callbacks[VM_ONKEYDOWN] == 0){
+		assert(false);
 		return VM_CALLBACK_NOT_REGISTERED;
 	}
 	
@@ -43,10 +45,12 @@ uint32_t VMOnKeyUp(struct VirtualMachine* pVM, uint32_t Key)
 	struct CallbacksBuffer* pBuf = 0;
 
 	if(pVM->DispatchFlag == false){
+		assert(false);
 		return VM_NOTINTIME_CALLBACK_CALL;
 	}
 
 	if(pVM->Callbacks[VM_ONKEYUP] == 0){
+		assert(false);
 		return VM_CALLBACK_NOT_REGISTERED;
 	}
 	

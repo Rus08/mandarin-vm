@@ -9,6 +9,8 @@
 #include "ThreadManager.h"
 #include "SysCall.h"
 #include "Render/RenderDefault.h"
+#include "Media/SysCallFile.h"
+#include "Media/SysCallMedia.h"
 
 #ifdef STAT_COUNTERS
 #include "Tools/VMAsmLib/Instructions.h"
@@ -54,13 +56,26 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 	// callbacks
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
 	pVM->ActiveCallbacksCount = 0;
-#ifdef _WIN32
-	QueryPerformanceCounter((LARGE_INTEGER*)&pVM->Timer);
-#endif
+
+	// init file manager
+	SC = VMFileManagerInit();
+	if(SC != VM_OK){
+		assert(false);
+		return SC;
+	}
+	// init font manager
+	SC = VMFontManagerInit();
+	if(SC != VM_OK){
+		assert(false);
+		return SC;
+	}
 #ifdef STAT_COUNTERS
 	pVM->Count = 0;
 	memset(pVM->ExecTable, 0, sizeof(pVM->ExecTable));
 	memset(pVM->RegistersHit, 0, sizeof(pVM->RegistersHit));
+#endif
+#ifdef _WIN32
+	QueryPerformanceCounter((LARGE_INTEGER*)&pVM->Timer);
 #endif
 	// start check pass
 	SC = CheckPass(pVM);
@@ -74,6 +89,10 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 
 uint32_t VMDestroy(struct VirtualMachine* pVM)
 {
+	// Clear font manager
+	VMFontManagerDeInit();
+	// Clear file manager
+	VMFileManagerDeInit();
 	// Clear render
 	if(pVM->pRender != NULL){
 		if(pVM->pRender->hRC != NULL){

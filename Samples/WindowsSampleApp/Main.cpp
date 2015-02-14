@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
-#include "../../WebVM.h"
+#include <WebVM.h>
 
 
 HINSTANCE hInstance;
@@ -14,27 +14,27 @@ char* ErrorResolveTable[] = {
 	"VM_OK",
 	"VM_COMPLETE",
 	"VM_DISPATCH",
+// instructions
 	"VM_INVALID_REPEAT_MODIFIER",
 	"VM_INVALID_OPCODE",
-	"VM_INVALID_INSTRUCTION_ALIGN",
-	"VM_INVALID_ADDRESS_ALIGN",
 	"VM_INVALID_LAST_INSTRUCTION",
 	"VM_CODE_ACCESS_VIOLATION",
 	"VM_DATA_ACCESS_VIOLATION",
 	"VM_DIVIDE_BY_ZERO",
 	"VM_INVALID_SYSCALL",
+// callbacks
 	"VM_CALLBACK_NOT_REGISTERED",
 	"VM_INVALID_CALLBACK",
 	"VM_NOTINTIME_CALLBACK_CALL",
 	"VM_STACK_IS_TOO_BIG",
+	"VM_DATA_SECTOR_IS_TOO_BIG",
 	"VM_NOT_ENOUGH_MEMORY",
+	"VM_TOO_MANY_THREADS",
 };
 
 char* GetErrorText(uint32_t id){
 	return ErrorResolveTable[id];
 }
-
-uint32_t VMFileManagerInit();
 
 //#endif
 
@@ -152,7 +152,6 @@ int WINAPI WinMain (HINSTANCE hInstanace, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Create virtual machine
 	hDC = GetDC(hwnd);
 	SC = VMCreate(&VM, pCode, file_size, pData, data_size, NULL, 0, NULL, 0, hDC);
-	VMFileManagerInit();
 	
 	if(SC != VM_OK){
 		char temp[64] = "";

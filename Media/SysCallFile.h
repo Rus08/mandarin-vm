@@ -34,8 +34,10 @@ struct FileStruct{
 };
 
 
+uint32_t VMFileManagerInit();
 uint32_t VMFileManagerGetHandle(void);
 uint32_t VMFileManagerSetFlags(uint32_t handle, uint32_t flag_description, uint32_t flag_value);
 uint32_t VMFileManagerReadFile(uint32_t handle, struct FileStruct* pInfo);
 uint32_t VMFileManagerWriteFile(uint32_t handle, struct FileStruct* pInfo);
 uint32_t VMFileManagerCloseHandle(uint32_t handle);
+uint32_t VMFileManagerDeInit();

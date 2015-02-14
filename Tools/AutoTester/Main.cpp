@@ -4,8 +4,8 @@
 #define PTW32_STATIC_LIB
 #include <pthread.h>
 #include <windows.h>
-#include "../../WebVM.h"
-#include "../VMAsmLib/VMAsmLib.h"
+#include <WebVM.h>
+#include <Tools/VMAsmLib/VMAsmLib.h>
 
 #include <time.h>
 
@@ -36,6 +36,11 @@ bool not_break = false;
 int	 error_count = 0;
 
 
+uint32_t VMFileManagerInit(void)
+{
+	return VM_OK;
+}
+
 uint32_t VMFileManagerGetHandle(void)
 {
 	return VM_OK;
@@ -53,6 +58,21 @@ uint32_t VMFileManagerWriteFile(uint32_t handle, struct FileStruct* pInfo)
 	return VM_OK;
 }
 uint32_t VMFileManagerCloseHandle(uint32_t handle)
+{
+	return VM_OK;
+}
+
+uint32_t VMFileManagerDeInit(void)
+{
+	return VM_OK;
+}
+
+uint32_t VMFontManagerInit(void)
+{
+	return VM_OK;
+}
+
+uint32_t VMFontManagerDeInit(void)
 {
 	return VM_OK;
 }
