@@ -51,7 +51,9 @@ uint32_t VMCreate(struct VirtualMachine* pVM, uint8_t* pCode, uint32_t CodeSize,
 		return SC;
 	}
 	pVM->hDC = hDC;
+	// callbacks
 	memset(pVM->Callbacks, 0, sizeof(pVM->Callbacks));
+	pVM->ActiveCallbacksCount = 0;
 #ifdef _WIN32
 	QueryPerformanceCounter((LARGE_INTEGER*)&pVM->Timer);
 #endif

@@ -41,6 +41,12 @@ enum DoubleOps{
 	VM_DOUBLE_FTOD,
 };
 
+struct CallbacksBuffer{
+	uint32_t vm_key_down_size;
+	uint8_t vm_key_down_buf[16];
+	uint32_t vm_key_up_size;
+	uint8_t vm_key_up_buf[16];
+};
 
 
 //uint32_t SysCall(struct VirtualMachine* pVM, uint32_t SysCallId);

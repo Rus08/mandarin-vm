@@ -6,7 +6,6 @@ struct SysCall{
 
 struct SysCall SysCalls[] = {
 	"SetGlobalMemory",
-	"SetLocalMemory",
 	"RegisterCallback",
 	"UnRegisterCallback",
 	"DispatchCallbacks",

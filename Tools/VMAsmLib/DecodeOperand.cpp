@@ -72,7 +72,11 @@ int DecodeOperand(char* Op, unsigned int IntMaxSize, int* pLastopintflag, bool s
 				return -1;
 			}
 			if(pCodeSeg != NULL){
-				*(int32_t*)&op = ((int32_t)GetLabelAddr(Op, pCodeSeg) - *(int32_t*)&StringOffset) / 4 + IntMaxSize / 2 + 1;
+				if(signflag == false){
+					op = GetLabelAddr(Op, pCodeSeg);
+				}else{
+					*(int32_t*)&op = ((int32_t)GetLabelAddr(Op, pCodeSeg) - *(int32_t*)&StringOffset) / 4 + IntMaxSize / 2 + 1;
+				}
 			}
 			if(op == -1 && pDataSeg != NULL){
 				op = GetLabelAddr(Op, pDataSeg);

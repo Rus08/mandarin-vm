@@ -84,7 +84,10 @@ struct VirtualMachine{
 	uint8_t* pThreads;
 	bool	 ThreadAlive[MAX_ALLOWED_THREADS];
 	uint32_t ThreadsNum;
+// callbacks
 	uint32_t Callbacks[2];
+	uint32_t CallbacksBuffersOffset;
+	uint32_t ActiveCallbacksCount;
 	struct Render* pRender;
 #ifdef _WIN32
 	void* hDC;

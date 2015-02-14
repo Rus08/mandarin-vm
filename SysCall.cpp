@@ -32,6 +32,14 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 		pVM->Registers.r[0] = VM_SYSCALL_BLOCKED_BY_THREADS;
 		return VM_OK;
 	}
+	if(mem_size < pVM->GlobalMemorySize){
+		// check for callbacks buffs and etc
+		if(pVM->ActiveCallbacksCount > 0 && mem_size < ((uint64_t)pVM->CallbacksBuffersOffset + sizeof(CallbacksBuffer))){
+			// user trying to free memory which used by callbacks buffers
+			pVM->Registers.r[0] = VM_SYSCALL_BLOCKED_BY_THREADS;
+			return VM_OK;
+		}
+	}
 
 	if(mem_size == 0){
 		// free
@@ -57,6 +65,11 @@ uint32_t SYSCALL SysSetGlobalMemory(struct VirtualMachine* pVM)
 	return VM_OK;
 }
 
+/*
+r0 - callback number
+r1 - function pointer
+r2 - callbacks buffer pointer
+*/
 uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM)
 {
 	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
@@ -66,6 +79,15 @@ uint32_t SYSCALL SysRegisterCallback(struct VirtualMachine* pVM)
 	if(((uint64_t)pVM->Registers.r[1] + 4) > pVM->CodeSize){
 		assert(false);
 		return VM_CODE_ACCESS_VIOLATION;
+	}
+	if(((uint64_t)pVM->Registers.r[2] + sizeof(CallbacksBuffer)) > pVM->GlobalMemorySize){
+		// check if we have place for buffer
+		assert(false);
+		return VM_DATA_ACCESS_VIOLATION;
+	}
+	pVM->CallbacksBuffersOffset = pVM->Registers.r[2];
+	if(pVM->Callbacks[pVM->Registers.r[0]] == 0){
+		pVM->ActiveCallbacksCount = pVM->ActiveCallbacksCount + 1;
 	}
 	pVM->Callbacks[pVM->Registers.r[0]] = pVM->Registers.r[1];
 	pVM->Registers.r[0] = VM_SYSCALL_OK;
@@ -78,6 +100,9 @@ uint32_t SYSCALL SysUnRegisterCallback(struct VirtualMachine* pVM)
 	if(pVM->Registers.r[0] >= (sizeof(pVM->Callbacks) / sizeof(uint32_t))){
 		assert(false);
 		return VM_INVALID_CALLBACK;
+	}
+	if(pVM->Callbacks[pVM->Registers.r[0]] != 0){
+		pVM->ActiveCallbacksCount = pVM->ActiveCallbacksCount - 1;
 	}
 	pVM->Callbacks[pVM->Registers.r[0]] = 0;
 

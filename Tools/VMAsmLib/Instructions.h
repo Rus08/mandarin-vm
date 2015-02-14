@@ -105,14 +105,14 @@ struct Instruction Instructions[] = {
 	"jmp",  4, 1, 16777215, false, true, false, false, false, false,
 	"jmpi", 4, 1, 16777215, true, true, false, true, false, false,
 /////////////////
+	"syscall", 4, 1, 16777215, false, false, false, true, false, false,
+/////////////////
 	I2MEMDEF("load"),
 	I2MEMDEF("loadw"),
 	I2MEMDEF("loadb"),
 	I2MEMDEF("store"),
 	I2MEMDEF("storew"),
 	I2MEMDEF("storeb"),
-/////////////////
-	"syscall", 4, 1, 16777215, false, false, false, true, false, false,
 ///////////////////
 	"memcpy", 4, 3, 16383, false, false, true, false, false, false,
 	"memcpyi", 4, 3, 16383, false, false, true, true, false, false,
