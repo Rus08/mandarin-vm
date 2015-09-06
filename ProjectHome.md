@@ -1,0 +1,1 @@
+Mandarin VM is a project of Virtual Machine mainly for use in Web applications to replace HTML, CSS, Java Script and Adobe Flash all in one safer and faster virtual machine.
